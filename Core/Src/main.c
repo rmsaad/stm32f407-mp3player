@@ -35,11 +35,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define PI 3.14159f
-
-//Sample rate and Output freq
-#define SAMPLESIZE      16000
-#define WAV_FILE1       "audio_sample.wav"
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -70,8 +65,6 @@ void MX_USB_HOST_Process(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-extern __IO BUFFER_StateTypeDef buffer_offset;
-extern uint8_t Audio_Buffer[];
 
 /* USER CODE END 0 */
 
@@ -134,7 +127,6 @@ int main(void)
 			mp3player_start();
 
 		}
-
       	break;
 
       case APPLICATION_DISCONNECT:
