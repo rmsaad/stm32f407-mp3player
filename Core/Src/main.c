@@ -51,7 +51,7 @@ SPI_HandleTypeDef hspi1;
 
 /* USER CODE BEGIN PV */
 extern ApplicationTypeDef Appli_state;
-
+extern int PressCount;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -241,9 +241,12 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+
+  HAL_NVIC_SetPriority((IRQn_Type)(EXTI0_IRQn), 15, 0);
+  HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI0_IRQn));
 
   /*Configure GPIO pin : BOOT1_Pin */
   GPIO_InitStruct.Pin = BOOT1_Pin;
@@ -283,6 +286,19 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void EXTI0_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+	HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
+	if (PressCount == 0){
+		BSP_AUDIO_OUT_Pause();
+		PressCount = 1;
+	}
+	else{
+		BSP_AUDIO_OUT_Resume();
+		PressCount = 0;
+	}
+}
 
 /* USER CODE END 4 */
 
