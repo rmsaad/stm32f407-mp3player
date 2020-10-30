@@ -9,7 +9,7 @@
 #include "ff.h"
 #include "string.h"
 #include "stm32f4_discovery_audio.h"
-
+#define MINIMP3_NO_STDIO
 #define MINIMP3_IMPLEMENTATION
 #include "minimp3.h"
 #include "minimp3_ex.h"
@@ -45,65 +45,7 @@ static __IO uint32_t AudioRemSize = 0;
 __IO BUFFER_StateTypeDef buffer_offset = BUFFER_OFFSET_NONE;
 static uint32_t MP3DataLength = 0;
 
-/**
-  * @brief  LEGACY : plays a fully decoded .raw mp3 file
-  * @param  None
-  * @retval None
-  */
-void mp3_rawplayback(uint32_t samplerate){
 
-  unsigned int bytesread = 0;
-  /* Initialize Wave player (Codec, DMA, I2C) */
-  if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, samplerate) != 0)
-  {
-	Error_Handler();
-  }
-
-  /* Get Data from USB Flash Disk */
-  f_lseek(&FileRead, 0);
-  f_read (&FileRead, &Audio_Buffer[0], AUDIO_BUFFER_SIZE, &bytesread);
-  AudioRemSize = MP3DataLength - bytesread;
-
-  /* Start playing Wave */
-  BSP_AUDIO_OUT_Play((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE);
-
-  /* Check if the device is connected.*/
-  while((AudioRemSize != 0))
-  {
-
-	  bytesread = 0;
-
-	  if(buffer_offset == BUFFER_OFFSET_HALF)
-	  {
-
-		f_read(&FileRead,
-			   &Audio_Buffer[0],
-			   AUDIO_BUFFER_SIZE/2,
-			   (void *)&bytesread);
-
-		  buffer_offset = BUFFER_OFFSET_NONE;
-	  }
-
-	  if(buffer_offset == BUFFER_OFFSET_FULL)
-	  {
-		f_read(&FileRead,
-			   &Audio_Buffer[AUDIO_BUFFER_SIZE/2],
-			   AUDIO_BUFFER_SIZE/2,
-			   (void *)&bytesread);
-
-		  buffer_offset = BUFFER_OFFSET_NONE;
-	  }
-	  if(AudioRemSize > (AUDIO_BUFFER_SIZE / 2))
-	  {
-		AudioRemSize -= bytesread;
-	  }
-	  else
-	  {
-		AudioRemSize = 0;
-	  }
-	}
-
-}
 
 /**
   * @brief  fills the input buffer with mp3 data at the beginning of mp3 decoding
@@ -178,27 +120,47 @@ void mp3_playback(uint32_t samplerate){
 }
 
 /**
-  * @brief  Opens mp3 file and calculates track length in seconds based on total samples
-  * @param  None
-  * @retval time of the current track being decoded
+  * @brief  custom minimp3 io read function
+  * @param  f_read buffer
+  * @param  data size in bytes
+  * @param  mp3 file pointer
+  * @retval bytes read
   */
-uint32_t find_track_length(){
-	uint32_t bytesread = 0, samplesCount = 0, bufPos = 0;
-	while(1){
-		bytesread = 0;
-		samplesCount += mp3dec_decode_frame(&mp3d, (const uint8_t*) &input_data[0], MP3_BUF, 0, &info); 									/*count the number of samples*/
-		memmove(&input_data[0], &input_data[info.frame_bytes], (MP3_BUF - info.frame_bytes));      											/*move input buffer to to correct position*/
-		f_read(&FileRead, &input_data[MP3_BUF - info.frame_bytes], info.frame_bytes, (unsigned int*) &bytesread);  							/*read more data into end of input buffer*/
+size_t minimp3_io_read(void* buf, size_t size, void* user_data) {
+	unsigned int br;
+	f_read((FIL*) user_data, buf, (unsigned int) size, (unsigned int*) &br);
+    return (size_t) br;
+}
 
-		if(bytesread == 0){																													/*if no more data can be read into the input buffer*/
-			while(info.frame_bytes){																											/*while there are still mp3 frames in buffer*/
-				bufPos += info.frame_bytes;																										/*track current frame position*/
-				samplesCount += mp3dec_decode_frame(&mp3d, (const uint8_t*) &input_data[bufPos], MP3_BUF - bufPos, 0, &info);					/*continue counting final samples in the buffer*/
-			}
-		}
-		if (info.frame_bytes <= 0) break;																									/*break loop when there are no frames left*/
+/**
+  * @brief  custom minimp3 io seek function
+  * @param  seek postion
+  * @param  mp3 file pointer
+  * @retval FRESULT code
+  */
+static int minimp3_io_seek(uint64_t position, void* user_data){
+	return f_lseek((FIL*) user_data, position);
+}
+
+/**
+  * @brief  finds the track length and sample rate of the mp3
+  * @param  None
+  * @retval track length and sample rate
+  */
+static int minimp3_find_info(){
+
+	mp3dec_ex_t dec;
+	mp3dec_io_t io;
+	io.read = minimp3_io_read;
+	io.seek = minimp3_io_seek;
+	io.read_data = io.seek_data = &FileRead;
+
+	if (mp3dec_ex_open_cb(&dec, &io, MP3D_SEEK_TO_SAMPLE)){
+		/* error */
 	}
-	return samplesCount/info.hz;
+
+	mp3dec_ex_close(&dec);
+	return dec.samples;			// fix later
 }
 
 /**
@@ -213,7 +175,7 @@ void mp3player_start(void){
 	if(f_opendir(&Directory, path) == FR_OK)
 	{
 
-		mp3filename = MP3_NAME3;
+		mp3filename = MP3_NAME4;
 
 		/* Open the MP3 file to be played */
 		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK)
@@ -223,10 +185,9 @@ void mp3player_start(void){
 		else
 		{
 
+
 			mp3dec_init(&mp3d);
 			MP3DataLength = f_size(&FileRead);
-			//int a = find_track_length();
-			//HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
 			mp3_playback(44100);
 
 		}
@@ -268,4 +229,88 @@ void BSP_AUDIO_OUT_Error_CallBack(void)
 
   /* Could also generate a system reset to recover from the error */
   /* .... */
+}
+
+/**
+  * @brief  LEGACY : plays a fully decoded .raw mp3 file
+  * @param  None
+  * @retval None
+  */
+void mp3_rawplayback(uint32_t samplerate){
+
+  unsigned int bytesread = 0;
+  /* Initialize Wave player (Codec, DMA, I2C) */
+  if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, samplerate) != 0)
+  {
+	Error_Handler();
+  }
+
+  /* Get Data from USB Flash Disk */
+  f_lseek(&FileRead, 0);
+  f_read (&FileRead, &Audio_Buffer[0], AUDIO_BUFFER_SIZE, &bytesread);
+  AudioRemSize = MP3DataLength - bytesread;
+
+  /* Start playing Wave */
+  BSP_AUDIO_OUT_Play((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE);
+
+  /* Check if the device is connected.*/
+  while((AudioRemSize != 0))
+  {
+
+	  bytesread = 0;
+
+	  if(buffer_offset == BUFFER_OFFSET_HALF)
+	  {
+
+		f_read(&FileRead,
+			   &Audio_Buffer[0],
+			   AUDIO_BUFFER_SIZE/2,
+			   (void *)&bytesread);
+
+		  buffer_offset = BUFFER_OFFSET_NONE;
+	  }
+
+	  if(buffer_offset == BUFFER_OFFSET_FULL)
+	  {
+		f_read(&FileRead,
+			   &Audio_Buffer[AUDIO_BUFFER_SIZE/2],
+			   AUDIO_BUFFER_SIZE/2,
+			   (void *)&bytesread);
+
+		  buffer_offset = BUFFER_OFFSET_NONE;
+	  }
+	  if(AudioRemSize > (AUDIO_BUFFER_SIZE / 2))
+	  {
+		AudioRemSize -= bytesread;
+	  }
+	  else
+	  {
+		AudioRemSize = 0;
+	  }
+	}
+
+}
+
+/**
+  * @brief  LEGACY: Opens mp3 file and calculates track length in seconds based on total samples
+  * @param  None
+  * @retval time of the current track being decoded
+  */
+uint32_t find_track_length(){
+	uint32_t bytesread = 0, samplesCount = 0, bufPos = 0;
+	while(1){
+		bytesread = 0;
+		samplesCount += mp3dec_decode_frame(&mp3d, (const uint8_t*) &input_data[0], MP3_BUF, 0, &info); 									/*count the number of samples*/
+		memmove(&input_data[0], &input_data[info.frame_bytes], (MP3_BUF - info.frame_bytes));      											/*move input buffer to to correct position*/
+		f_read(&FileRead, &input_data[MP3_BUF - info.frame_bytes], info.frame_bytes, (unsigned int*) &bytesread);  							/*read more data into end of input buffer*/
+
+		if(bytesread == 0){																													/*if no more data can be read into the input buffer*/
+			while(info.frame_bytes){																											/*while there are still mp3 frames in buffer*/
+				bufPos += info.frame_bytes;																										/*track current frame position*/
+				samplesCount += mp3dec_decode_frame(&mp3d, (const uint8_t*) &input_data[bufPos], MP3_BUF - bufPos, 0, &info);					/*continue counting final samples in the buffer*/
+			}
+		}
+		if (info.frame_bytes <= 0) break;																									/*break loop when there are no frames left*/
+	}
+	return samplesCount/info.hz;
 }
