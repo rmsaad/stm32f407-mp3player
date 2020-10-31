@@ -34,6 +34,8 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 #include "stm32f4_discovery_audio.h"
 #include "mp3player.h"
+#include "lcm1602a_driver.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
