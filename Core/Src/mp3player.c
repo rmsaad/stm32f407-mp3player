@@ -22,7 +22,7 @@
 
 /*MP3 BUFFER SIZES*/
 #define MP3_BUF             (16 * 1024)
-#define AUDIO_BUFFER_SIZE	9216
+#define AUDIO_BUFFER_SIZE	( 8 * 1152)
 
 /* Variable used by FatFs*/
 FIL FileRead;
@@ -37,6 +37,7 @@ char input_data[MP3_BUF];
 
 /*decoded audio pcm data*/
 uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
+
 int PressCount = 0;
 /*mp3 play-back variables*/
 uint64_t samples;
@@ -134,7 +135,7 @@ size_t minimp3_io_read(void* buf, size_t size, void* user_data) {
 
 /**
   * @brief  custom minimp3 io seek function
-  * @param  seek postion
+  * @param  seek position
   * @param  mp3 file pointer
   * @retval FRESULT code
   */

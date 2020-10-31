@@ -1,9 +1,7 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
-  /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -21,126 +19,82 @@
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "fatfs.h"
 #include "usb_host.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 #include "stm32f4_discovery_audio.h"
 #include "mp3player.h"
-/* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
-
 I2S_HandleTypeDef hi2s3;
-
 SPI_HandleTypeDef hspi1;
 
-/* USER CODE BEGIN PV */
 extern ApplicationTypeDef Appli_state;
 extern int PressCount;
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 void MX_USB_HOST_Process(void);
 
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
 /* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
-  /* USER CODE BEGIN 1 */
+int main(void){
 
-  /* USER CODE END 1 */
+	/* MCU Configuration--------------------------------------------------------*/
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_USB_HOST_Init();
+	MX_FATFS_Init();
 
-  /* USER CODE BEGIN Init */
+	uint8_t isDriveMounted = 0;
 
-  /* USER CODE END Init */
+	/* Infinite loop */
+	while (1){
 
-  /* Configure the system clock */
-  SystemClock_Config();
+		MX_USB_HOST_Process();
 
-  /* USER CODE BEGIN SysInit */
+		switch(Appli_state){
+			case APPLICATION_IDLE:
+				break;
 
-  /* USER CODE END SysInit */
+			case APPLICATION_START:
+				HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
+				break;
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USB_HOST_Init();
-  MX_FATFS_Init();
-  /* USER CODE BEGIN 2 */
-  uint8_t isDriveMounted = 0;
+			case APPLICATION_READY:
+				if(!isDriveMounted){
+					f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0);
+					isDriveMounted = 1;
+					mp3player_start();
+				}
+				break;
 
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
-    MX_USB_HOST_Process();
-
-    /* USER CODE BEGIN 3 */
-    switch(Appli_state){
-
-      case APPLICATION_IDLE:
-      	break;
-
-      case APPLICATION_START:
-		HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
-		break;
-
-      case APPLICATION_READY:
-		if(!isDriveMounted){
-			f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0);
-			isDriveMounted = 1;
-			mp3player_start();
-
-		}
-      	break;
-
-      case APPLICATION_DISCONNECT:
-      	HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_RESET);
-      	break;
-    }
-
-  }
-  /* USER CODE END 3 */
+			case APPLICATION_DISCONNECT:
+				HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_RESET);
+				break;
+	  }
+	}
 }
 
 /**
@@ -290,8 +244,10 @@ static void MX_GPIO_Init(void)
 
 }
 
-/* USER CODE BEGIN 4 */
-
+/**
+  * @brief  Pause/Resume mp3 play-back
+  * @retval None
+  */
 void EXTI0_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 	HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
@@ -305,18 +261,14 @@ void EXTI0_IRQHandler(void){
 	}
 }
 
-/* USER CODE END 4 */
 
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
+void Error_Handler(void){
   /* User can add his own implementation to report the HAL error return state */
 
-  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
