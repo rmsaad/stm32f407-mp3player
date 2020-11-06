@@ -9,6 +9,7 @@
 #include "ff.h"
 #include "string.h"
 #include "stm32f4_discovery_audio.h"
+
 #define MINIMP3_NO_STDIO
 #define MINIMP3_IMPLEMENTATION
 #include "minimp3.h"
@@ -24,7 +25,7 @@
 #define MP3_BUF             (16 * 1024)
 #define AUDIO_BUFFER_SIZE	( 8 * 1152)
 
-/* Variable used by FatFs*/
+/*FatFs variables*/
 FIL FileRead;
 DIR Directory;
 
@@ -38,7 +39,9 @@ char input_data[MP3_BUF];
 /*decoded audio pcm data*/
 uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
 
-int PressCount = 0;
+/*Display variables*/
+DisplayInfoTypeDef display_info = {0, 0, 0, 0, "", ""};
+
 /*mp3 play-back variables*/
 uint64_t samples;
 uint8_t decodingfinished = 1;
@@ -47,10 +50,38 @@ __IO BUFFER_StateTypeDef buffer_offset = BUFFER_OFFSET_NONE;
 static uint32_t MP3DataLength = 0;
 
 
+/**
+  * @brief  Convert seconds from int to char[], in format of mm:ss
+  * @param  seconds		:	time in seconds
+  * @param  time_string	:	time in mm:ss char format
+  * @retval None
+  */
+void convert_to_minutes(uint32_t seconds, char time_string[12]){
+	uint32_t minutes = seconds/60;
+	seconds = seconds - ((seconds/60) * 60);
+
+	sprintf(time_string, "%02ld:%02ld", minutes, seconds);
+}
+
+/**
+  * @brief  update the LCM1602a with current information
+  * @param  None
+  * @retval None
+  */
+void update_display(){
+
+	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
+	LCM1602a_Write8_Data(0b00000001, 0, 0);																									/*clear the display*/
+	LCM1602a_Write8_Data(0b11000000, 0, 0);																									/*next line on display*/
+	LCM1602a_Write8_Message((char*) display_info.cur_time);
+	LCM1602a_Write8_Message((char*) "/");
+	LCM1602a_Write8_Message((char*) display_info.tot_time);
+	LCM1602a_Write8_Data(0b11111111, 1, 0);
+}
 
 /**
   * @brief  fills the input buffer with mp3 data at the beginning of mp3 decoding
-  * @param  None
+  * @param  bytesread : amount of f_read bytes read
   * @retval None
   */
 void fill_first_input_buffer(uint32_t *bytesread){
@@ -61,7 +92,8 @@ void fill_first_input_buffer(uint32_t *bytesread){
 
 /**
   * @brief  Decodes a single frame of the mp3 file and stores the result in the Audio buffer
-  * @param  None
+  * @param  bytesread : amount of f_read bytes read
+  * @param  inBufPos  : position to set the Audio_Buffer
   * @retval None
   */
 void mp3_decode(uint32_t *bytesread, int inBufPos){
@@ -89,8 +121,7 @@ void mp3_decode(uint32_t *bytesread, int inBufPos){
   */
 void mp3_playback(uint32_t samplerate){
 	uint32_t bytesread = 0;																													/*variable to track bytes read*/
-	if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, samplerate) != 0)																			/* Initialize MP3 player (Codec, DMA, I2C) */
-	{
+	if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, samplerate) != 0){																		/* Initialize MP3 player (Codec, DMA, I2C) */
 	Error_Handler();
 	}
 
@@ -99,10 +130,18 @@ void mp3_playback(uint32_t samplerate){
 	mp3_decode(&bytesread, AUDIO_BUFFER_SIZE/2);																							/*decode mp3 data, store result in second half of Audio Buffer*/
 
 	BSP_AUDIO_OUT_Play((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE); 																	/*start playing MP3*/
-
+	display_info.current_time = 0;
+	uint32_t old_time = 0;
 	while(decodingfinished){																												/*enter DMA play-back loop*/
 
 		bytesread = 0;																														/*set bytes read back to zero*/
+
+		display_info.current_time = samples / display_info.sample_rate;
+
+		if(display_info.current_time != old_time){
+			update_display();
+			old_time = display_info.current_time;
+		}
 
 		if(buffer_offset == BUFFER_OFFSET_HALF){																							/*check if the first half of the Audio Buffer has been transferred*/
 			mp3_decode(&bytesread, 0);																											/*decode next mp3 data to replace it in the Audio buffer*/
@@ -146,9 +185,9 @@ static int minimp3_io_seek(uint64_t position, void* user_data){
 /**
   * @brief  finds the track length and sample rate of the mp3
   * @param  None
-  * @retval track length and sample rate
+  * @retval None
   */
-static int minimp3_find_info(){
+static void minimp3_find_info(){
 
 	mp3dec_ex_t dec;
 	mp3dec_io_t io;
@@ -160,8 +199,17 @@ static int minimp3_find_info(){
 		/* error */
 	}
 
+	display_info.sample_rate = dec.info.hz;
+
+	if(dec.info.channels == 2){
+		display_info.total_time = dec.samples / (dec.info.hz * 2);
+		convert_to_minutes(display_info.total_time, display_info.tot_time);
+	}else{
+		display_info.total_time = dec.samples / (dec.info.hz);
+		convert_to_minutes(display_info.total_time, display_info.tot_time);
+	}
+
 	mp3dec_ex_close(&dec);
-	return dec.samples;			// fix later
 }
 
 /**
@@ -176,7 +224,7 @@ void mp3player_start(void){
 	if(f_opendir(&Directory, path) == FR_OK)
 	{
 
-		mp3filename = MP3_NAME4;
+		mp3filename = MP3_NAME3;
 
 		/* Open the MP3 file to be played */
 		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK)
@@ -186,7 +234,16 @@ void mp3player_start(void){
 		else
 		{
 
+			/*Initialize the display 8 bit mode*/
+			LCM1602a_Write8_Data(0b00111000, 0, 0);
+			LCM1602a_Write8_Data(0b00001110, 0, 0);
+			LCM1602a_Write8_Data(0b00000110, 0, 0);
 
+			/*clear the display*/
+			LCM1602a_Write8_Data(0b00000001, 0, 0);
+
+			minimp3_find_info();
+			update_display();
 			mp3dec_init(&mp3d);
 			MP3DataLength = f_size(&FileRead);
 			mp3_playback(44100);
@@ -195,6 +252,7 @@ void mp3player_start(void){
 	}
 
 }
+
 
 /**
   * @brief  Manages the DMA Half Transfer complete interrupt.

@@ -20,10 +20,6 @@
 #include "fatfs.h"
 #include "usb_host.h"
 
-/* Private includes ----------------------------------------------------------*/
-#include "stm32f4_discovery_audio.h"
-#include "mp3player.h"
-
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
@@ -36,7 +32,7 @@ I2S_HandleTypeDef hi2s3;
 SPI_HandleTypeDef hspi1;
 
 extern ApplicationTypeDef Appli_state;
-extern int PressCount;
+uint8_t PressState = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -64,17 +60,6 @@ int main(void){
 	MX_FATFS_Init();
 
 	uint8_t isDriveMounted = 0;
-
-	/*Initialize the display*/
-	LCM1602a_Write8_Data(0b00110000, 0, 0);
-	LCM1602a_Write8_Data(0b00001110, 0, 0);
-	LCM1602a_Write8_Data(0b00000110, 0, 0);
-
-	/*clear the display*/
-	LCM1602a_Write8_Data(0b00000001, 0, 0);
-
-	/*Write Message to Display*/
-	LCM1602a_Write8_Message((char*)"Hello World 3");
 
 	/* Infinite loop */
 	while (1){
@@ -272,13 +257,13 @@ static void MX_GPIO_Init(void)
 void EXTI0_IRQHandler(void){
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 	HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
-	if (PressCount == 0){
+	if (PressState == 0){
 		BSP_AUDIO_OUT_Pause();
-		PressCount = 1;
+		PressState = 1;
 	}
 	else{
 		BSP_AUDIO_OUT_Resume();
-		PressCount = 0;
+		PressState = 0;
 	}
 }
 
