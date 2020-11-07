@@ -51,7 +51,7 @@ static uint32_t MP3DataLength = 0;
 
 
 /**
-  * @brief  Convert seconds from int to char[], in format of mm:ss
+  * @brief  Convert seconds from integer to char[], in format of mm:ss
   * @param  seconds		:	time in seconds
   * @param  time_string	:	time in mm:ss char format
   * @retval None
@@ -219,20 +219,15 @@ static void minimp3_find_info(){
   */
 void mp3player_start(void){
 	char path[] = "0:/";
-	char* mp3filename = NULL;
+	char* mp3filename = MP3_NAME3;
 	/* Get the read out protection status */
-	if(f_opendir(&Directory, path) == FR_OK)
-	{
-
-		mp3filename = MP3_NAME3;
+	if(f_opendir(&Directory, path) == FR_OK){
 
 		/* Open the MP3 file to be played */
-		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK)
-		{
-		  BSP_LED_On(LED5);
+		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK){
+			Error_Handler();
 		}
-		else
-		{
+		else{
 
 			/*Initialize the display 8 bit mode*/
 			LCM1602a_Write8_Data(0b00111000, 0, 0);
@@ -259,8 +254,7 @@ void mp3player_start(void){
   * @param  None
   * @retval None
   */
-void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
-{
+void BSP_AUDIO_OUT_HalfTransfer_CallBack(void){
 	 buffer_offset = BUFFER_OFFSET_HALF;
 }
 
@@ -269,8 +263,7 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void)
 * @param  None
 * @retval None
 */
-void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
-{
+void BSP_AUDIO_OUT_TransferComplete_CallBack(void){
 	 buffer_offset = BUFFER_OFFSET_FULL;
 	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE / 2);
 }
@@ -280,8 +273,8 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 * @param  None
 * @retval None
 */
-void BSP_AUDIO_OUT_Error_CallBack(void)
-{
+void BSP_AUDIO_OUT_Error_CallBack(void){
+
   /* Stop the program with an infinite loop */
   while (1)
   {}

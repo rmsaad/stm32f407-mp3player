@@ -1,3 +1,4 @@
+
 /**
   ******************************************************************************
   * @file           : main.c
@@ -30,14 +31,17 @@
 I2C_HandleTypeDef hi2c1;
 I2S_HandleTypeDef hi2s3;
 SPI_HandleTypeDef hspi1;
+TIM_HandleTypeDef htim1;//
 
 extern ApplicationTypeDef Appli_state;
 uint8_t PressState = 0;
+uint8_t state = 1;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 void MX_USB_HOST_Process(void);
+static void MX_TIM1_Init(void);//
 
 /* Private user code ---------------------------------------------------------*/
 
@@ -58,6 +62,7 @@ int main(void){
 	MX_GPIO_Init();
 	MX_USB_HOST_Init();
 	MX_FATFS_Init();
+	MX_TIM1_Init();
 
 	uint8_t isDriveMounted = 0;
 
@@ -140,6 +145,51 @@ void SystemClock_Config(void)
   }
 }
 
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 32000;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 50;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+
+}
 
 /**
   * @brief GPIO Initialization Function
@@ -250,21 +300,44 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
+   */
+	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET){
+		HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
+		if (PressState == 0){
+			BSP_AUDIO_OUT_Pause();
+			PressState = 1;
+		}else{
+			BSP_AUDIO_OUT_Resume();
+			PressState = 0;
+		}
+		state = 1;
+		HAL_TIM_Base_Stop_IT(&htim1);
+	}
+}
+
 /**
   * @brief  Pause/Resume mp3 play-back
   * @retval None
   */
 void EXTI0_IRQHandler(void){
+
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 	HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
 	if (PressState == 0){
 		BSP_AUDIO_OUT_Pause();
 		PressState = 1;
-	}
-	else{
+	}else{
 		BSP_AUDIO_OUT_Resume();
 		PressState = 0;
 	}
+
+
 }
 
 
@@ -273,8 +346,8 @@ void EXTI0_IRQHandler(void){
   * @retval None
   */
 void Error_Handler(void){
-  /* User can add his own implementation to report the HAL error return state */
-
+	/* User can add his own implementation to report the HAL error return state */
+	HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
 }
 
 #ifdef  USE_FULL_ASSERT

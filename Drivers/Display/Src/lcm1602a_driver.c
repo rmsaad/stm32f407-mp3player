@@ -22,6 +22,14 @@ void LCM1602a_8bit_init(GPIO_TypeDef *dataports[8], uint16_t dataPins[8]){
 
 	}
 
+	/*Initialize the display 8 bit mode*/
+	LCM1602a_Write8_Data(0b00111000, 0, 0);
+	LCM1602a_Write8_Data(0b00001110, 0, 0);
+	LCM1602a_Write8_Data(0b00000110, 0, 0);
+
+	/*clear the display*/
+	LCM1602a_Write8_Data(0b00000001, 0, 0);
+
 }
 
 void LCM1602a_4bit_init(GPIO_TypeDef *dataports[4], uint16_t dataPins[4]){
