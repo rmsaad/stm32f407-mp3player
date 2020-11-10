@@ -196,8 +196,7 @@ static void MX_TIM1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void)
-{
+static void MX_GPIO_Init(void){
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
