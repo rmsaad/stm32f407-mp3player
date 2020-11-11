@@ -72,6 +72,7 @@ void update_display(){
 
 	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
 	LCM1602a_Write8_Data(0b00000001, 0, 0);																									/*clear the display*/
+	LCM1602a_Write8_Message((char*) MP3_NAME3);
 	LCM1602a_Write8_Data(0b11000000, 0, 0);																									/*next line on display*/
 	LCM1602a_Write8_Message((char*) display_info.cur_time);
 	LCM1602a_Write8_Message((char*) "/");

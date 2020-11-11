@@ -327,14 +327,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 void EXTI0_IRQHandler(void){
 
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
-	HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
+	if (state == 1){
+		HAL_TIM_Base_Start_IT(&htim1);
+		state = 0;
+	}else{
+		__NOP();
+	}
+
+	/*HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
 	if (PressState == 0){
 		BSP_AUDIO_OUT_Pause();
 		PressState = 1;
 	}else{
 		BSP_AUDIO_OUT_Resume();
 		PressState = 0;
-	}
+	}*/
 
 
 }
