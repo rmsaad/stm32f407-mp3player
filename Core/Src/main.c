@@ -262,6 +262,15 @@ static void MX_GPIO_Init(void){
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
   HAL_GPIO_Init(CLK_IN_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PB12 PB13 PB14 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  HAL_NVIC_SetPriority((IRQn_Type)(EXTI15_10_IRQn), 15, 0);
+  HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI15_10_IRQn));
+
   /*Configure GPIO pins : LD4_Pin LD3_Pin LD5_Pin LD6_Pin
                            Audio_RST_Pin */
   GPIO_InitStruct.Pin = LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin
@@ -325,7 +334,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   * @retval None
   */
 void EXTI0_IRQHandler(void){
-
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 	if (state == 1){
 		HAL_TIM_Base_Start_IT(&htim1);
@@ -333,19 +341,23 @@ void EXTI0_IRQHandler(void){
 	}else{
 		__NOP();
 	}
-
-	/*HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
-	if (PressState == 0){
-		BSP_AUDIO_OUT_Pause();
-		PressState = 1;
-	}else{
-		BSP_AUDIO_OUT_Resume();
-		PressState = 0;
-	}*/
-
-
 }
 
+void EXTI15_10_IRQHandler(void){
+	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET) {
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
+		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+
+	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET){
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+		HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
+
+	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET){
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
+		HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
+	}
+
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
