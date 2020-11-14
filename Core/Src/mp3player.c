@@ -69,7 +69,6 @@ void convert_to_minutes(uint32_t seconds, char time_string[12]){
   * @retval None
   */
 void update_display(){
-
 	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
 	LCM1602a_Write8_Data(0b00000001, 0, 0);																									/*clear the display*/
 	LCM1602a_Write8_Message((char*) MP3_NAME3);

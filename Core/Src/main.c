@@ -46,6 +46,17 @@ static void MX_TIM1_Init(void);//
 /* Private user code ---------------------------------------------------------*/
 
 /**
+  * @brief  printf debugging function call
+  * @retval len
+  */
+int _write(int file, char *ptr, int len){
+	int i=0;
+	for(i =0; i<len ; i++)
+		ITM_SendChar(*ptr++);
+	return len;
+}
+
+/**
   * @brief  The application entry point.
   * @retval int
   */
@@ -63,7 +74,6 @@ int main(void){
 	MX_USB_HOST_Init();
 	MX_FATFS_Init();
 	MX_TIM1_Init();
-
 	uint8_t isDriveMounted = 0;
 
 	/* Infinite loop */
@@ -343,15 +353,22 @@ void EXTI0_IRQHandler(void){
 	}
 }
 
+/**
+  * @brief  External Button interrupts
+  * @retval None
+  */
 void EXTI15_10_IRQHandler(void){
+		// next track
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET) {
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
 		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
 
+		// pause button
 	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET){
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 		HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
 
+		// previous track
 	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET){
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
 		HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
@@ -364,7 +381,6 @@ void EXTI15_10_IRQHandler(void){
   * @retval None
   */
 void Error_Handler(void){
-	/* User can add his own implementation to report the HAL error return state */
 	HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
 }
 
