@@ -32,6 +32,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 #include "stm32f4_discovery_audio.h"
 #include "mp3player.h"
 #include "lcm1602a_driver.h"
@@ -128,6 +129,10 @@ void Error_Handler(void);
 #define MEMS_INT2_Pin GPIO_PIN_1
 #define MEMS_INT2_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
+#define OLD_MIN	0
+#define NEW_MIN	0
+#define OLD_MAX	4095
+#define NEW_MAX	100
 
 /* USER CODE END Private defines */
 
