@@ -23,20 +23,21 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-#define REMAP(X) (((X - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN)) + NEW_MIN
 
 /* Private macro -------------------------------------------------------------*/
+#define REMAP(X) (((X - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN)) + NEW_MIN
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-I2C_HandleTypeDef hi2c1;
-I2S_HandleTypeDef hi2s3;
-SPI_HandleTypeDef hspi1;
+//I2C_HandleTypeDef hi2c1;
+//I2S_HandleTypeDef hi2s3;
+//SPI_HandleTypeDef hspi1;
 TIM_HandleTypeDef htim1;
 
 extern ApplicationTypeDef Appli_state;
 uint8_t PressState = 0;
-uint8_t state = 1;
+uint8_t htim1_state = 1;
+int volume = 70;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -80,14 +81,14 @@ int main(void){
 	uint8_t isDriveMounted = 0;
 
 	// FIX
-	while(1){
+/*	while(1){
 		uint32_t raw= 0;
 		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 		raw = HAL_ADC_GetValue(&hadc1);
 		printf("%ld \n", REMAP(raw));
 		HAL_Delay(400);
-	}
+	}*/
 
 	/* Infinite loop */
 	while (1){
@@ -239,7 +240,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 32000;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 50;
+  htim1.Init.Period = 100;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -382,38 +383,22 @@ static void MX_GPIO_Init(void){
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(htim);
 
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_TIM_PeriodElapsedCallback could be implemented in the user file
-   */
-	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET){
-		HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
-		if (PressState == 0){
-			BSP_AUDIO_OUT_Pause();
-			PressState = 1;
-		}else{
-			BSP_AUDIO_OUT_Resume();
-			PressState = 0;
-		}
-		state = 1;
-		HAL_TIM_Base_Stop_IT(&htim1);
-	}
-}
+	/* Prevent unused argument(s) compilation warning */
+	UNUSED(htim);
 
-/**
-  * @brief  Pause/Resume mp3 play-back
-  * @retval None
-  */
-void EXTI0_IRQHandler(void){
-	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
-	if (state == 1){
-		HAL_TIM_Base_Start_IT(&htim1);
-		state = 0;
+	HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
+	/*if (PressState == 0){
+		BSP_AUDIO_OUT_Pause();
+		PressState = 1;
 	}else{
-		__NOP();
-	}
+		BSP_AUDIO_OUT_Resume();
+		PressState = 0;
+	}*/
+	volume = volume - 10;
+	htim1_state = 1;
+	HAL_TIM_Base_Stop_IT(&htim1);
+
 }
 
 /**
@@ -421,20 +406,26 @@ void EXTI0_IRQHandler(void){
   * @retval None
   */
 void EXTI15_10_IRQHandler(void){
-		// next track
+
+	// next track
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET) {
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
 		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
 
-		// pause button
+	// pause button
 	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET){
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 		HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
 
-		// previous track
+	// previous track
 	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET){
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
-		HAL_GPIO_WritePin(LD6_GPIO_Port, LD6_Pin, GPIO_PIN_SET);
+		if (htim1_state == 1){
+			HAL_TIM_Base_Start_IT(&htim1);
+			htim1_state = 0;
+		}else{
+			__NOP();
+		}
 	}
 
 }

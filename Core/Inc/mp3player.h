@@ -31,6 +31,6 @@ typedef struct{
 /*function prototypes*/
 void mp3_playback(uint32_t samplerate);
 void mp3player_start(void);
-
+void update_volume();
 
 #endif /* INC_MP3PLAYER_H_ */

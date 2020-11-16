@@ -21,6 +21,8 @@
 #define MP3_NAME3 "Innerspace.mp3"
 #define MP3_NAME4 "test.mp3"
 
+#define REMAP(X) (((X - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN)) + NEW_MIN
+
 /*MP3 BUFFER SIZES*/
 #define MP3_BUF             (16 * 1024)
 #define AUDIO_BUFFER_SIZE	( 8 * 1152)
@@ -43,6 +45,7 @@ uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
 DisplayInfoTypeDef display_info = {0, 0, 0, 0, "", ""};
 
 /*mp3 play-back variables*/
+extern ADC_HandleTypeDef hadc1;
 uint64_t samples;
 uint8_t decodingfinished = 1;
 static __IO uint32_t AudioRemSize = 0;
@@ -61,6 +64,14 @@ void convert_to_minutes(uint32_t seconds, char time_string[12]){
 	seconds = seconds - ((seconds/60) * 60);
 
 	sprintf(time_string, "%02ld:%02ld", minutes, seconds);
+}
+
+void update_volume(){
+	uint32_t adc_raw_val = 0;
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+	adc_raw_val = HAL_ADC_GetValue(&hadc1);
+	BSP_AUDIO_OUT_SetVolume(REMAP(adc_raw_val));
 }
 
 /**
@@ -146,6 +157,7 @@ void mp3_playback(uint32_t samplerate){
 		if(buffer_offset == BUFFER_OFFSET_HALF){																							/*check if the first half of the Audio Buffer has been transferred*/
 			mp3_decode(&bytesread, 0);																											/*decode next mp3 data to replace it in the Audio buffer*/
 			buffer_offset = BUFFER_OFFSET_NONE;																									/*update buffer offset*/
+			update_volume();
 		}
 
 		if(buffer_offset == BUFFER_OFFSET_FULL){																							/*check if the second half of the Audio Buffer has been transferred*/
