@@ -60,18 +60,47 @@ static uint32_t MP3DataLength = 0;
   * @retval None
   */
 void convert_to_minutes(uint32_t seconds, char time_string[12]){
-	uint32_t minutes = seconds/60;
-	seconds = seconds - ((seconds/60) * 60);
-
-	sprintf(time_string, "%02ld:%02ld", minutes, seconds);
+	uint32_t minutes = seconds/60;																											/*minutes calculation*/
+	seconds = seconds - ((seconds/60) * 60);																								/*seconds calculation*/
+	sprintf(time_string, "%02ld:%02ld", minutes, seconds);																					/*convert to string*/
 }
 
+/**
+  * @brief  polls potentiometer (w/ adc) and sets the volume based on its position
+  * @param  None
+  * @retval None
+  */
 void update_volume(){
-	uint32_t adc_raw_val = 0;
-	HAL_ADC_Start(&hadc1);
-	HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-	adc_raw_val = HAL_ADC_GetValue(&hadc1);
-	BSP_AUDIO_OUT_SetVolume(REMAP(adc_raw_val));
+	HAL_ADC_Start(&hadc1);																													/*start ADC conversion*/
+	HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);																						/*poll ADC*/
+	display_info.volume = REMAP(HAL_ADC_GetValue(&hadc1));																					/*get the ADC value*/
+	BSP_AUDIO_OUT_SetVolume(display_info.volume);																							/*set volume appropriately*/
+}
+
+/**
+  * @brief  print out current volume level to the display represented in bars
+  * @param  None
+  * @retval None
+  */
+void print_current_volume(){
+	if(display_info.volume < 25){																											/*if volume less than 25*/
+		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* #--- */
+		LCM1602a_Write8_Message((char*) "   ");
+	}else if(display_info.volume < 50){																										/*if volume less than 50*/
+		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* ##-- */
+		LCM1602a_Write8_Data(0b11111111, 1, 0);
+		LCM1602a_Write8_Message((char*) "  ");
+	}else if(display_info.volume < 75){																										/*if volume less than 75*/
+		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* ###- */
+		LCM1602a_Write8_Data(0b11111111, 1, 0);
+		LCM1602a_Write8_Data(0b11111111, 1, 0);
+		LCM1602a_Write8_Message((char*) " ");
+	}else if(display_info.volume <= 100){																									/*if volume less than / equal to 100*/
+		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* #### */
+		LCM1602a_Write8_Data(0b11111111, 1, 0);
+		LCM1602a_Write8_Data(0b11111111, 1, 0);
+		LCM1602a_Write8_Data(0b11111111, 1, 0);
+	}
 }
 
 /**
@@ -81,13 +110,14 @@ void update_volume(){
   */
 void update_display(){
 	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
-	LCM1602a_Write8_Data(0b00000001, 0, 0);																									/*clear the display*/
+	LCM1602a_Write8_Data(0b00000010, 0, 0);																									/*Return Home*/
 	LCM1602a_Write8_Message((char*) MP3_NAME3);
 	LCM1602a_Write8_Data(0b11000000, 0, 0);																									/*next line on display*/
-	LCM1602a_Write8_Message((char*) display_info.cur_time);
-	LCM1602a_Write8_Message((char*) "/");
-	LCM1602a_Write8_Message((char*) display_info.tot_time);
-	LCM1602a_Write8_Data(0b11111111, 1, 0);
+	LCM1602a_Write8_Message((char*) display_info.cur_time);																					/*display time information*/
+	LCM1602a_Write8_Message((char*) "/");																									/* "" "" "" */
+	LCM1602a_Write8_Message((char*) display_info.tot_time);																					/* "" "" "" */
+	LCM1602a_Write8_Message((char*) " ");																									/*space character*/
+	print_current_volume();																													/*current volume*/
 }
 
 /**
@@ -132,8 +162,11 @@ void mp3_decode(uint32_t *bytesread, int inBufPos){
   */
 void mp3_playback(uint32_t samplerate){
 	uint32_t bytesread = 0;																													/*variable to track bytes read*/
+	display_info.current_time = 0;																											/*initialize current mp3 time equal to 0*/
+	uint32_t old_time = 0;																													/*initialize old mp3 time equal to 0*/
+	mp3dec_init(&mp3d);																														/*start mininmp3 decoding process*/
 	if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, samplerate) != 0){																		/* Initialize MP3 player (Codec, DMA, I2C) */
-	Error_Handler();
+		Error_Handler();																														/*error if mp3 player initialization fails*/
 	}
 
 	fill_first_input_buffer(&bytesread);																									/*fill input buffer completely input buffer*/
@@ -141,29 +174,26 @@ void mp3_playback(uint32_t samplerate){
 	mp3_decode(&bytesread, AUDIO_BUFFER_SIZE/2);																							/*decode mp3 data, store result in second half of Audio Buffer*/
 
 	BSP_AUDIO_OUT_Play((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE); 																	/*start playing MP3*/
-	display_info.current_time = 0;
-	uint32_t old_time = 0;
+
 	while(decodingfinished){																												/*enter DMA play-back loop*/
-
 		bytesread = 0;																														/*set bytes read back to zero*/
-
-		display_info.current_time = samples / display_info.sample_rate;
-
-		if(display_info.current_time != old_time){
-			update_display();
-			old_time = display_info.current_time;
+		display_info.current_time = samples / display_info.sample_rate;																		/*update current time*/
+		if(display_info.current_time != old_time){																							/*if current time does not match old time*/
+			update_display();																													/*update display*/
+			old_time = display_info.current_time;																								/*set old time equal to current time*/
 		}
 
 		if(buffer_offset == BUFFER_OFFSET_HALF){																							/*check if the first half of the Audio Buffer has been transferred*/
 			mp3_decode(&bytesread, 0);																											/*decode next mp3 data to replace it in the Audio buffer*/
 			buffer_offset = BUFFER_OFFSET_NONE;																									/*update buffer offset*/
-			update_volume();
 		}
 
 		if(buffer_offset == BUFFER_OFFSET_FULL){																							/*check if the second half of the Audio Buffer has been transferred*/
 			mp3_decode(&bytesread, AUDIO_BUFFER_SIZE/2);																						/*decode next mp3 data to replace it in the Audio buffer*/
 			buffer_offset = BUFFER_OFFSET_NONE;																									/*update buffer offset*/
 		}
+
+		update_volume();																													/*update adc volume*/
 	}
 
 	 BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);																										/*stop audio play-back*/
@@ -201,27 +231,29 @@ static int minimp3_io_seek(uint64_t position, void* user_data){
   */
 static void minimp3_find_info(){
 
-	mp3dec_ex_t dec;
-	mp3dec_io_t io;
-	io.read = minimp3_io_read;
-	io.seek = minimp3_io_seek;
-	io.read_data = io.seek_data = &FileRead;
+	mp3dec_ex_t dec;																														/*necessary minimp3 variables*/
+	mp3dec_io_t io;																															/* "" "" "" */
+	io.read = minimp3_io_read;																												/* "" "" "" */
+	io.seek = minimp3_io_seek;																												/* "" "" "" */
+	io.read_data = io.seek_data = &FileRead;																								/* "" "" "" */
 
-	if (mp3dec_ex_open_cb(&dec, &io, MP3D_SEEK_TO_SAMPLE)){
-		/* error */
+	MP3DataLength = f_size(&FileRead);																										/*file length information*/
+
+	if (mp3dec_ex_open_cb(&dec, &io, MP3D_SEEK_TO_SAMPLE)){																					/*find VBR tag*/
+		Error_Handler();																														/*return error if mp3 cannot be parsed by minimp3*/
 	}
 
-	display_info.sample_rate = dec.info.hz;
+	display_info.sample_rate = dec.info.hz;																									/*sample rate information*/
 
-	if(dec.info.channels == 2){
-		display_info.total_time = dec.samples / (dec.info.hz * 2);
-		convert_to_minutes(display_info.total_time, display_info.tot_time);
-	}else{
-		display_info.total_time = dec.samples / (dec.info.hz);
-		convert_to_minutes(display_info.total_time, display_info.tot_time);
+	if(dec.info.channels == 2){																												/*calculate mp3 track length*/
+		display_info.total_time = dec.samples / (dec.info.hz * 2);																			/* "" "" "" */
+		convert_to_minutes(display_info.total_time, display_info.tot_time);																	/* "" "" "" */
+	}else{																																	/* "" "" "" */
+		display_info.total_time = dec.samples / (dec.info.hz);																				/* "" "" "" */
+		convert_to_minutes(display_info.total_time, display_info.tot_time);																	/* "" "" "" */
 	}
 
-	mp3dec_ex_close(&dec);
+	mp3dec_ex_close(&dec);																													/*free memory allocated by minimp3 library*/
 }
 
 /**
@@ -232,16 +264,13 @@ static void minimp3_find_info(){
 void mp3player_start(void){
 	char path[] = "0:/";
 	char* mp3filename = MP3_NAME3;
-	/* Get the read out protection status */
-	if(f_opendir(&Directory, path) == FR_OK){
 
-		/* Open the MP3 file to be played */
-		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK){
-			Error_Handler();
-		}
-		else{
+	if(f_opendir(&Directory, path) == FR_OK){																								/* Get the read out protection status */
+		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK){																				/* Open the MP3 file to be played */
+			Error_Handler();																													/*error if file does not exist*/
 
-			/*Initialize the display 8 bit mode*/
+		}else{
+			/*Initialize the display DATA 8 mode*/
 			LCM1602a_Write8_Data(0b00111000, 0, 0);
 			LCM1602a_Write8_Data(0b00001110, 0, 0);
 			LCM1602a_Write8_Data(0b00000110, 0, 0);
@@ -249,17 +278,14 @@ void mp3player_start(void){
 			/*clear the display*/
 			LCM1602a_Write8_Data(0b00000001, 0, 0);
 
-			minimp3_find_info();
-			update_display();
-			mp3dec_init(&mp3d);
-			MP3DataLength = f_size(&FileRead);
-			mp3_playback(44100);
+			minimp3_find_info();																											/*retrieve mp3 information*/
+			update_display();																												/*update display to reflect this info*/
+			mp3_playback(display_info.sample_rate);																							/*start mp3 decoding process*/
 
 		}
 	}
 
 }
-
 
 /**
   * @brief  Manages the DMA Half Transfer complete interrupt.
@@ -267,92 +293,28 @@ void mp3player_start(void){
   * @retval None
   */
 void BSP_AUDIO_OUT_HalfTransfer_CallBack(void){
-	 buffer_offset = BUFFER_OFFSET_HALF;
+	 buffer_offset = BUFFER_OFFSET_HALF;																									/*set the buffer offset flag*/
 }
 
 /**
-* @brief  Calculates the remaining file size and new position of the pointer.
-* @param  None
-* @retval None
-*/
-void BSP_AUDIO_OUT_TransferComplete_CallBack(void){
-	 buffer_offset = BUFFER_OFFSET_FULL;
-	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE / 2);
-}
-
-/**
-* @brief  Manages the DMA FIFO error interrupt.
-* @param  None
-* @retval None
-*/
-void BSP_AUDIO_OUT_Error_CallBack(void){
-
-  /* Stop the program with an infinite loop */
-  while (1)
-  {}
-
-  /* Could also generate a system reset to recover from the error */
-  /* .... */
-}
-
-/**
-  * @brief  LEGACY : plays a fully decoded .raw mp3 file
+  * @brief  Calculates the remaining file size and new position of the pointer.
   * @param  None
   * @retval None
   */
-void mp3_rawplayback(uint32_t samplerate){
+void BSP_AUDIO_OUT_TransferComplete_CallBack(void){
+	 buffer_offset = BUFFER_OFFSET_FULL;																									/*set the buffer offset flag*/
+	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE / 2);														/*fill buffer with next audio information*/
+}
 
-  unsigned int bytesread = 0;
-  /* Initialize Wave player (Codec, DMA, I2C) */
-  if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, samplerate) != 0)
-  {
-	Error_Handler();
+/**
+  * @brief  Manages the DMA FIFO error interrupt.
+  * @param  None
+  * @retval None
+  */
+void BSP_AUDIO_OUT_Error_CallBack(void){
+  while (1){																																/*Stop the program with an infinite loop*/
+	  Error_Handler();																														/*Go to error handler*/
   }
-
-  /* Get Data from USB Flash Disk */
-  f_lseek(&FileRead, 0);
-  f_read (&FileRead, &Audio_Buffer[0], AUDIO_BUFFER_SIZE, &bytesread);
-  AudioRemSize = MP3DataLength - bytesread;
-
-  /* Start playing Wave */
-  BSP_AUDIO_OUT_Play((uint16_t*)&Audio_Buffer[0], AUDIO_BUFFER_SIZE);
-
-  /* Check if the device is connected.*/
-  while((AudioRemSize != 0))
-  {
-
-	  bytesread = 0;
-
-	  if(buffer_offset == BUFFER_OFFSET_HALF)
-	  {
-
-		f_read(&FileRead,
-			   &Audio_Buffer[0],
-			   AUDIO_BUFFER_SIZE/2,
-			   (void *)&bytesread);
-
-		  buffer_offset = BUFFER_OFFSET_NONE;
-	  }
-
-	  if(buffer_offset == BUFFER_OFFSET_FULL)
-	  {
-		f_read(&FileRead,
-			   &Audio_Buffer[AUDIO_BUFFER_SIZE/2],
-			   AUDIO_BUFFER_SIZE/2,
-			   (void *)&bytesread);
-
-		  buffer_offset = BUFFER_OFFSET_NONE;
-	  }
-	  if(AudioRemSize > (AUDIO_BUFFER_SIZE / 2))
-	  {
-		AudioRemSize -= bytesread;
-	  }
-	  else
-	  {
-		AudioRemSize = 0;
-	  }
-	}
-
 }
 
 /**

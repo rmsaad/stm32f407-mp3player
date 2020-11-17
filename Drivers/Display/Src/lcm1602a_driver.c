@@ -14,7 +14,6 @@ uint8_t transmission_mode;
 
 void LCM1602a_Hang_Busy_Flag();
 
-
 void LCM1602a_8bit_init(GPIO_TypeDef *dataports[8], uint16_t dataPins[8]){
 	transmission_mode = DATA_8;
 
