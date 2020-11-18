@@ -261,10 +261,9 @@ static void minimp3_find_info(){
   * @retval None
   */
 void mp3player_start(void){
-	char path[] = "0:/";
 	char* mp3filename = MP3_NAME3;
 
-	if(f_opendir(&Directory, path) == FR_OK){																								/* Get the read out protection status */
+	if(f_opendir(&Directory, "0:/") == FR_OK){																								/* Get the read out protection status */
 		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK){																				/* Open the MP3 file to be played */
 			Error_Handler();																													/*error if file does not exist*/
 
@@ -278,8 +277,8 @@ void mp3player_start(void){
 			LCM1602a_Write8_Data(0b00000001, 0, 0);
 
 			minimp3_find_info();																											/*retrieve mp3 information*/
-			update_display();																												/*update display to reflect this info*/
-			mp3_playback(display_info.sample_rate);																							/*start mp3 decoding process*/
+			update_display();																												/*update display to reflect current info*/
+			mp3_playback(display_info.sample_rate);																							/*start mp3 playback*/
 
 		}
 	}

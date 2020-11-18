@@ -31,7 +31,6 @@ typedef enum{
 /* Private define ------------------------------------------------------------*/
 
 /* Private macro -------------------------------------------------------------*/
-#define REMAP(X) (((X - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN)) + NEW_MIN
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
@@ -41,7 +40,6 @@ ButtonSelectTypeDef btnsel;
 extern ApplicationTypeDef Appli_state;
 uint8_t PressState = 0;
 uint8_t htim1_state = 1;
-int volume = 70;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -64,6 +62,39 @@ int _write(int file, char *ptr, int len){
 }
 
 /**
+  * @brief  gets the file extension
+  * @retval char* to first character of file extension
+  */
+const char* get_extension(const char *file){
+    const char *period = strrchr(file, '.');																								/*pointer to last occurrence of "."*/
+    if(!period || period == file) return "";																								/*return "" if no "."*/
+    return period + 1;																														/* return pointer to char after "."*/
+}
+
+/**
+  * @brief  build a linked list of mp3 files on usb drive
+  * @retval none
+  */
+void build_mp3_list(){
+	DIR Directory;																															/*directory structure*/
+	FILINFO finf;																															/*file info structure*/
+
+	if(f_opendir(&Directory, "0:/") == FR_OK){																								/*get the read out protection status*/
+		while(f_readdir(&Directory, &finf) == FR_OK){																						/*start reading directory entries*/
+
+			if(finf.fname[0] == 0)																											/*exit loop when finished*/
+				break;																														/* "" "" "" */
+
+			if (strcmp("mp3", get_extension((char*) finf.fname)) == 0){
+				//printf("%s \n", finf.fname);
+			}
+
+
+		}
+	}
+}
+
+/**
   * @brief  The application entry point.
   * @retval int
   */
@@ -82,6 +113,7 @@ int main(void){
 	MX_FATFS_Init();
 	MX_TIM1_Init();
 	MX_ADC1_Init();
+
 	uint8_t isDriveMounted = 0;
 
 	/* Infinite loop */
@@ -101,6 +133,7 @@ int main(void){
 				if(!isDriveMounted){
 					f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0);
 					isDriveMounted = 1;
+					build_mp3_list();
 					mp3player_start();
 				}
 				break;
@@ -372,6 +405,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			Error_Handler();
 			break;
 	}
+
 	htim1_state = 1;
 	HAL_TIM_Base_Stop_IT(&htim1);
 }
@@ -381,9 +415,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   * @retval None
   */
 void EXTI15_10_IRQHandler(void){
-	// SET FLAGS INSTEAD AND CALL THE SAME FUNCTION (HAL_TIM_Base_Start_IT) AFTERWORDS
-
-	printf("got here \n");
 
 	// next track
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET) {
@@ -402,6 +433,7 @@ void EXTI15_10_IRQHandler(void){
 		btnsel = PREV_TRACK;
 	}
 
+	// timer de-bouncing
 	if (htim1_state == 1){
 		HAL_TIM_Base_Start_IT(&htim1);
 		htim1_state = 0;
