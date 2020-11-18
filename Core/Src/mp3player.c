@@ -86,16 +86,16 @@ void print_current_volume(){
 	if(display_info.volume < 25){																											/*if volume less than 25*/
 		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* #--- */
 		LCM1602a_Write8_Message((char*) "   ");
-	}else if(display_info.volume < 50){																										/*if volume less than 50*/
+	}else if(display_info.volume < 50){																										/*else if volume less than 50*/
 		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* ##-- */
 		LCM1602a_Write8_Data(0b11111111, 1, 0);
 		LCM1602a_Write8_Message((char*) "  ");
-	}else if(display_info.volume < 75){																										/*if volume less than 75*/
+	}else if(display_info.volume < 75){																										/*else if volume less than 75*/
 		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* ###- */
 		LCM1602a_Write8_Data(0b11111111, 1, 0);
 		LCM1602a_Write8_Data(0b11111111, 1, 0);
 		LCM1602a_Write8_Message((char*) " ");
-	}else if(display_info.volume <= 100){																									/*if volume less than / equal to 100*/
+	}else if(display_info.volume <= 100){																									/*else if volume less than / equal to 100*/
 		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* #### */
 		LCM1602a_Write8_Data(0b11111111, 1, 0);
 		LCM1602a_Write8_Data(0b11111111, 1, 0);
@@ -110,7 +110,7 @@ void print_current_volume(){
   */
 void update_display(){
 	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
-	LCM1602a_Write8_Data(0b00000010, 0, 0);																									/*Return Home*/
+	LCM1602a_Write8_Data(0b00000010, 0, 0);																									/*Return to Home position on display*/
 	LCM1602a_Write8_Message((char*) MP3_NAME3);
 	LCM1602a_Write8_Data(0b11000000, 0, 0);																									/*next line on display*/
 	LCM1602a_Write8_Message((char*) display_info.cur_time);																					/*display time information*/
@@ -252,7 +252,6 @@ static void minimp3_find_info(){
 		display_info.total_time = dec.samples / (dec.info.hz);																				/* "" "" "" */
 		convert_to_minutes(display_info.total_time, display_info.tot_time);																	/* "" "" "" */
 	}
-
 	mp3dec_ex_close(&dec);																													/*free memory allocated by minimp3 library*/
 }
 

@@ -22,6 +22,12 @@
 
 /* Private typedef -----------------------------------------------------------*/
 
+typedef enum{
+  NEXT_TRACK = 0,
+  PAUSE_PLAY,
+  PREV_TRACK,
+}ButtonSelectTypeDef;
+
 /* Private define ------------------------------------------------------------*/
 
 /* Private macro -------------------------------------------------------------*/
@@ -29,10 +35,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-//I2C_HandleTypeDef hi2c1;
-//I2S_HandleTypeDef hi2s3;
-//SPI_HandleTypeDef hspi1;
 TIM_HandleTypeDef htim1;
+ButtonSelectTypeDef btnsel;
 
 extern ApplicationTypeDef Appli_state;
 uint8_t PressState = 0;
@@ -80,16 +84,6 @@ int main(void){
 	MX_ADC1_Init();
 	uint8_t isDriveMounted = 0;
 
-	// FIX
-/*	while(1){
-		uint32_t raw= 0;
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-		raw = HAL_ADC_GetValue(&hadc1);
-		printf("%ld \n", REMAP(raw));
-		HAL_Delay(400);
-	}*/
-
 	/* Infinite loop */
 	while (1){
 
@@ -122,8 +116,7 @@ int main(void){
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
-{
+void SystemClock_Config(void){
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
@@ -143,8 +136,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK){
     Error_Handler();
   }
   /** Initializes the CPU, AHB and APB buses clocks
@@ -156,15 +148,13 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-  {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK){
     Error_Handler();
   }
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
   PeriphClkInitStruct.PLLI2S.PLLI2SN = 50;
   PeriphClkInitStruct.PLLI2S.PLLI2SR = 2;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-  {
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK){
     Error_Handler();
   }
 }
@@ -174,18 +164,10 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_ADC1_Init(void)
-{
-
-  /* USER CODE BEGIN ADC1_Init 0 */
-
-  /* USER CODE END ADC1_Init 0 */
+static void MX_ADC1_Init(void){
 
   ADC_ChannelConfTypeDef sConfig = {0};
 
-  /* USER CODE BEGIN ADC1_Init 1 */
-
-  /* USER CODE END ADC1_Init 1 */
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
   */
   hadc1.Instance = ADC1;
@@ -200,8 +182,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  if (HAL_ADC_Init(&hadc1) != HAL_OK)
-  {
+  if (HAL_ADC_Init(&hadc1) != HAL_OK){
     Error_Handler();
   }
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
@@ -209,14 +190,9 @@ static void MX_ADC1_Init(void)
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK){
     Error_Handler();
   }
-  /* USER CODE BEGIN ADC1_Init 2 */
-
-  /* USER CODE END ADC1_Init 2 */
-
 }
 
 /**
@@ -224,19 +200,11 @@ static void MX_ADC1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_TIM1_Init(void)
-{
-
-  /* USER CODE BEGIN TIM1_Init 0 */
-
-  /* USER CODE END TIM1_Init 0 */
+static void MX_TIM1_Init(void){
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
 
-  /* USER CODE BEGIN TIM1_Init 1 */
-
-  /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 32000;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -244,25 +212,18 @@ static void MX_TIM1_Init(void)
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
-  {
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK){
     Error_Handler();
   }
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
-  {
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK){
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-  {
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK){
     Error_Handler();
   }
-  /* USER CODE BEGIN TIM1_Init 2 */
-
-  /* USER CODE END TIM1_Init 2 */
-
 }
 
 /**
@@ -387,18 +348,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	/* Prevent unused argument(s) compilation warning */
 	UNUSED(htim);
 
-	HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
-	/*if (PressState == 0){
-		BSP_AUDIO_OUT_Pause();
-		PressState = 1;
-	}else{
-		BSP_AUDIO_OUT_Resume();
-		PressState = 0;
-	}*/
-	volume = volume - 10;
+	switch(btnsel){
+		case NEXT_TRACK:
+			HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+			break;
+
+		case PAUSE_PLAY:
+			HAL_GPIO_TogglePin(LD5_GPIO_Port, LD5_Pin);
+			if (PressState == 0){
+				BSP_AUDIO_OUT_Pause();
+				PressState = 1;
+			}else{
+				BSP_AUDIO_OUT_Resume();
+				PressState = 0;
+			}
+			break;
+
+		case PREV_TRACK:
+			HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
+			break;
+
+		default:
+			Error_Handler();
+			break;
+	}
 	htim1_state = 1;
 	HAL_TIM_Base_Stop_IT(&htim1);
-
 }
 
 /**
@@ -406,26 +381,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   * @retval None
   */
 void EXTI15_10_IRQHandler(void){
+	// SET FLAGS INSTEAD AND CALL THE SAME FUNCTION (HAL_TIM_Base_Start_IT) AFTERWORDS
+
+	printf("got here \n");
 
 	// next track
 	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET) {
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
-		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
+		btnsel = NEXT_TRACK;
 
 	// pause button
 	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET){
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-		HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
+		btnsel = PAUSE_PLAY;
+
 
 	// previous track
 	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET){
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
-		if (htim1_state == 1){
-			HAL_TIM_Base_Start_IT(&htim1);
-			htim1_state = 0;
-		}else{
-			__NOP();
-		}
+		btnsel = PREV_TRACK;
+	}
+
+	if (htim1_state == 1){
+		HAL_TIM_Base_Start_IT(&htim1);
+		htim1_state = 0;
+	}else{
+		__NOP();
 	}
 
 }
