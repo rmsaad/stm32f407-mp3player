@@ -38,6 +38,8 @@ TIM_HandleTypeDef htim1;
 ButtonSelectTypeDef btnsel;
 
 extern ApplicationTypeDef Appli_state;
+
+uint8_t change_song = 0;
 uint8_t PressState = 0;
 uint8_t htim1_state = 1;
 MP3 *start = NULL;
@@ -390,7 +392,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		case NEXT_TRACK:
 			HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
 			current = current->next;
-			switch_song(current->mp3name);					// USE FLAGS CANT DO THIS IN AN INTERRUPT
+			change_song = 1;
 			break;
 
 		case PAUSE_PLAY:
@@ -407,7 +409,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		case PREV_TRACK:
 			HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
 			current = current->prev;
-			switch_song(current->mp3name);
+			change_song = 1;
 			break;
 
 		default:

@@ -31,7 +31,7 @@
 FIL FileRead;
 DIR Directory;
 
-/*minimp3 decoding structs*/
+/*minimp3 decoding structures*/
 static mp3dec_t mp3d;
 static mp3dec_frame_info_t info;
 
@@ -47,6 +47,7 @@ DisplayInfoTypeDef display_info = {0, 0, 0, 0, "", "", "", "", ""};
 /*mp3 play-back variables*/
 extern ADC_HandleTypeDef hadc1;
 extern MP3* current;
+extern uint8_t change_song;
 
 uint64_t samples;
 uint8_t decodingfinished = 1;
@@ -166,6 +167,7 @@ void close_playback(){
 	BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);																										/*stop audio play-back*/
 	f_close(&FileRead);																														/*close file*/
 	decodingfinished = 1;																													/*initialize decoding flag back to default*/
+	samples = 0;
 }
 
 /**
@@ -206,11 +208,16 @@ void mp3_playback(uint32_t samplerate){
 			buffer_offset = BUFFER_OFFSET_NONE;																									/*update buffer offset*/
 		}
 
+		if(change_song)
+			break;
+
 		update_volume();																													/*update adc volume*/
 	}
 
-	samples = 0;
-	current = current->next;
+	if(!change_song)
+		current = current->next;
+
+	change_song = 0;
 	close_playback();
 }
 
@@ -254,6 +261,9 @@ static void minimp3_find_info(){
 
 	if (mp3dec_ex_open_cb(&dec, &io, MP3D_SEEK_TO_SAMPLE)){																					/*find VBR tag*/
 		Error_Handler();																														/*return error if mp3 cannot be parsed by minimp3*/
+		display_info.sample_rate = 44100;
+		strncpy(display_info.tot_time , "--:--", 12);
+		return;
 	}
 
 	display_info.sample_rate = dec.info.hz;																									/*sample rate information*/
@@ -288,17 +298,7 @@ void mp3player_start(char* mp3_name){
 			/*clear the display*/
 			LCM1602a_Write8_Data(0b00000001, 0, 0);
 
-/*			display_info.current_time = 0;
-			display_info.total_time = 0;
-			display_info.volume = 0;
-			display_info.sample_rate = 0;
-			strcpy(display_info.cur_time , "");
-			strcpy(display_info.tot_time , "");
-			strcpy(display_info.cur_volume , "");
-			strcpy(display_info.song_name , "");
-			strcpy(display_info.artist_name , "");*/
-
-			strcpy(display_info.song_name, mp3_name);
+			strncpy(display_info.song_name, mp3_name, 20);
 			minimp3_find_info();																											/*retrieve mp3 information*/
 			update_display();																												/*update display to reflect current info*/
 			mp3_playback(display_info.sample_rate);																							/*start mp3 playback*/
