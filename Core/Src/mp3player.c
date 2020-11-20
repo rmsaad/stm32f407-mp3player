@@ -42,10 +42,12 @@ char input_data[MP3_BUF];
 uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
 
 /*Display variables*/
-DisplayInfoTypeDef display_info = {0, 0, 0, 0, "", ""};
+DisplayInfoTypeDef display_info = {0, 0, 0, 0, "", "", "", "", ""};
 
 /*mp3 play-back variables*/
 extern ADC_HandleTypeDef hadc1;
+extern MP3* current;
+
 uint64_t samples;
 uint8_t decodingfinished = 1;
 static __IO uint32_t AudioRemSize = 0;
@@ -111,7 +113,7 @@ void print_current_volume(){
 void update_display(){
 	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
 	LCM1602a_Write8_Data(0b00000010, 0, 0);																									/*Return to Home position on display*/
-	LCM1602a_Write8_Message((char*) MP3_NAME3);
+	LCM1602a_Write8_Message((char*) display_info.song_name);
 	LCM1602a_Write8_Data(0b11000000, 0, 0);																									/*next line on display*/
 	LCM1602a_Write8_Message((char*) display_info.cur_time);																					/*display time information*/
 	LCM1602a_Write8_Message((char*) "/");																									/* "" "" "" */
@@ -155,6 +157,17 @@ void mp3_decode(uint32_t *bytesread, int inBufPos){
 	}
 }
 
+void switch_song(char* mp3_name){
+	close_playback();
+	mp3player_start(mp3_name);
+}
+
+void close_playback(){
+	BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);																										/*stop audio play-back*/
+	f_close(&FileRead);																														/*close file*/
+	decodingfinished = 1;																													/*initialize decoding flag back to default*/
+}
+
 /**
   * @brief  Manages MP3 decoding process, and fills the Audio buffer when buffer offset flags are set
   * @param  samplerate	: mp3 file samplerate
@@ -196,9 +209,9 @@ void mp3_playback(uint32_t samplerate){
 		update_volume();																													/*update adc volume*/
 	}
 
-	 BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);																										/*stop audio play-back*/
-	 f_close(&FileRead);																													/*close file*/
-	 decodingfinished = 1;																													/*initialize decoding flag back to default*/
+	samples = 0;
+	current = current->next;
+	close_playback();
 }
 
 /**
@@ -260,11 +273,10 @@ static void minimp3_find_info(){
   * @param  None
   * @retval None
   */
-void mp3player_start(void){
-	char* mp3filename = MP3_NAME3;
+void mp3player_start(char* mp3_name){
 
 	if(f_opendir(&Directory, "0:/") == FR_OK){																								/* Get the read out protection status */
-		if(f_open(&FileRead, mp3filename , FA_READ) != FR_OK){																				/* Open the MP3 file to be played */
+		if(f_open(&FileRead, mp3_name , FA_READ) != FR_OK){																				/* Open the MP3 file to be played */
 			Error_Handler();																													/*error if file does not exist*/
 
 		}else{
@@ -276,6 +288,17 @@ void mp3player_start(void){
 			/*clear the display*/
 			LCM1602a_Write8_Data(0b00000001, 0, 0);
 
+/*			display_info.current_time = 0;
+			display_info.total_time = 0;
+			display_info.volume = 0;
+			display_info.sample_rate = 0;
+			strcpy(display_info.cur_time , "");
+			strcpy(display_info.tot_time , "");
+			strcpy(display_info.cur_volume , "");
+			strcpy(display_info.song_name , "");
+			strcpy(display_info.artist_name , "");*/
+
+			strcpy(display_info.song_name, mp3_name);
 			minimp3_find_info();																											/*retrieve mp3 information*/
 			update_display();																												/*update display to reflect current info*/
 			mp3_playback(display_info.sample_rate);																							/*start mp3 playback*/

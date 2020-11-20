@@ -36,6 +36,7 @@ extern "C" {
 #include "stm32f4_discovery_audio.h"
 #include "mp3player.h"
 #include "lcm1602a_driver.h"
+#include "song_linked_list.h"
 
 /* USER CODE END Includes */
 
