@@ -24,7 +24,7 @@ typedef struct{
 	char cur_time[12];
 	char tot_time[12];
 	char cur_volume[6];
-	char song_name[20];
+	char song_name[35];
 	char artist_name[10];
 }DisplayInfoTypeDef;
 

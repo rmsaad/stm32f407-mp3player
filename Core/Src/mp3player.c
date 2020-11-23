@@ -86,23 +86,21 @@ void update_volume(){
   * @retval None
   */
 void print_current_volume(){
+
+	LCM1602a_Write_Data(SPEAKER, 1, 0);																										/*print speaker character*/
+
 	if(display_info.volume < 25){																											/*if volume less than 25*/
-		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* #--- */
-		LCM1602a_Write8_Message((char*) "   ");
+		LCM1602a_Write_Data(VOLUME1, 1, 0);																										/* #--- */
+		LCM1602a_Write_Message((char*) " ");
 	}else if(display_info.volume < 50){																										/*else if volume less than 50*/
-		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* ##-- */
-		LCM1602a_Write8_Data(0b11111111, 1, 0);
-		LCM1602a_Write8_Message((char*) "  ");
+		LCM1602a_Write_Data(VOLUME2, 1, 0);																										/* ##-- */
+		LCM1602a_Write_Message((char*) " ");
 	}else if(display_info.volume < 75){																										/*else if volume less than 75*/
-		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* ###- */
-		LCM1602a_Write8_Data(0b11111111, 1, 0);
-		LCM1602a_Write8_Data(0b11111111, 1, 0);
-		LCM1602a_Write8_Message((char*) " ");
+		LCM1602a_Write_Data(VOLUME2, 1, 0);																										/* ###- */
+		LCM1602a_Write_Data(VOLUME3, 1, 0);
 	}else if(display_info.volume <= 100){																									/*else if volume less than / equal to 100*/
-		LCM1602a_Write8_Data(0b11111111, 1, 0);																									/* #### */
-		LCM1602a_Write8_Data(0b11111111, 1, 0);
-		LCM1602a_Write8_Data(0b11111111, 1, 0);
-		LCM1602a_Write8_Data(0b11111111, 1, 0);
+		LCM1602a_Write_Data(VOLUME2, 1, 0);																										/* #### */
+		LCM1602a_Write_Data(VOLUME4, 1, 0);
 	}
 }
 
@@ -113,13 +111,14 @@ void print_current_volume(){
   */
 void update_display(){
 	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
-	LCM1602a_Write8_Data(0b00000010, 0, 0);																									/*Return to Home position on display*/
-	LCM1602a_Write8_Message((char*) display_info.song_name);
-	LCM1602a_Write8_Data(0b11000000, 0, 0);																									/*next line on display*/
-	LCM1602a_Write8_Message((char*) display_info.cur_time);																					/*display time information*/
-	LCM1602a_Write8_Message((char*) "/");																									/* "" "" "" */
-	LCM1602a_Write8_Message((char*) display_info.tot_time);																					/* "" "" "" */
-	LCM1602a_Write8_Message((char*) " ");																									/*space character*/
+	LCM1602a_Write_Data(0b00000010, 0, 0);																									/*Return to Home position on display*/
+	LCM1602a_textwrap((char*) display_info.song_name);
+	//LCM1602a_Write_Message((char*) display_info.song_name);
+	LCM1602a_Write_Data(0b11000000, 0, 0);																									/*next line on display*/
+	LCM1602a_Write_Message((char*) display_info.cur_time);																					/*display time information*/
+	LCM1602a_Write_Message((char*) "/");																									/* "" "" "" */
+	LCM1602a_Write_Message((char*) display_info.tot_time);																					/* "" "" "" */
+	LCM1602a_Write_Message((char*) " ");																									/*space character*/
 	print_current_volume();																													/*current volume*/
 }
 
@@ -290,15 +289,9 @@ void mp3player_start(char* mp3_name){
 			Error_Handler();																													/*error if file does not exist*/
 
 		}else{
-			/*Initialize the display DATA 8 mode*/
-			LCM1602a_Write8_Data(0b00111000, 0, 0);
-			LCM1602a_Write8_Data(0b00001110, 0, 0);
-			LCM1602a_Write8_Data(0b00000110, 0, 0);
 
-			/*clear the display*/
-			LCM1602a_Write8_Data(0b00000001, 0, 0);
-
-			strncpy(display_info.song_name, mp3_name, 20);
+			LCM1602a_init(TWO_LINE_DISPLAY);
+			strncpy(display_info.song_name, mp3_name, 35);
 			minimp3_find_info();																											/*retrieve mp3 information*/
 			update_display();																												/*update display to reflect current info*/
 			mp3_playback(display_info.sample_rate);																							/*start mp3 playback*/
