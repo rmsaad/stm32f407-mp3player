@@ -15,6 +15,9 @@
 #define DATA_4					4
 #define CONTROL_PIN_COUNT		3
 
+void LCM1602a_Set_DATA8(GPIO_TypeDef *d_Port, uint16_t d_Pins[8], GPIO_TypeDef *c_Port, uint16_t c_Pins[3]);
+void LCM1602a_Set_DATA4(GPIO_TypeDef *d_Port, uint16_t d_Pins[4], GPIO_TypeDef *c_Port, uint16_t c_Pins[3]);
+
 void LCM1602a_Write8_Data(uint8_t dataValues, uint8_t RS, uint8_t RW);
 void LCM1602a_Write8_Message(char *Message);
 

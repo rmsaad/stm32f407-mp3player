@@ -10,33 +10,47 @@
 
 GPIO_InitTypeDef GPIO_InitStruct = {0};
 
+GPIO_TypeDef *data_port;
+GPIO_TypeDef *control_port;
+
+uint16_t data_pins[8];
+uint16_t control_pins[3];
+
 uint8_t transmission_mode;
 
-void LCM1602a_Hang_Busy_Flag();
+/*function prototypes*/
+static void LCM1602a_Hang_Busy_Flag();
 
-void LCM1602a_8bit_init(GPIO_TypeDef *dataports[8], uint16_t dataPins[8]){
+void LCM1602a_Set_DATA8(GPIO_TypeDef *d_Port, uint16_t d_Pins[8], GPIO_TypeDef *c_Port, uint16_t c_Pins[3]){
+
 	transmission_mode = DATA_8;
+	data_port = d_Port;
+	control_port = c_Port;
 
 	for(int i = 0; i < DATA_8; i++){
-
+		data_pins[i] = d_Pins[i];
 	}
 
-	/*Initialize the display 8 bit mode*/
-	LCM1602a_Write8_Data(0b00111000, 0, 0);
-	LCM1602a_Write8_Data(0b00001110, 0, 0);
-	LCM1602a_Write8_Data(0b00000110, 0, 0);
-
-	/*clear the display*/
-	LCM1602a_Write8_Data(0b00000001, 0, 0);
+	for(int i = 0; i < CONTROL_PIN_COUNT; i++){
+		control_pins[i] = c_Pins[i];
+	}
 
 }
 
-void LCM1602a_4bit_init(GPIO_TypeDef *dataports[4], uint16_t dataPins[4]){
+void LCM1602a_Set_DATA4(GPIO_TypeDef *d_Port, uint16_t d_Pins[4], GPIO_TypeDef *c_Port, uint16_t c_Pins[3]){
+
 	transmission_mode = DATA_4;
+	data_port = d_Port;
+	control_port = c_Port;
 
 	for(int i = 0; i < DATA_4; i++){
-
+		data_pins[i] = d_Pins[i];
 	}
+
+	for(int i = 0; i < CONTROL_PIN_COUNT; i++){
+		control_pins[i] = c_Pins[i];
+	}
+
 }
 
 /**
@@ -83,24 +97,19 @@ void LCM1602a_Write8_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
 
 	LCM1602a_Hang_Busy_Flag();															/*hang until busy flag is reset*/
 
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7,  ((dataValues >> 0) & 1));
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_8,  ((dataValues >> 1) & 1));
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9,  ((dataValues >> 2) & 1));
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_10, ((dataValues >> 3) & 1));
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, ((dataValues >> 4) & 1));
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, ((dataValues >> 5) & 1));
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, ((dataValues >> 6) & 1));
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, ((dataValues >> 7) & 1));
+	for(int i = 0; i < DATA_8; i++){													/*write to data lines*/
+		HAL_GPIO_WritePin(data_port, data_pins[i] , ((dataValues >> i) & 1));
+	}
 																						/*write to control lines RS, RW*/
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, RS);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, RW);
-
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);
+	HAL_GPIO_WritePin(control_port, control_pins[1], RW);
 																						/*set E to High*/
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);
 
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+	for(int i = CONTROL_PIN_COUNT - 1; i >= 0; i--){ 									/*reset all control pins*/
+		HAL_GPIO_WritePin(control_port, control_pins[i], GPIO_PIN_RESET);
+	}
+
 }
 
 /*this is not working 100% yet*/
@@ -110,22 +119,20 @@ void LCM1602a_Write4_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
 
 		LCM1602a_Hang_Busy_Flag();														/*hang until busy flag is reset*/
 
-		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, ((dataValues >> (0 + 4*i)) & 1));
-		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, ((dataValues >> (1 + 4*i)) & 1));
-		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, ((dataValues >> (2 + 4*i)) & 1));
-		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_14, ((dataValues >> (3 + 4*i)) & 1));
+		HAL_GPIO_WritePin(data_port, data_pins[4], ((dataValues >> (0 + 4*i)) & 1));
+		HAL_GPIO_WritePin(data_port, data_pins[5], ((dataValues >> (1 + 4*i)) & 1));
+		HAL_GPIO_WritePin(data_port, data_pins[6], ((dataValues >> (2 + 4*i)) & 1));
+		HAL_GPIO_WritePin(data_port, data_pins[7], ((dataValues >> (3 + 4*i)) & 1));
 
 																						/*write to control lines RS, RW*/
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, RS);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, RW);
-
-
+		HAL_GPIO_WritePin(control_port, control_pins[0], RS);
+		HAL_GPIO_WritePin(control_port, control_pins[1], RW);
 																						/*set E to High*/
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);
 
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_RESET);
+		for(int i = CONTROL_PIN_COUNT - 1; i >= 0; i--){ 								/*reset all control pins*/
+			HAL_GPIO_WritePin(control_port, control_pins[i], GPIO_PIN_RESET);
+		}
 	}
 
 
@@ -141,18 +148,18 @@ void LCM1602a_Write4_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
  */
 void LCM1602a_Hang_Busy_Flag(){
 
-	GPIOE->MODER &= ~(GPIO_MODER_MODER14);												/*set D7 to input*/
+	data_port->MODER &= ~(GPIO_MODER_MODER14);											/*set D7 to input*/
 
 	while(1){																			/*hang till Busy flag is Low*/
 																						/*set RW and E*/
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(control_port, control_pins[1], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);
 																						/*read Data 7 pin, if 0 set E back to LOW and stop hanging*/
-		if(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_14) == 0){
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
+		if(HAL_GPIO_ReadPin(data_port, data_pins[7]) == 0){
+			HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_RESET);
 			break;
 		}
 	}
 
-	GPIOE->MODER |= GPIO_MODER_MODE14_0;												/*set D7 to output*/
+	data_port->MODER |= GPIO_MODER_MODE14_0;											/*set D7 to output*/
 }

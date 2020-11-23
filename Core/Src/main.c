@@ -94,8 +94,7 @@ void build_mp3_list(){
 			}
 		}
 		circularize_list(start);																											/*head and tail of LL point to each other*/
-		current = start;
-		printlist(&start);
+		current = start;																													/*current track is at head of LL*/
 	}
 }
 
@@ -381,6 +380,13 @@ static void MX_GPIO_Init(void){
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*set lcm1602a Data Ports in driver file*/
+  uint16_t data_pins[8] = {GPIO_PIN_7, GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14};
+  uint16_t control_pins[3] = {GPIO_PIN_1, GPIO_PIN_5, GPIO_PIN_4};
+
+  LCM1602a_Set_DATA8(GPIOE, data_pins, GPIOC, control_pins);
+
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
