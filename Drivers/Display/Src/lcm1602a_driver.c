@@ -78,7 +78,6 @@ static GPIO_TypeDef *control_port;
 static uint16_t data_pins[8];
 static uint16_t control_pins[3];
 
-static uint16_t iCursor = 0;
 static uint16_t data_7_pin;
 static uint8_t transmission_mode;
 
@@ -187,33 +186,39 @@ void LCM1602a_init(uint8_t disp_line){
   * @param  char pointer to the ascii text to be displayed on the LCD screen
   * @retval None
   */
-void LCM1602a_textwrap(char* text){
+void LCM1602a_textwrap(char* in_text){
 
-	int textLen = strlen(text);															/*find length of text*/
-	if (iCursor == (textLen - 1) ){                                             		/*reset cursor for wrapping*/
-		iCursor = 0;																	/* " " " */
+	char text[70];
+	sprintf(text, "%s%s%s", "        ", in_text ,"        ");
+
+	static uint16_t cursor_pos = 0;
+	int text_len = strlen(text);															/*find length of text*/
+
+	if (cursor_pos == (text_len - 1) ){                                             		/*reset cursor for wrapping*/
+		cursor_pos = 0;																	/* " " " */
 	}
+
 
 	LCM1602a_Write_Data(0b00000010, 0, 0);												/*return display home*/
 	//LCM1602a_Write_Data(0b11000000, 0, 0);											/*second line IMPLEMENT LATER*/
 
-	if(iCursor < textLen - 16){                                                 		/*first 16 characters*/
-		for (int iChar = iCursor; iChar < iCursor + 16 ; iChar++){						/* " " " */
-			LCM1602a_Write8_Data((int)text[iChar], 1, 0);								/* " " " */
+	if(cursor_pos < text_len - 16){                                                 		/*first 16 characters*/
+		for (int char_pos = cursor_pos; char_pos < cursor_pos + 16 ; char_pos++){						/* " " " */
+			LCM1602a_Write8_Data((int)text[char_pos], 1, 0);								/* " " " */
 		}
 	}
 
 	else{
-		for (int iChar = iCursor; iChar < (textLen - 1) ; iChar++){               		/*characters of current string*/
-			LCM1602a_Write8_Data((int)text[iChar], 1, 0);								/* " " " */
+		for (int char_pos = cursor_pos; char_pos < (text_len - 1) ; char_pos++){               		/*characters of current string*/
+			LCM1602a_Write8_Data((int)text[char_pos], 1, 0);								/* " " " */
 		}
 
-		for (int iChar = 0; iChar <= 16 - (textLen - iCursor); iChar++){           		/*remaining characters*/
-			LCM1602a_Write8_Data((int)text[iChar], 1, 0);								/* " " " */
+		for (int char_pos = 0; char_pos <= 16 - (text_len - cursor_pos); char_pos++){           		/*remaining characters*/
+			LCM1602a_Write8_Data((int)text[char_pos], 1, 0);								/* " " " */
 		}
 	}
 
-	iCursor++;
+	cursor_pos++;
 }
 
 /**

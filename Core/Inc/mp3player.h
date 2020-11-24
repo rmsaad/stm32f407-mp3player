@@ -24,16 +24,12 @@ typedef struct{
 	char cur_time[12];
 	char tot_time[12];
 	char cur_volume[6];
-	char song_name[35];
+	char song_name[50];
 	char artist_name[10];
 }DisplayInfoTypeDef;
 
 /*function prototypes*/
-void mp3_playback(uint32_t samplerate);
 void mp3player_start(char* mp3_name);
 void update_volume();
-void switch_song();
-void close_playback();
-uint32_t find_track_length();
 
 #endif /* INC_MP3PLAYER_H_ */

@@ -5,27 +5,29 @@
  *      Author: Rami
  */
 
+/* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 #include "ff.h"
 #include "string.h"
 #include "stm32f4_discovery_audio.h"
+
+/* Private define ------------------------------------------------------------*/
 
 #define MINIMP3_NO_STDIO
 #define MINIMP3_IMPLEMENTATION
 #include "minimp3.h"
 #include "minimp3_ex.h"
 
-#define WAVE_NAME "audio_sample.wav"
-#define MP3_NAME1 "new1.raw"
-#define MP3_NAME2 "out_ref.raw"
-#define MP3_NAME3 "Innerspace.mp3"
-#define MP3_NAME4 "test.mp3"
-
-#define REMAP(X) (((X - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN)) + NEW_MIN
-
 /*MP3 BUFFER SIZES*/
 #define MP3_BUF             (16 * 1024)
 #define AUDIO_BUFFER_SIZE	( 8 * 1152)
+
+/* Private macro -------------------------------------------------------------*/
+
+#define REMAP(X) (((X - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN)) + NEW_MIN
+
+/* Private variables ---------------------------------------------------------*/
 
 /*FatFs variables*/
 FIL FileRead;
@@ -36,25 +38,36 @@ static mp3dec_t mp3d;
 static mp3dec_frame_info_t info;
 
 /*encoded mp3 data read from USB storage*/
-char input_data[MP3_BUF];
+static char input_data[MP3_BUF];
 
 /*decoded audio pcm data*/
-uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
+static uint8_t Audio_Buffer[AUDIO_BUFFER_SIZE];
 
 /*Display variables*/
 DisplayInfoTypeDef display_info = {0, 0, 0, 0, "", "", "", "", ""};
 
 /*mp3 play-back variables*/
+static __IO uint32_t AudioRemSize = 0;
+static uint32_t MP3DataLength = 0;
+static uint64_t samples;
+static uint8_t decodingfinished = 1;
+__IO BUFFER_StateTypeDef buffer_offset = BUFFER_OFFSET_NONE;
+
+/*external flags & variables*/
 extern ADC_HandleTypeDef hadc1;
 extern MP3* current;
 extern uint8_t change_song;
 
-uint64_t samples;
-uint8_t decodingfinished = 1;
-static __IO uint32_t AudioRemSize = 0;
-__IO BUFFER_StateTypeDef buffer_offset = BUFFER_OFFSET_NONE;
-static uint32_t MP3DataLength = 0;
-
+/* Private function prototypes -----------------------------------------------*/
+static void convert_to_minutes(uint32_t seconds, char time_string[12]);
+static void fill_first_input_buffer(uint32_t *bytesread);
+static void mp3_decode(uint32_t *bytesread, int inBufPos);
+static void close_playback();
+static void mp3_playback(uint32_t samplerate);
+static size_t minimp3_io_read(void* buf, size_t size, void* user_data);
+static int minimp3_io_seek(uint64_t position, void* user_data);
+static void minimp3_find_info();
+static uint32_t find_track_length() __attribute__ ((unused));
 
 /**
   * @brief  Convert seconds from integer to char[], in format of mm:ss
@@ -62,7 +75,7 @@ static uint32_t MP3DataLength = 0;
   * @param  time_string	:	time in mm:ss char format
   * @retval None
   */
-void convert_to_minutes(uint32_t seconds, char time_string[12]){
+static void convert_to_minutes(uint32_t seconds, char time_string[12]){
 	uint32_t minutes = seconds/60;																											/*minutes calculation*/
 	seconds = seconds - ((seconds/60) * 60);																								/*seconds calculation*/
 	sprintf(time_string, "%02ld:%02ld", minutes, seconds);																					/*convert to string*/
@@ -127,7 +140,7 @@ void update_display(){
   * @param  bytesread : amount of f_read bytes read
   * @retval None
   */
-void fill_first_input_buffer(uint32_t *bytesread){
+static void fill_first_input_buffer(uint32_t *bytesread){
 	f_lseek(&FileRead, 0);																													/*seek to beginning of file*/
 	f_read(&FileRead, &input_data[0], MP3_BUF, (void *) bytesread);																			/*read mp3 data into input buffer*/
 	AudioRemSize = MP3DataLength - *bytesread;																								/*calculate AudioRemSize*/
@@ -139,7 +152,7 @@ void fill_first_input_buffer(uint32_t *bytesread){
   * @param  inBufPos  : position to set the Audio_Buffer
   * @retval None
   */
-void mp3_decode(uint32_t *bytesread, int inBufPos){
+static void mp3_decode(uint32_t *bytesread, int inBufPos){
 
 	if (!AudioRemSize){																														/*finish decoding last buffer*/
 		static uint32_t n = 0;
@@ -157,12 +170,7 @@ void mp3_decode(uint32_t *bytesread, int inBufPos){
 	}
 }
 
-void switch_song(char* mp3_name){
-	close_playback();
-	mp3player_start(mp3_name);
-}
-
-void close_playback(){
+static void close_playback(){
 	BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);																										/*stop audio play-back*/
 	f_close(&FileRead);																														/*close file*/
 	decodingfinished = 1;																													/*initialize decoding flag back to default*/
@@ -174,7 +182,7 @@ void close_playback(){
   * @param  samplerate	: mp3 file samplerate
   * @retval None
   */
-void mp3_playback(uint32_t samplerate){
+static void mp3_playback(uint32_t samplerate){
 	uint32_t bytesread = 0;																													/*variable to track bytes read*/
 	display_info.current_time = 0;																											/*initialize current mp3 time equal to 0*/
 	uint32_t old_time = 0;																													/*initialize old mp3 time equal to 0*/
@@ -227,7 +235,7 @@ void mp3_playback(uint32_t samplerate){
   * @param  mp3 file pointer
   * @retval bytes read
   */
-size_t minimp3_io_read(void* buf, size_t size, void* user_data) {
+static size_t minimp3_io_read(void* buf, size_t size, void* user_data){
 	unsigned int br;
 	f_read((FIL*) user_data, buf, (unsigned int) size, (unsigned int*) &br);
     return (size_t) br;
@@ -285,13 +293,13 @@ static void minimp3_find_info(){
 void mp3player_start(char* mp3_name){
 
 	if(f_opendir(&Directory, "0:/") == FR_OK){																								/* Get the read out protection status */
-		if(f_open(&FileRead, mp3_name , FA_READ) != FR_OK){																				/* Open the MP3 file to be played */
+		if(f_open(&FileRead, mp3_name , FA_READ) != FR_OK){																					/* Open the MP3 file to be played */
 			Error_Handler();																													/*error if file does not exist*/
 
 		}else{
 
 			LCM1602a_init(TWO_LINE_DISPLAY);
-			strncpy(display_info.song_name, mp3_name, 35);
+			strncpy(display_info.song_name, mp3_name, 50);
 			minimp3_find_info();																											/*retrieve mp3 information*/
 			update_display();																												/*update display to reflect current info*/
 			mp3_playback(display_info.sample_rate);																							/*start mp3 playback*/
@@ -336,7 +344,7 @@ void BSP_AUDIO_OUT_Error_CallBack(void){
   * @param  None
   * @retval time of the current track being decoded
   */
-uint32_t find_track_length(){
+static uint32_t find_track_length(){
 	uint32_t bytesread = 0, samplesCount = 0, bufPos = 0;
 	while(1){
 		bytesread = 0;
