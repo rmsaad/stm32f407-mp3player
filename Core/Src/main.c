@@ -35,6 +35,7 @@ typedef enum{
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
 ButtonSelectTypeDef btnsel;
 
 extern ApplicationTypeDef Appli_state;
@@ -51,6 +52,7 @@ static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 void MX_USB_HOST_Process(void);
 static void MX_TIM1_Init(void);
+static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 
@@ -117,6 +119,7 @@ int main(void){
 	MX_FATFS_Init();
 	MX_TIM1_Init();
 	MX_ADC1_Init();
+	MX_TIM2_Init();
 
 	uint8_t isDriveMounted = 0;
 
@@ -138,6 +141,8 @@ int main(void){
 					f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0);
 					isDriveMounted = 1;
 					build_mp3_list();
+					LCM1602a_init(TWO_LINE_DISPLAY);
+					HAL_TIM_Base_Start_IT(&htim2);
 					while(1){
 						mp3player_start(current->mp3name);
 					}
@@ -266,6 +271,38 @@ static void MX_TIM1_Init(void){
 }
 
 /**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void){
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 16800;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 2000;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK){
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK){
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK){
+    Error_Handler();
+  }
+
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -383,9 +420,11 @@ static void MX_GPIO_Init(void){
 
   /*set lcm1602a Data Ports in driver file*/
   uint16_t data_pins[8] = {GPIO_PIN_7, GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14};
+  //uint16_t data_pins[4] = {GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14};
   uint16_t control_pins[3] = {GPIO_PIN_1, GPIO_PIN_5, GPIO_PIN_4};
 
   LCM1602a_Set_DATA8(GPIOE, data_pins, GPIOC, control_pins);
+  //LCM1602a_Set_DATA4(GPIOE, data_pins, GPIOC, control_pins);
 
 }
 
@@ -394,37 +433,43 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	/* Prevent unused argument(s) compilation warning */
 	UNUSED(htim);
 
-	switch(btnsel){
-		case NEXT_TRACK:
-			HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-			current = current->next;
-			change_song = 1;
-			break;
+	if(htim == &htim1){
+		switch(btnsel){
+			case NEXT_TRACK:
+				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+				current = current->next;
+				change_song = 1;
+				break;
 
-		case PAUSE_PLAY:
-			HAL_GPIO_TogglePin(LD5_GPIO_Port, LD5_Pin);
-			if (PressState == 0){
-				BSP_AUDIO_OUT_Pause();
-				PressState = 1;
-			}else{
-				BSP_AUDIO_OUT_Resume();
-				PressState = 0;
-			}
-			break;
+			case PAUSE_PLAY:
+				HAL_GPIO_TogglePin(LD5_GPIO_Port, LD5_Pin);
+				if (PressState == 0){
+					BSP_AUDIO_OUT_Pause();
+					PressState = 1;
+				}else{
+					BSP_AUDIO_OUT_Resume();
+					PressState = 0;
+				}
+				break;
 
-		case PREV_TRACK:
-			HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
-			current = current->prev;
-			change_song = 1;
-			break;
+			case PREV_TRACK:
+				HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
+				current = current->prev;
+				change_song = 1;
+				break;
 
-		default:
-			Error_Handler();
-			break;
+			default:
+				Error_Handler();
+				break;
+		}
+
+		htim1_state = 1;
+		HAL_TIM_Base_Stop_IT(&htim1);
+
+	}else if(htim == &htim2){
+		update_display();
+		HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
 	}
-
-	htim1_state = 1;
-	HAL_TIM_Base_Stop_IT(&htim1);
 }
 
 /**

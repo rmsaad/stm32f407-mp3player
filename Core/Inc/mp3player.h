@@ -30,6 +30,7 @@ typedef struct{
 
 /*function prototypes*/
 void mp3player_start(char* mp3_name);
+void update_display();
 void update_volume();
 
 #endif /* INC_MP3PLAYER_H_ */

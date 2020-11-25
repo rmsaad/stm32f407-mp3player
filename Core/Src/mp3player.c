@@ -125,8 +125,7 @@ void print_current_volume(){
 void update_display(){
 	convert_to_minutes(display_info.current_time, display_info.cur_time);																	/*convert current time to character string*/
 	LCM1602a_Write_Data(0b00000010, 0, 0);																									/*Return to Home position on display*/
-	LCM1602a_textwrap((char*) display_info.song_name);
-	//LCM1602a_Write_Message((char*) display_info.song_name);
+	LCM1602a_textwrap((char*) display_info.song_name, 1);
 	LCM1602a_Write_Data(0b11000000, 0, 0);																									/*next line on display*/
 	LCM1602a_Write_Message((char*) display_info.cur_time);																					/*display time information*/
 	LCM1602a_Write_Message((char*) "/");																									/* "" "" "" */
@@ -201,7 +200,6 @@ static void mp3_playback(uint32_t samplerate){
 		bytesread = 0;																														/*set bytes read back to zero*/
 		display_info.current_time = samples / display_info.sample_rate;																		/*update current time*/
 		if(display_info.current_time != old_time){																							/*if current time does not match old time*/
-			update_display();																													/*update display*/
 			old_time = display_info.current_time;																								/*set old time equal to current time*/
 		}
 
@@ -298,7 +296,6 @@ void mp3player_start(char* mp3_name){
 
 		}else{
 
-			LCM1602a_init(TWO_LINE_DISPLAY);
 			strncpy(display_info.song_name, mp3_name, 50);
 			minimp3_find_info();																											/*retrieve mp3 information*/
 			update_display();																												/*update display to reflect current info*/

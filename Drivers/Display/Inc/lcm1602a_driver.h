@@ -69,7 +69,7 @@ void LCM1602a_Set_DATA4(GPIO_TypeDef *d_Port, uint16_t d_Pins[4], GPIO_TypeDef *
 
 void LCM1602a_init(uint8_t disp_line);
 
-void LCM1602a_textwrap(char* text);
+void LCM1602a_textwrap(char* in_text, uint8_t delay);
 void LCM1602a_Write_Data(uint8_t dataValues, uint8_t RS, uint8_t RW);
 void LCM1602a_Write_Message(char *Message);
 
