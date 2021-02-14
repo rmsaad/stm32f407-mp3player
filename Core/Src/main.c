@@ -379,6 +379,12 @@ static void MX_GPIO_Init(void){
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PB12 PB13 PB14 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
   HAL_NVIC_SetPriority((IRQn_Type)(EXTI15_10_IRQn), 15, 0);
   HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI15_10_IRQn));
 
@@ -419,7 +425,7 @@ static void MX_GPIO_Init(void){
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*set lcm1602a Data Ports in driver file*/
-  uint16_t data_pins[8] = {GPIO_PIN_7, GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14};
+  uint16_t data_pins[8] = {GPIO_PIN_7, GPIO_PIN_9, GPIO_PIN_11, GPIO_PIN_13, GPIO_PIN_8, GPIO_PIN_10, GPIO_PIN_12, GPIO_PIN_14};
   //uint16_t data_pins[4] = {GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14};
   uint16_t control_pins[3] = {GPIO_PIN_1, GPIO_PIN_5, GPIO_PIN_4};
 
@@ -484,15 +490,15 @@ void EXTI15_10_IRQHandler(void){
 		btnsel = NEXT_TRACK;
 
 	// pause button
-	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET){
-		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-		btnsel = PAUSE_PLAY;
+	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != RESET){
+		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+		btnsel = PREV_TRACK;
 
 
 	// previous track
 	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET){
 		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
-		btnsel = PREV_TRACK;
+		btnsel = PAUSE_PLAY;
 	}
 
 	// timer de-bouncing
