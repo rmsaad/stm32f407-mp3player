@@ -70,9 +70,9 @@ static int prvMp3PlayerMiniIoSeek(uint64_t ullPosition, void* pvUserData);
   * @retval None
   */
 static void prvMp3PlayerFillFirstInputBuffer(uint32_t *pulBytesRead){
-	f_lseek(&xFileRead, 0);																									/*seek to beginning of file*/
-	f_read(&xFileRead, &cInputData[0], MP3_BUF, (void *) pulBytesRead);														/*read mp3 data into input buffer*/
-	ulAudioRemSize = ulMP3DataLength - *pulBytesRead;																		/*calculate ulAudioRemSize*/
+	f_lseek(&xFileRead, 0);                                                                                                 /*seek to beginning of file*/
+	f_read(&xFileRead, &cInputData[0], MP3_BUF, (void *) pulBytesRead);                                                     /*read mp3 data into input buffer*/
+	ulAudioRemSize = ulMP3DataLength - *pulBytesRead;                                                                       /*calculate ulAudioRemSize*/
 }
 
 /**
@@ -83,28 +83,28 @@ static void prvMp3PlayerFillFirstInputBuffer(uint32_t *pulBytesRead){
   */
 static void prvMp3PlayerDecode(uint32_t *pulBytesRead, int xInputBufPos){
 
-	if (!ulAudioRemSize){																									/*finish decoding last buffer*/
+	if (!ulAudioRemSize){                                                                                               /*finish decoding last buffer*/
 		static uint32_t n = 0;
-		if(xFrameInfo.frame_bytes){																							/*if there are still more frames left*/
-			n += xFrameInfo.frame_bytes;																						/*track frame position in input buffer*/
-																																/*decode input data, store PCM in buffer*/
+		if(xFrameInfo.frame_bytes){                                                                                         /*if there are still more frames left*/
+			n += xFrameInfo.frame_bytes;                                                                                        /*track frame position in input buffer*/
+                                                                                                                                /*decode input data, store PCM in buffer*/
 			ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[n], MP3_BUF - n, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
-		}else{																												/*if there are no frames left*/
-			ucNewSongFlag = 1;																									/*update mp3 decoding flag*/
-			pxCurrent = pxCurrent->pxNext;																						/*update LL to point to next track*/
+		}else{                                                                                                              /*if there are no frames left*/
+			ucNewSongFlag = 1;                                                                                                  /*update mp3 decoding flag*/
+			pxCurrent = pxCurrent->pxNext;                                                                                      /*update LL to point to next track*/
 		}
 	}else{
-																															/*decode input data, store PCM in buffer*/
+                                                                                                                            /*decode input data, store PCM in buffer*/
 		ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[0], MP3_BUF, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
-		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));   				/*move input buffer to to correct position*/
-		f_read(&xFileRead, &cInputData[MP3_BUF - xFrameInfo.frame_bytes], xFrameInfo.frame_bytes, (void *) pulBytesRead); 	/*read more data into end of input buffer*/
-		ulAudioRemSize = ulAudioRemSize - *pulBytesRead;																	/*update ulAudioRemSize variable*/
+		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));                   /*move input buffer to to correct position*/
+		f_read(&xFileRead, &cInputData[MP3_BUF - xFrameInfo.frame_bytes], xFrameInfo.frame_bytes, (void *) pulBytesRead);   /*read more data into end of input buffer*/
+		ulAudioRemSize = ulAudioRemSize - *pulBytesRead;                                                                    /*update ulAudioRemSize variable*/
 	}
 }
 
 static void prvMp3PlayerClosePlayback(){
-	BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);																						/*stop audio play-back*/
-	f_close(&xFileRead);																									/*close file*/
+	BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);                                                                                      /*stop audio play-back*/
+	f_close(&xFileRead);                                                                                                    /*close file*/
 	ullSamples = 0;
 }
 
@@ -114,18 +114,18 @@ static void prvMp3PlayerClosePlayback(){
   * @retval None
   */
 void vMp3PlayerInit(){
-	vUpdateLCDSetCurrentTime(0);    																						/*initialize current mp3 time equal to 0*/
+	vUpdateLCDSetCurrentTime(0);                                                                                            /*initialize current mp3 time equal to 0*/
 
-	mp3dec_init(&xMp3Dec);																									/*start mininmp3 decoding process*/
-	if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, ulUpdateLCDGetSampleRate()) != 0){										/* Initialize MP3 player (Codec, DMA, I2C) */
-		Error_Handler();																										/*error if mp3 player initialization fails*/
+	mp3dec_init(&xMp3Dec);                                                                                                  /*start mininmp3 decoding process*/
+	if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, ulUpdateLCDGetSampleRate()) != 0){                                        /* Initialize MP3 player (Codec, DMA, I2C) */
+		Error_Handler();                                                                                                        /*error if mp3 player initialization fails*/
 	}
 
-	prvMp3PlayerFillFirstInputBuffer(&ulBytesRead);																			/*fill input buffer completely input buffer*/
-	prvMp3PlayerDecode(&ulBytesRead, 0);																					/*decode mp3 data, store result in first half of Audio Buffer*/
-	prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);																	/*decode mp3 data, store result in second half of Audio Buffer*/
+	prvMp3PlayerFillFirstInputBuffer(&ulBytesRead);                                                                         /*fill input buffer completely input buffer*/
+	prvMp3PlayerDecode(&ulBytesRead, 0);                                                                                    /*decode mp3 data, store result in first half of Audio Buffer*/
+	prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);                                                                  /*decode mp3 data, store result in second half of Audio Buffer*/
 
-	if (BSP_AUDIO_OUT_Play((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE) != 0){											/*start playing MP3*/
+	if (BSP_AUDIO_OUT_Play((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE) != 0){                                          /*start playing MP3*/
 		Error_Handler();
 	}
 
@@ -139,46 +139,45 @@ void vMp3PlayerInit(){
 void vMp3PlayerDecodeFrames(){
 	static uint8_t ucOldPauseStateFlag = 0;
 
-	if(ucPauseStateFlag == 1 || ucOldPauseStateFlag == 1){																	/*if Pause Button is pressed or playback is paused*/
-		if(ucOldPauseStateFlag == 0){																							/*if its the first case*/
-			BSP_AUDIO_OUT_Pause();																									/*pause play-back*/
-			ucOldPauseStateFlag = 1;																								/*set flag ucOldPauseStateFlag*/
-			return;																													/*make sure no frames get decoded when first paused*/
-		}else if(ucPauseStateFlag == 0){																						/*if button is pressed to resume*/
-			BSP_AUDIO_OUT_Resume();																									/*Resume play-back*/
-			ucOldPauseStateFlag = 0;																								/*de-assert ucOldPauseStateFlag*/
+	if(ucPauseStateFlag == 1 || ucOldPauseStateFlag == 1){                                                                  /*if Pause Button is pressed or playback is paused*/
+		if(ucOldPauseStateFlag == 0){                                                                                           /*if its the first case*/
+			BSP_AUDIO_OUT_Pause();                                                                                                  /*pause play-back*/
+			ucOldPauseStateFlag = 1;                                                                                                /*set flag ucOldPauseStateFlag*/
+			return;                                                                                                                 /*make sure no frames get decoded when first paused*/
+		}else if(ucPauseStateFlag == 0){                                                                                        /*if button is pressed to resume*/
+			BSP_AUDIO_OUT_Resume();                                                                                                 /*Resume play-back*/
+			ucOldPauseStateFlag = 0;                                                                                                /*de-assert ucOldPauseStateFlag*/
 		}else{
-			return;																												/*make sure no frames decoded while under pause*/
+			return;                                                                                                             /*make sure no frames decoded while under pause*/
 		}
 
 	}
 
-	while(1){																												/*enter DMA play-back loop*/
-		ulBytesRead = 0;																										/*set bytes read back to zero*/
+	while(1){                                                                                                               /*enter DMA play-back loop*/
+		ulBytesRead = 0;                                                                                                        /*set bytes read back to zero*/
 
-		vUpdateLCDSetCurrentTime(ullSamples / ulUpdateLCDGetSampleRate());														/*update current time*/
-		if(ulUpdateLCDGetCurrentTime() != ulOldTime){																			/*if current time does not match old time*/
-			ulOldTime = ulUpdateLCDGetCurrentTime();																				/*set old time equal to current time*/
+		vUpdateLCDSetCurrentTime(ullSamples / ulUpdateLCDGetSampleRate());                                                      /*update current time*/
+		if(ulUpdateLCDGetCurrentTime() != ulOldTime){                                                                           /*if current time does not match old time*/
+			ulOldTime = ulUpdateLCDGetCurrentTime();                                                                                /*set old time equal to current time*/
 		}
 
-		if(xBufferOffset == BUFFER_OFFSET_HALF){																				/*check if the first half of the Audio Buffer has been transferred*/
-			prvMp3PlayerDecode(&ulBytesRead, 0);																					/*decode next mp3 data to replace it in the Audio buffer*/
-			xBufferOffset = BUFFER_OFFSET_NONE;																						/*update buffer offset*/
+		if(xBufferOffset == BUFFER_OFFSET_HALF){                                                                               /*check if the first half of the Audio Buffer has been transferred*/
+			prvMp3PlayerDecode(&ulBytesRead, 0);                                                                                    /*decode next mp3 data to replace it in the Audio buffer*/
+			xBufferOffset = BUFFER_OFFSET_NONE;                                                                                     /*update buffer offset*/
 		}
 
-		if(xBufferOffset == BUFFER_OFFSET_FULL){																				/*check if the second half of the Audio Buffer has been transferred*/
-			prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);																	/*decode next mp3 data to replace it in the Audio buffer*/
-			xBufferOffset = BUFFER_OFFSET_NONE;																						/*update buffer offset*/
+		if(xBufferOffset == BUFFER_OFFSET_FULL){                                                                                /*check if the second half of the Audio Buffer has been transferred*/
+			prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);                                                                  /*decode next mp3 data to replace it in the Audio buffer*/
+			xBufferOffset = BUFFER_OFFSET_NONE;                                                                                     /*update buffer offset*/
 			break;
 		}
 
-		BSP_AUDIO_OUT_SetVolume(ulUpdateLCDGetVolume());																		/*set volume appropriately*/
-
+		BSP_AUDIO_OUT_SetVolume(ulUpdateLCDGetVolume());                                                                        /*set volume appropriately*/
 	}
 
-	if(ucNewSongFlag == 1){																										/*if the track changes*/
-		memset(&ucAudioBuffer[0], 0, AUDIO_BUFFER_SIZE);																			/*fixed bug where audio stutters as track changes*/
-		prvMp3PlayerClosePlayback();																								/*close playback*/
+	if(ucNewSongFlag == 1){                                                                                                     /*if the track changes*/
+		memset(&ucAudioBuffer[0], 0, AUDIO_BUFFER_SIZE);                                                                            /*fixed bug where audio stutters as track changes*/
+		prvMp3PlayerClosePlayback();                                                                                                /*close playback*/
 	}
 }
 
@@ -212,38 +211,38 @@ static int prvMp3PlayerMiniIoSeek(uint64_t ullPosition, void* pvUserData){
   */
 void vMp3PlayerFindInfo(){
 
-	mp3dec_ex_t xDec;																											/*necessary minimp3 variables*/
-	mp3dec_io_t xIo;																											/* "" "" "" */
-	xIo.read = prvMp3PlayerMiniIoRead;																							/* "" "" "" */
-	xIo.seek = prvMp3PlayerMiniIoSeek;																							/* "" "" "" */
-	xIo.read_data = xIo.seek_data = &xFileRead;																					/* "" "" "" */
+	mp3dec_ex_t xDec;                                                                                                           /*necessary minimp3 variables*/
+	mp3dec_io_t xIo;                                                                                                            /* "" "" "" */
+	xIo.read = prvMp3PlayerMiniIoRead;                                                                                          /* "" "" "" */
+	xIo.seek = prvMp3PlayerMiniIoSeek;                                                                                          /* "" "" "" */
+	xIo.read_data = xIo.seek_data = &xFileRead;                                                                                 /* "" "" "" */
 
 	vUpdateLCDSetMp3Track(pxCurrent->pcMp3Name);
 
-	if(f_opendir(&xDirectory, "0:/") == FR_OK){																					/* Get the read out protection status */
-		if(f_open(&xFileRead, pxCurrent->pcMp3Name , FA_READ) != FR_OK){															/* Open the MP3 file to be played */
-			Error_Handler();																										/*error if file does not exist*/
+	if(f_opendir(&xDirectory, "0:/") == FR_OK){                                                                                 /*Get the read out protection status*/
+		if(f_open(&xFileRead, pxCurrent->pcMp3Name , FA_READ) != FR_OK){                                                            /*Open the MP3 file to be played*/
+			Error_Handler();                                                                                                        /*error if file does not exist*/
 		}
 	}else{
-		Error_Handler();																											/*error if directory can not be opened*/
+		Error_Handler();                                                                                                            /*error if directory can not be opened*/
 	}
 
-	ulMP3DataLength = f_size(&xFileRead);																						/*file length information*/
+	ulMP3DataLength = f_size(&xFileRead);                                                                                       /*file length information*/
 
-	if (mp3dec_ex_open_cb(&xDec, &xIo, MP3D_SEEK_TO_SAMPLE)){																	/*find VBR tag*/
-		vUpdateLCDSetSampleRate(44100);																								/*Default behaviour if tag cannot be found*/
+	if (mp3dec_ex_open_cb(&xDec, &xIo, MP3D_SEEK_TO_SAMPLE)){                                                                   /*find VBR tag*/
+		vUpdateLCDSetSampleRate(44100);                                                                                             /*Default behaviour if tag cannot be found*/
 		vUpdateLCDSetTotalTime(0);
 		return;
 	}
 
-	vUpdateLCDSetSampleRate(xDec.info.hz);																						/*sample rate information*/
+	vUpdateLCDSetSampleRate(xDec.info.hz);                                                                                      /*sample rate information*/
 
-	if(xDec.info.channels == 2){																								/*calculate mp3 track length*/
-		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz * 2));																/* "" "" "" */
-	}else{																														/* "" "" "" */
-		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz));																	/* "" "" "" */
+	if(xDec.info.channels == 2){                                                                                                /*calculate mp3 track length*/
+		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz * 2));                                                              /* "" "" "" */
+	}else{                                                                                                                      /* "" "" "" */
+		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz));                                                                  /* "" "" "" */
 	}
-	mp3dec_ex_close(&xDec);																										/*free memory allocated by minimp3 library*/
+	mp3dec_ex_close(&xDec);                                                                                                     /*free memory allocated by minimp3 library*/
 }
 
 /**
@@ -252,7 +251,7 @@ void vMp3PlayerFindInfo(){
   * @retval None
   */
 void BSP_AUDIO_OUT_HalfTransfer_CallBack(void){
-	xBufferOffset = BUFFER_OFFSET_HALF;																							/*set the buffer offset flag*/
+	xBufferOffset = BUFFER_OFFSET_HALF;                                                                                         /*set the buffer offset flag*/
 }
 
 /**
@@ -261,8 +260,8 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void){
   * @retval None
   */
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void){
-	xBufferOffset = BUFFER_OFFSET_FULL;																							/*set the buffer offset flag*/
-	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);											/*fill buffer with next audio information*/
+	xBufferOffset = BUFFER_OFFSET_FULL;                                                                                         /*set the buffer offset flag*/
+	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);                                           /*fill buffer with next audio information*/
 }
 
 /**
@@ -271,8 +270,8 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void){
   * @retval None
   */
 void BSP_AUDIO_OUT_Error_CallBack(void){
-  while (1){																													/*Stop the program with an infinite loop*/
-	  Error_Handler();																											/*Go to error handler*/
+  while (1){                                                                                                                    /*Stop the program with an infinite loop*/
+	  Error_Handler();                                                                                                          /*Go to error handler*/
   }
 }
 

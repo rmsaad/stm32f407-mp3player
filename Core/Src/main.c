@@ -55,9 +55,9 @@ void vReadInputButtons_TaskHandler(void *params);
   * @retval char* to first character of file extension
   */
 const char* pcGetExtension(const char *pcFile){
-    const char *pcPeriod = strrchr(pcFile, '.');																					/*pointer to last occurrence of "."*/
-    if(!pcPeriod || pcPeriod == pcFile) return "";																					/*return "" if no "."*/
-    return pcPeriod + 1;																											/* return pointer to char after "."*/
+    const char *pcPeriod = strrchr(pcFile, '.');                                                                                    /*pointer to last occurrence of "."*/
+    if(!pcPeriod || pcPeriod == pcFile) return "";                                                                                  /*return "" if no "."*/
+    return pcPeriod + 1;                                                                                                            /* return pointer to char after "."*/
 }
 
 /**
@@ -65,21 +65,21 @@ const char* pcGetExtension(const char *pcFile){
   * @retval none
   */
 void vBuildMp3List(){
-	DIR xDirectory;																													/*directory structure*/
-	FILINFO xFinf;																													/*file info structure*/
+	DIR xDirectory;                                                                                                                 /*directory structure*/
+	FILINFO xFinf;                                                                                                                  /*file info structure*/
 
-	if(f_opendir(&xDirectory, "0:/") == FR_OK){																						/*get the read out protection status*/
-		while(f_readdir(&xDirectory, &xFinf) == FR_OK){																				/*start reading directory entries*/
+	if(f_opendir(&xDirectory, "0:/") == FR_OK){                                                                                     /*get the read out protection status*/
+		while(f_readdir(&xDirectory, &xFinf) == FR_OK){                                                                             /*start reading directory entries*/
 
-			if(xFinf.fname[0] == 0)																									/*exit loop when finished*/
-				break;																												/* "" "" "" */
+			if(xFinf.fname[0] == 0)                                                                                                 /*exit loop when finished*/
+				break;                                                                                                              /* "" "" "" */
 
-			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){																/*make sure file extension is .mp3*/
-				vSongLLAddEnd(&pxStart, pxSongLLNewElement((char*) xFinf.fname));															/*add file to linked list of mp3s*/
+			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){                                                           /*make sure file extension is .mp3*/
+				vSongLLAddEnd(&pxStart, pxSongLLNewElement((char*) xFinf.fname));                                                       /*add file to linked list of mp3s*/
 			}
 		}
-		vSongLLCircularizeList(pxStart);																							/*head and tail of LL point to each other*/
-		pxCurrent = pxStart;																										/*current music track is at head of LL*/
+		vSongLLCircularizeList(pxStart);                                                                                            /*head and tail of LL point to each other*/
+		pxCurrent = pxStart;                                                                                                        /*current music track is at head of LL*/
 	}
 }
 
@@ -329,29 +329,29 @@ static void MX_GPIO_Init(void)
   */
 void vMP3Playback_TaskHandler(void *params)
 {
-  MX_USB_HOST_Init();																												/*init code for USB_HOST*/
-  static uint8_t ucDriveMountedFlag = 0;																							/*Drive Mounted Flag*/
+  MX_USB_HOST_Init();                                                                                                               /*init code for USB_HOST*/
+  static uint8_t ucDriveMountedFlag = 0;                                                                                            /*Drive Mounted Flag*/
 
-	  for(;;){																														/* Infinite loop */
-		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){																/*if Ready and Drive is not Mounted*/
-			  ucDriveMountedFlag = 1;																									/*Set the Drive Mounted Flag*/
+	  for(;;){                                                                                                                      /*Infinite loop*/
+		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){                                                                  /*if Ready and Drive is not Mounted*/
+			  ucDriveMountedFlag = 1;                                                                                                   /*Set the Drive Mounted Flag*/
 			  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
-			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){																/*Mount USB drive*/
-				  vBuildMp3List();																										/*Build Mp3 LL*/
+			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){                                                              /*Mount USB drive*/
+				  vBuildMp3List();                                                                                                      /*Build Mp3 LL*/
 			  }
 		  }
 
-		  if(ucNewSongFlag && ucDriveMountedFlag){																					/*if New Song Flag Set and Drive Mounted Set*/
-			  ucNewSongFlag = 0;																										/*Un-Set New Song Flag*/
-			  vMp3PlayerFindInfo();																										/*Find Mp3 Track info*/
-			  vMp3PlayerInit();																											/*init Mp3 Playback*/
+		  if(ucNewSongFlag && ucDriveMountedFlag){                                                                                  /*if New Song Flag Set and Drive Mounted Set*/
+			  ucNewSongFlag = 0;                                                                                                        /*Un-Set New Song Flag*/
+			  vMp3PlayerFindInfo();                                                                                                     /*Find Mp3 Track info*/
+			  vMp3PlayerInit();                                                                                                         /*init Mp3 Playback*/
 		  }
 
 
 		  for(;;){
-			  if (!ucNewSongFlag && ucDriveMountedFlag){																			/*if New Song Flag Not Set and Drive Mounted Set*/
-				  vMp3PlayerDecodeFrames();																								/*Decode and Play a couple Mp3 Frasmes*/
-				  taskYIELD();																											/*Yield Task*/
+			  if (!ucNewSongFlag && ucDriveMountedFlag){                                                                            /*if New Song Flag Not Set and Drive Mounted Set*/
+				  vMp3PlayerDecodeFrames();                                                                                             /*Decode and Play a couple Mp3 Frasmes*/
+				  taskYIELD();                                                                                                          /*Yield Task*/
 			  }else{
 				  break;
 			  }
@@ -368,9 +368,9 @@ void vMP3Playback_TaskHandler(void *params)
   */
 void vUpdateLCD_TaskHandler(void *params){
 	for(;;){
-		  vUpdateLCDScreen();																										/*Update LCD Screen With New Information*/
-		  vTaskDelay(500);																											/*Block Task for 500 ms*/
-		  taskYIELD();																												/*Yield Task*/
+		  vUpdateLCDScreen();                                                                                                       /*Update LCD Screen With New Information*/
+		  vTaskDelay(500);                                                                                                          /*Block Task for 500 ms*/
+		  taskYIELD();                                                                                                              /*Yield Task*/
 	}
 }
 
@@ -381,11 +381,11 @@ void vUpdateLCD_TaskHandler(void *params){
   */
 void vReadADC_TaskHandler(void *params){
 	for(;;){
-		HAL_ADC_Start(&hadc1);																										/*start ADC conversion*/
-		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);																			/*poll ADC*/
-		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));																		/*get the ADC value*/
-		vTaskDelay(500);																											/*Block Task for 500 ms*/
-		taskYIELD();																												/*Yield Task*/
+		HAL_ADC_Start(&hadc1);                                                                                                      /*start ADC conversion*/
+		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);                                                                           /*poll ADC*/
+		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));                                                                       /*get the ADC value*/
+		vTaskDelay(500);                                                                                                            /*Block Task for 500 ms*/
+		taskYIELD();                                                                                                                /*Yield Task*/
 	  }
 }
 
@@ -398,24 +398,24 @@ void vReadInputButtons_TaskHandler(void *params){
 	  /* Infinite loop */
 	  for(;;)
 	  {
-		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){																			/*if Prev button is pressed*/
-			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
-			  pxCurrent = pxCurrent->pxPrev;																							/*Set LL Previous Node*/
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){                                                                            /*if Prev button is pressed*/
+			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
+			  pxCurrent = pxCurrent->pxPrev;                                                                                            /*Set LL Previous Node*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
 
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){																		/*if Pause button is pressed*/
-			  ucPauseStateFlag = ucPauseStateFlag ^ 1;																					/*invert Pause State Flag*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){                                                                      /*if Pause button is pressed*/
+			  ucPauseStateFlag = ucPauseStateFlag ^ 1;                                                                                  /*invert Pause State Flag*/
 			  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
 
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){																		/*if Next button is pressed*/
-			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
-			  pxCurrent = pxCurrent->pxNext;																							/*Set LL to Next Node*/
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){                                                                      /*if Next button is pressed*/
+			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
+			  pxCurrent = pxCurrent->pxNext;                                                                                            /*Set LL to Next Node*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
 		  }
 
-		  vTaskDelay(50);																											/*Block Task for 50 ms*/
-		  taskYIELD();																												/*Yield Task*/
+		  vTaskDelay(50);                                                                                                           /*Block Task for 50 ms*/
+		  taskYIELD();                                                                                                              /*Yield Task*/
 
 	  }
 }

@@ -37,15 +37,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  16 .debug_macro  0002e7cf  00000000  00000000  00098290  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   0002c793  00000000  00000000  000c6a5f  2**0
+ 17 .debug_line   0002c78e  00000000  00000000  000c6a5f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    000e6e77  00000000  00000000  000f31f2  2**0
+ 18 .debug_str    000e6e77  00000000  00000000  000f31ed  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  001da069  2**0
+ 19 .comment      0000007b  00000000  00000000  001da064  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00006e74  00000000  00000000  001da0e4  2**2
+ 20 .debug_frame  00006e74  00000000  00000000  001da0e0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 21 .debug_loc    0002c3c4  00000000  00000000  001e0f58  2**0
+ 21 .debug_loc    0002c3c4  00000000  00000000  001e0f54  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -470,17 +470,17 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
 void vUpdateLCD_TaskHandler(void *params){
  80005bc:	b508      	push	{r3, lr}
 	for(;;){
-		  vUpdateLCDScreen();																										/*Update LCD Screen With New Information*/
-		  vTaskDelay(500);																											/*Block Task for 500 ms*/
-		  taskYIELD();																												/*Yield Task*/
+		  vUpdateLCDScreen();                                                                                                       /*Update LCD Screen With New Information*/
+		  vTaskDelay(500);                                                                                                          /*Block Task for 500 ms*/
+		  taskYIELD();                                                                                                              /*Yield Task*/
  80005be:	4d07      	ldr	r5, [pc, #28]	; (80005dc <vUpdateLCD_TaskHandler+0x20>)
  80005c0:	f04f 5480 	mov.w	r4, #268435456	; 0x10000000
-		  vUpdateLCDScreen();																										/*Update LCD Screen With New Information*/
+		  vUpdateLCDScreen();                                                                                                       /*Update LCD Screen With New Information*/
  80005c4:	f003 ffa6 	bl	8004514 <vUpdateLCDScreen>
-		  vTaskDelay(500);																											/*Block Task for 500 ms*/
+		  vTaskDelay(500);                                                                                                          /*Block Task for 500 ms*/
  80005c8:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
  80005cc:	f00d ff64 	bl	800e498 <vTaskDelay>
-		  taskYIELD();																												/*Yield Task*/
+		  taskYIELD();                                                                                                              /*Yield Task*/
  80005d0:	602c      	str	r4, [r5, #0]
  80005d2:	f3bf 8f4f 	dsb	sy
  80005d6:	f3bf 8f6f 	isb	sy
@@ -496,22 +496,22 @@ void vUpdateLCD_TaskHandler(void *params){
 void vReadADC_TaskHandler(void *params){
  80005e0:	b508      	push	{r3, lr}
 	for(;;){
-		HAL_ADC_Start(&hadc1);																										/*start ADC conversion*/
+		HAL_ADC_Start(&hadc1);                                                                                                      /*start ADC conversion*/
  80005e2:	4c12      	ldr	r4, [pc, #72]	; (800062c <vReadADC_TaskHandler+0x4c>)
-		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);																			/*poll ADC*/
-		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));																		/*get the ADC value*/
+		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);                                                                           /*poll ADC*/
+		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));                                                                       /*get the ADC value*/
  80005e4:	4e12      	ldr	r6, [pc, #72]	; (8000630 <vReadADC_TaskHandler+0x50>)
-		vTaskDelay(500);																											/*Block Task for 500 ms*/
-		taskYIELD();																												/*Yield Task*/
+		vTaskDelay(500);                                                                                                            /*Block Task for 500 ms*/
+		taskYIELD();                                                                                                                /*Yield Task*/
  80005e6:	4d13      	ldr	r5, [pc, #76]	; (8000634 <vReadADC_TaskHandler+0x54>)
-		HAL_ADC_Start(&hadc1);																										/*start ADC conversion*/
+		HAL_ADC_Start(&hadc1);                                                                                                      /*start ADC conversion*/
  80005e8:	4620      	mov	r0, r4
  80005ea:	f005 f859 	bl	80056a0 <HAL_ADC_Start>
-		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);																			/*poll ADC*/
+		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);                                                                           /*poll ADC*/
  80005ee:	f04f 31ff 	mov.w	r1, #4294967295
  80005f2:	4620      	mov	r0, r4
  80005f4:	f005 f8d2 	bl	800579c <HAL_ADC_PollForConversion>
-		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));																		/*get the ADC value*/
+		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));                                                                       /*get the ADC value*/
  80005f8:	4620      	mov	r0, r4
  80005fa:	f005 f91f 	bl	800583c <HAL_ADC_GetValue>
  80005fe:	2364      	movs	r3, #100	; 0x64
@@ -521,10 +521,10 @@ void vReadADC_TaskHandler(void *params){
  800060a:	eb03 0050 	add.w	r0, r3, r0, lsr #1
  800060e:	0ac0      	lsrs	r0, r0, #11
  8000610:	f003 ff60 	bl	80044d4 <vUpdateLCDSetVolume>
-		vTaskDelay(500);																											/*Block Task for 500 ms*/
+		vTaskDelay(500);                                                                                                            /*Block Task for 500 ms*/
  8000614:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
  8000618:	f00d ff3e 	bl	800e498 <vTaskDelay>
-		taskYIELD();																												/*Yield Task*/
+		taskYIELD();                                                                                                                /*Yield Task*/
  800061c:	f04f 5380 	mov.w	r3, #268435456	; 0x10000000
  8000620:	602b      	str	r3, [r5, #0]
  8000622:	f3bf 8f4f 	dsb	sy
@@ -548,92 +548,92 @@ void vReadInputButtons_TaskHandler(void *params){
 	  /* Infinite loop */
 	  for(;;)
 	  {
-		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){																			/*if Prev button is pressed*/
+		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){                                                                            /*if Prev button is pressed*/
  8000644:	4c24      	ldr	r4, [pc, #144]	; (80006d8 <vReadInputButtons_TaskHandler+0xa0>)
-			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
-			  pxCurrent = pxCurrent->pxPrev;																							/*Set LL Previous Node*/
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
+			  pxCurrent = pxCurrent->pxPrev;                                                                                            /*Set LL Previous Node*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
 
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){																		/*if Pause button is pressed*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){                                                                      /*if Pause button is pressed*/
  8000646:	4f25      	ldr	r7, [pc, #148]	; (80006dc <vReadInputButtons_TaskHandler+0xa4>)
-			  pxCurrent = pxCurrent->pxNext;																							/*Set LL to Next Node*/
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  pxCurrent = pxCurrent->pxNext;                                                                                            /*Set LL to Next Node*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
 		  }
 
-		  vTaskDelay(50);																											/*Block Task for 50 ms*/
-		  taskYIELD();																												/*Yield Task*/
+		  vTaskDelay(50);                                                                                                           /*Block Task for 50 ms*/
+		  taskYIELD();                                                                                                              /*Yield Task*/
  8000648:	4e25      	ldr	r6, [pc, #148]	; (80006e0 <vReadInputButtons_TaskHandler+0xa8>)
  800064a:	e012      	b.n	8000672 <vReadInputButtons_TaskHandler+0x3a>
-			  pxCurrent = pxCurrent->pxPrev;																							/*Set LL Previous Node*/
+			  pxCurrent = pxCurrent->pxPrev;                                                                                            /*Set LL Previous Node*/
  800064c:	682a      	ldr	r2, [r5, #0]
-			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
+			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
  800064e:	f888 3000 	strb.w	r3, [r8]
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
  8000652:	f44f 70c8 	mov.w	r0, #400	; 0x190
-			  pxCurrent = pxCurrent->pxPrev;																							/*Set LL Previous Node*/
+			  pxCurrent = pxCurrent->pxPrev;                                                                                            /*Set LL Previous Node*/
  8000656:	6893      	ldr	r3, [r2, #8]
  8000658:	602b      	str	r3, [r5, #0]
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
  800065a:	f00d ff1d 	bl	800e498 <vTaskDelay>
-		  vTaskDelay(50);																											/*Block Task for 50 ms*/
+		  vTaskDelay(50);                                                                                                           /*Block Task for 50 ms*/
  800065e:	2032      	movs	r0, #50	; 0x32
  8000660:	f00d ff1a 	bl	800e498 <vTaskDelay>
-		  taskYIELD();																												/*Yield Task*/
+		  taskYIELD();                                                                                                              /*Yield Task*/
  8000664:	f04f 5380 	mov.w	r3, #268435456	; 0x10000000
  8000668:	6033      	str	r3, [r6, #0]
  800066a:	f3bf 8f4f 	dsb	sy
  800066e:	f3bf 8f6f 	isb	sy
-		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){																			/*if Prev button is pressed*/
+		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){                                                                            /*if Prev button is pressed*/
  8000672:	f44f 6180 	mov.w	r1, #1024	; 0x400
  8000676:	4620      	mov	r0, r4
  8000678:	f005 fdc8 	bl	800620c <HAL_GPIO_ReadPin>
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){																		/*if Pause button is pressed*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){                                                                      /*if Pause button is pressed*/
  800067c:	f44f 4180 	mov.w	r1, #16384	; 0x4000
-			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
+			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
  8000680:	2301      	movs	r3, #1
-		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){																			/*if Prev button is pressed*/
+		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){                                                                            /*if Prev button is pressed*/
  8000682:	2800      	cmp	r0, #0
  8000684:	d0e2      	beq.n	800064c <vReadInputButtons_TaskHandler+0x14>
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){																		/*if Pause button is pressed*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){                                                                      /*if Pause button is pressed*/
  8000686:	4638      	mov	r0, r7
  8000688:	f005 fdc0 	bl	800620c <HAL_GPIO_ReadPin>
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){																		/*if Next button is pressed*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){                                                                      /*if Next button is pressed*/
  800068c:	f44f 5180 	mov.w	r1, #4096	; 0x1000
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){																		/*if Pause button is pressed*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){                                                                      /*if Pause button is pressed*/
  8000690:	b978      	cbnz	r0, 80006b2 <vReadInputButtons_TaskHandler+0x7a>
-			  ucPauseStateFlag = ucPauseStateFlag ^ 1;																					/*invert Pause State Flag*/
+			  ucPauseStateFlag = ucPauseStateFlag ^ 1;                                                                                  /*invert Pause State Flag*/
  8000692:	f899 3000 	ldrb.w	r3, [r9]
 			  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
  8000696:	4620      	mov	r0, r4
-			  ucPauseStateFlag = ucPauseStateFlag ^ 1;																					/*invert Pause State Flag*/
+			  ucPauseStateFlag = ucPauseStateFlag ^ 1;                                                                                  /*invert Pause State Flag*/
  8000698:	f083 0301 	eor.w	r3, r3, #1
 			  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
  800069c:	f44f 5100 	mov.w	r1, #8192	; 0x2000
-			  ucPauseStateFlag = ucPauseStateFlag ^ 1;																					/*invert Pause State Flag*/
+			  ucPauseStateFlag = ucPauseStateFlag ^ 1;                                                                                  /*invert Pause State Flag*/
  80006a0:	f889 3000 	strb.w	r3, [r9]
 			  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
  80006a4:	f005 fdbc 	bl	8006220 <HAL_GPIO_TogglePin>
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
  80006a8:	f44f 70c8 	mov.w	r0, #400	; 0x190
  80006ac:	f00d fef4 	bl	800e498 <vTaskDelay>
  80006b0:	e7d5      	b.n	800065e <vReadInputButtons_TaskHandler+0x26>
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){																		/*if Next button is pressed*/
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){                                                                      /*if Next button is pressed*/
  80006b2:	4638      	mov	r0, r7
  80006b4:	f005 fdaa 	bl	800620c <HAL_GPIO_ReadPin>
  80006b8:	2800      	cmp	r0, #0
  80006ba:	d1d0      	bne.n	800065e <vReadInputButtons_TaskHandler+0x26>
-			  pxCurrent = pxCurrent->pxNext;																							/*Set LL to Next Node*/
+			  pxCurrent = pxCurrent->pxNext;                                                                                            /*Set LL to Next Node*/
  80006bc:	682a      	ldr	r2, [r5, #0]
-			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
+			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
  80006be:	2301      	movs	r3, #1
-			  pxCurrent = pxCurrent->pxNext;																							/*Set LL to Next Node*/
+			  pxCurrent = pxCurrent->pxNext;                                                                                            /*Set LL to Next Node*/
  80006c0:	6852      	ldr	r2, [r2, #4]
  80006c2:	602a      	str	r2, [r5, #0]
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
  80006c4:	f44f 70c8 	mov.w	r0, #400	; 0x190
-			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
+			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
  80006c8:	f888 3000 	strb.w	r3, [r8]
-			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
  80006cc:	f00d fee4 	bl	800e498 <vTaskDelay>
  80006d0:	e7c5      	b.n	800065e <vReadInputButtons_TaskHandler+0x26>
  80006d2:	bf00      	nop
@@ -648,59 +648,59 @@ void vReadInputButtons_TaskHandler(void *params){
 void vBuildMp3List(){
  80006ec:	b530      	push	{r4, r5, lr}
  80006ee:	b0d5      	sub	sp, #340	; 0x154
-	if(f_opendir(&xDirectory, "0:/") == FR_OK){																						/*get the read out protection status*/
+	if(f_opendir(&xDirectory, "0:/") == FR_OK){                                                                                     /*get the read out protection status*/
  80006f0:	a801      	add	r0, sp, #4
  80006f2:	4917      	ldr	r1, [pc, #92]	; (8000750 <vBuildMp3List+0x64>)
  80006f4:	f00c fbac 	bl	800ce50 <f_opendir>
  80006f8:	bb40      	cbnz	r0, 800074c <vBuildMp3List+0x60>
-			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){																/*make sure file extension is .mp3*/
+			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){                                                           /*make sure file extension is .mp3*/
  80006fa:	4d16      	ldr	r5, [pc, #88]	; (8000754 <vBuildMp3List+0x68>)
-    const char *pcPeriod = strrchr(pcFile, '.');																					/*pointer to last occurrence of "."*/
+    const char *pcPeriod = strrchr(pcFile, '.');                                                                                    /*pointer to last occurrence of "."*/
  80006fc:	f10d 044e 	add.w	r4, sp, #78	; 0x4e
-		while(f_readdir(&xDirectory, &xFinf) == FR_OK){																				/*start reading directory entries*/
+		while(f_readdir(&xDirectory, &xFinf) == FR_OK){                                                                             /*start reading directory entries*/
  8000700:	a90e      	add	r1, sp, #56	; 0x38
  8000702:	a801      	add	r0, sp, #4
  8000704:	f00c fc18 	bl	800cf38 <f_readdir>
-    const char *pcPeriod = strrchr(pcFile, '.');																					/*pointer to last occurrence of "."*/
+    const char *pcPeriod = strrchr(pcFile, '.');                                                                                    /*pointer to last occurrence of "."*/
  8000708:	212e      	movs	r1, #46	; 0x2e
-		while(f_readdir(&xDirectory, &xFinf) == FR_OK){																				/*start reading directory entries*/
+		while(f_readdir(&xDirectory, &xFinf) == FR_OK){                                                                             /*start reading directory entries*/
  800070a:	b9c0      	cbnz	r0, 800073e <vBuildMp3List+0x52>
-			if(xFinf.fname[0] == 0)																									/*exit loop when finished*/
+			if(xFinf.fname[0] == 0)                                                                                                 /*exit loop when finished*/
  800070c:	f89d 304e 	ldrb.w	r3, [sp, #78]	; 0x4e
-    const char *pcPeriod = strrchr(pcFile, '.');																					/*pointer to last occurrence of "."*/
+    const char *pcPeriod = strrchr(pcFile, '.');                                                                                    /*pointer to last occurrence of "."*/
  8000710:	4620      	mov	r0, r4
-			if(xFinf.fname[0] == 0)																									/*exit loop when finished*/
+			if(xFinf.fname[0] == 0)                                                                                                 /*exit loop when finished*/
  8000712:	b1a3      	cbz	r3, 800073e <vBuildMp3List+0x52>
-    const char *pcPeriod = strrchr(pcFile, '.');																					/*pointer to last occurrence of "."*/
+    const char *pcPeriod = strrchr(pcFile, '.');                                                                                    /*pointer to last occurrence of "."*/
  8000714:	f00e fe9f 	bl	800f456 <strrchr>
-    if(!pcPeriod || pcPeriod == pcFile) return "";																					/*return "" if no "."*/
+    if(!pcPeriod || pcPeriod == pcFile) return "";                                                                                  /*return "" if no "."*/
  8000718:	4603      	mov	r3, r0
-			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){																/*make sure file extension is .mp3*/
+			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){                                                           /*make sure file extension is .mp3*/
  800071a:	1c41      	adds	r1, r0, #1
-    if(!pcPeriod || pcPeriod == pcFile) return "";																					/*return "" if no "."*/
+    if(!pcPeriod || pcPeriod == pcFile) return "";                                                                                  /*return "" if no "."*/
  800071c:	2800      	cmp	r0, #0
  800071e:	d0ef      	beq.n	8000700 <vBuildMp3List+0x14>
  8000720:	42a3      	cmp	r3, r4
-			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){																/*make sure file extension is .mp3*/
+			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){                                                           /*make sure file extension is .mp3*/
  8000722:	4628      	mov	r0, r5
-    if(!pcPeriod || pcPeriod == pcFile) return "";																					/*return "" if no "."*/
+    if(!pcPeriod || pcPeriod == pcFile) return "";                                                                                  /*return "" if no "."*/
  8000724:	d0ec      	beq.n	8000700 <vBuildMp3List+0x14>
-			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){																/*make sure file extension is .mp3*/
+			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){                                                           /*make sure file extension is .mp3*/
  8000726:	f7ff fd53 	bl	80001d0 <strcmp>
  800072a:	2800      	cmp	r0, #0
  800072c:	d1e8      	bne.n	8000700 <vBuildMp3List+0x14>
-				vSongLLAddEnd(&pxStart, pxSongLLNewElement((char*) xFinf.fname));															/*add file to linked list of mp3s*/
+				vSongLLAddEnd(&pxStart, pxSongLLNewElement((char*) xFinf.fname));                                                       /*add file to linked list of mp3s*/
  800072e:	4620      	mov	r0, r4
  8000730:	f003 fcda 	bl	80040e8 <pxSongLLNewElement>
  8000734:	4601      	mov	r1, r0
  8000736:	4808      	ldr	r0, [pc, #32]	; (8000758 <vBuildMp3List+0x6c>)
  8000738:	f003 fcee 	bl	8004118 <vSongLLAddEnd>
  800073c:	e7e0      	b.n	8000700 <vBuildMp3List+0x14>
-		vSongLLCircularizeList(pxStart);																							/*head and tail of LL point to each other*/
+		vSongLLCircularizeList(pxStart);                                                                                            /*head and tail of LL point to each other*/
  800073e:	4c06      	ldr	r4, [pc, #24]	; (8000758 <vBuildMp3List+0x6c>)
  8000740:	6820      	ldr	r0, [r4, #0]
  8000742:	f003 fcf5 	bl	8004130 <vSongLLCircularizeList>
-		pxCurrent = pxStart;																										/*current music track is at head of LL*/
+		pxCurrent = pxStart;                                                                                                        /*current music track is at head of LL*/
  8000746:	4b05      	ldr	r3, [pc, #20]	; (800075c <vBuildMp3List+0x70>)
  8000748:	6822      	ldr	r2, [r4, #0]
  800074a:	601a      	str	r2, [r3, #0]
@@ -716,84 +716,84 @@ void vBuildMp3List(){
 {
  8000760:	4e28      	ldr	r6, [pc, #160]	; (8000804 <vMP3Playback_TaskHandler+0xa4>)
  8000762:	4c29      	ldr	r4, [pc, #164]	; (8000808 <vMP3Playback_TaskHandler+0xa8>)
-				  taskYIELD();																											/*Yield Task*/
+				  taskYIELD();                                                                                                          /*Yield Task*/
  8000764:	f8df 80ac 	ldr.w	r8, [pc, #172]	; 8000814 <vMP3Playback_TaskHandler+0xb4>
 			  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
  8000768:	f8df a0ac 	ldr.w	sl, [pc, #172]	; 8000818 <vMP3Playback_TaskHandler+0xb8>
-			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){																/*Mount USB drive*/
+			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){                                                              /*Mount USB drive*/
  800076c:	f8df 90ac 	ldr.w	r9, [pc, #172]	; 800081c <vMP3Playback_TaskHandler+0xbc>
 {
  8000770:	b580      	push	{r7, lr}
-  MX_USB_HOST_Init();																												/*init code for USB_HOST*/
+  MX_USB_HOST_Init();                                                                                                               /*init code for USB_HOST*/
  8000772:	f00e fb97 	bl	800eea4 <MX_USB_HOST_Init>
  8000776:	4f25      	ldr	r7, [pc, #148]	; (800080c <vMP3Playback_TaskHandler+0xac>)
  8000778:	7833      	ldrb	r3, [r6, #0]
-		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){																/*if Ready and Drive is not Mounted*/
+		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){                                                                  /*if Ready and Drive is not Mounted*/
  800077a:	783a      	ldrb	r2, [r7, #0]
  800077c:	2a02      	cmp	r2, #2
  800077e:	d029      	beq.n	80007d4 <vMP3Playback_TaskHandler+0x74>
-		  if(ucNewSongFlag && ucDriveMountedFlag){																					/*if New Song Flag Set and Drive Mounted Set*/
+		  if(ucNewSongFlag && ucDriveMountedFlag){                                                                                  /*if New Song Flag Set and Drive Mounted Set*/
  8000780:	7822      	ldrb	r2, [r4, #0]
  8000782:	b1aa      	cbz	r2, 80007b0 <vMP3Playback_TaskHandler+0x50>
  8000784:	bb5b      	cbnz	r3, 80007de <vMP3Playback_TaskHandler+0x7e>
-		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){																/*if Ready and Drive is not Mounted*/
+		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){                                                                  /*if Ready and Drive is not Mounted*/
  8000786:	783a      	ldrb	r2, [r7, #0]
  8000788:	2a02      	cmp	r2, #2
  800078a:	d1f9      	bne.n	8000780 <vMP3Playback_TaskHandler+0x20>
-			  ucDriveMountedFlag = 1;																									/*Set the Drive Mounted Flag*/
+			  ucDriveMountedFlag = 1;                                                                                                   /*Set the Drive Mounted Flag*/
  800078c:	2301      	movs	r3, #1
 			  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
  800078e:	461a      	mov	r2, r3
  8000790:	f44f 5180 	mov.w	r1, #4096	; 0x1000
  8000794:	4650      	mov	r0, sl
-			  ucDriveMountedFlag = 1;																									/*Set the Drive Mounted Flag*/
+			  ucDriveMountedFlag = 1;                                                                                                   /*Set the Drive Mounted Flag*/
  8000796:	7033      	strb	r3, [r6, #0]
 			  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
  8000798:	f005 fd3e 	bl	8006218 <HAL_GPIO_WritePin>
-			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){																/*Mount USB drive*/
+			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){                                                              /*Mount USB drive*/
  800079c:	2200      	movs	r2, #0
  800079e:	4649      	mov	r1, r9
  80007a0:	481b      	ldr	r0, [pc, #108]	; (8000810 <vMP3Playback_TaskHandler+0xb0>)
  80007a2:	f00b fdc1 	bl	800c328 <f_mount>
  80007a6:	b348      	cbz	r0, 80007fc <vMP3Playback_TaskHandler+0x9c>
-		  if(ucNewSongFlag && ucDriveMountedFlag){																					/*if New Song Flag Set and Drive Mounted Set*/
+		  if(ucNewSongFlag && ucDriveMountedFlag){                                                                                  /*if New Song Flag Set and Drive Mounted Set*/
  80007a8:	7822      	ldrb	r2, [r4, #0]
  80007aa:	7833      	ldrb	r3, [r6, #0]
  80007ac:	2a00      	cmp	r2, #0
  80007ae:	d1e9      	bne.n	8000784 <vMP3Playback_TaskHandler+0x24>
-			  if (!ucNewSongFlag && ucDriveMountedFlag){																			/*if New Song Flag Not Set and Drive Mounted Set*/
+			  if (!ucNewSongFlag && ucDriveMountedFlag){                                                                            /*if New Song Flag Not Set and Drive Mounted Set*/
  80007b0:	2b00      	cmp	r3, #0
  80007b2:	d0e8      	beq.n	8000786 <vMP3Playback_TaskHandler+0x26>
-				  taskYIELD();																											/*Yield Task*/
+				  taskYIELD();                                                                                                          /*Yield Task*/
  80007b4:	f04f 5580 	mov.w	r5, #268435456	; 0x10000000
-				  vMp3PlayerDecodeFrames();																								/*Decode and Play a couple Mp3 Frasmes*/
+				  vMp3PlayerDecodeFrames();                                                                                             /*Decode and Play a couple Mp3 Frasmes*/
  80007b8:	f003 fb9e 	bl	8003ef8 <vMp3PlayerDecodeFrames>
-				  taskYIELD();																											/*Yield Task*/
+				  taskYIELD();                                                                                                          /*Yield Task*/
  80007bc:	f8c8 5000 	str.w	r5, [r8]
  80007c0:	f3bf 8f4f 	dsb	sy
  80007c4:	f3bf 8f6f 	isb	sy
-			  if (!ucNewSongFlag && ucDriveMountedFlag){																			/*if New Song Flag Not Set and Drive Mounted Set*/
+			  if (!ucNewSongFlag && ucDriveMountedFlag){                                                                            /*if New Song Flag Not Set and Drive Mounted Set*/
  80007c8:	7823      	ldrb	r3, [r4, #0]
  80007ca:	b19b      	cbz	r3, 80007f4 <vMP3Playback_TaskHandler+0x94>
-		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){																/*if Ready and Drive is not Mounted*/
+		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){                                                                  /*if Ready and Drive is not Mounted*/
  80007cc:	783a      	ldrb	r2, [r7, #0]
  80007ce:	7833      	ldrb	r3, [r6, #0]
  80007d0:	2a02      	cmp	r2, #2
  80007d2:	d1d5      	bne.n	8000780 <vMP3Playback_TaskHandler+0x20>
  80007d4:	2b00      	cmp	r3, #0
  80007d6:	d0d9      	beq.n	800078c <vMP3Playback_TaskHandler+0x2c>
-		  if(ucNewSongFlag && ucDriveMountedFlag){																					/*if New Song Flag Set and Drive Mounted Set*/
+		  if(ucNewSongFlag && ucDriveMountedFlag){                                                                                  /*if New Song Flag Set and Drive Mounted Set*/
  80007d8:	7823      	ldrb	r3, [r4, #0]
  80007da:	2b00      	cmp	r3, #0
  80007dc:	d0ea      	beq.n	80007b4 <vMP3Playback_TaskHandler+0x54>
-			  ucNewSongFlag = 0;																										/*Un-Set New Song Flag*/
+			  ucNewSongFlag = 0;                                                                                                        /*Un-Set New Song Flag*/
  80007de:	2300      	movs	r3, #0
  80007e0:	7023      	strb	r3, [r4, #0]
-			  vMp3PlayerFindInfo();																										/*Find Mp3 Track info*/
+			  vMp3PlayerFindInfo();                                                                                                     /*Find Mp3 Track info*/
  80007e2:	f003 fc01 	bl	8003fe8 <vMp3PlayerFindInfo>
-			  vMp3PlayerInit();																											/*init Mp3 Playback*/
+			  vMp3PlayerInit();                                                                                                         /*init Mp3 Playback*/
  80007e6:	f003 fb41 	bl	8003e6c <vMp3PlayerInit>
-			  if (!ucNewSongFlag && ucDriveMountedFlag){																			/*if New Song Flag Not Set and Drive Mounted Set*/
+			  if (!ucNewSongFlag && ucDriveMountedFlag){                                                                            /*if New Song Flag Not Set and Drive Mounted Set*/
  80007ea:	7822      	ldrb	r2, [r4, #0]
  80007ec:	7833      	ldrb	r3, [r6, #0]
  80007ee:	2a00      	cmp	r2, #0
@@ -803,7 +803,7 @@ void vBuildMp3List(){
  80007f6:	2b00      	cmp	r3, #0
  80007f8:	d1de      	bne.n	80007b8 <vMP3Playback_TaskHandler+0x58>
  80007fa:	e7c4      	b.n	8000786 <vMP3Playback_TaskHandler+0x26>
-				  vBuildMp3List();																										/*Build Mp3 LL*/
+				  vBuildMp3List();                                                                                                      /*Build Mp3 LL*/
  80007fc:	f7ff ff76 	bl	80006ec <vBuildMp3List>
  8000800:	e7d2      	b.n	80007a8 <vMP3Playback_TaskHandler+0x48>
  8000802:	bf00      	nop
@@ -7124,46 +7124,46 @@ static int mp3dec_load_index(void *user_data, const uint8_t *frame, int frame_si
 08003a24 <prvMp3PlayerDecode.constprop.8>:
 static void prvMp3PlayerDecode(uint32_t *pulBytesRead, int xInputBufPos){
  8003a24:	e92d 43f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, lr}
-	if (!ulAudioRemSize){																									/*finish decoding last buffer*/
+	if (!ulAudioRemSize){                                                                                               /*finish decoding last buffer*/
  8003a28:	4c2c      	ldr	r4, [pc, #176]	; (8003adc <prvMp3PlayerDecode.constprop.8+0xb8>)
  8003a2a:	6822      	ldr	r2, [r4, #0]
 static void prvMp3PlayerDecode(uint32_t *pulBytesRead, int xInputBufPos){
  8003a2c:	b083      	sub	sp, #12
-	if (!ulAudioRemSize){																									/*finish decoding last buffer*/
+	if (!ulAudioRemSize){                                                                                               /*finish decoding last buffer*/
  8003a2e:	bb3a      	cbnz	r2, 8003a80 <prvMp3PlayerDecode.constprop.8+0x5c>
-		if(xFrameInfo.frame_bytes){																							/*if there are still more frames left*/
+		if(xFrameInfo.frame_bytes){                                                                                         /*if there are still more frames left*/
  8003a30:	4d2b      	ldr	r5, [pc, #172]	; (8003ae0 <prvMp3PlayerDecode.constprop.8+0xbc>)
  8003a32:	682a      	ldr	r2, [r5, #0]
  8003a34:	b94a      	cbnz	r2, 8003a4a <prvMp3PlayerDecode.constprop.8+0x26>
-			pxCurrent = pxCurrent->pxNext;																						/*update LL to point to next track*/
+			pxCurrent = pxCurrent->pxNext;                                                                                      /*update LL to point to next track*/
  8003a36:	4b2b      	ldr	r3, [pc, #172]	; (8003ae4 <prvMp3PlayerDecode.constprop.8+0xc0>)
-			ucNewSongFlag = 1;																									/*update mp3 decoding flag*/
+			ucNewSongFlag = 1;                                                                                                  /*update mp3 decoding flag*/
  8003a38:	4a2b      	ldr	r2, [pc, #172]	; (8003ae8 <prvMp3PlayerDecode.constprop.8+0xc4>)
-			pxCurrent = pxCurrent->pxNext;																						/*update LL to point to next track*/
+			pxCurrent = pxCurrent->pxNext;                                                                                      /*update LL to point to next track*/
  8003a3a:	6818      	ldr	r0, [r3, #0]
  8003a3c:	6840      	ldr	r0, [r0, #4]
  8003a3e:	6018      	str	r0, [r3, #0]
-			ucNewSongFlag = 1;																									/*update mp3 decoding flag*/
+			ucNewSongFlag = 1;                                                                                                  /*update mp3 decoding flag*/
  8003a40:	2101      	movs	r1, #1
  8003a42:	7011      	strb	r1, [r2, #0]
 }
  8003a44:	b003      	add	sp, #12
  8003a46:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
-			n += xFrameInfo.frame_bytes;																						/*track frame position in input buffer*/
+			n += xFrameInfo.frame_bytes;                                                                                        /*track frame position in input buffer*/
  8003a4a:	4e28      	ldr	r6, [pc, #160]	; (8003aec <prvMp3PlayerDecode.constprop.8+0xc8>)
 			ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[n], MP3_BUF - n, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
  8003a4c:	4928      	ldr	r1, [pc, #160]	; (8003af0 <prvMp3PlayerDecode.constprop.8+0xcc>)
-			n += xFrameInfo.frame_bytes;																						/*track frame position in input buffer*/
+			n += xFrameInfo.frame_bytes;                                                                                        /*track frame position in input buffer*/
  8003a4e:	6834      	ldr	r4, [r6, #0]
 			ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[n], MP3_BUF - n, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
  8003a50:	4b28      	ldr	r3, [pc, #160]	; (8003af4 <prvMp3PlayerDecode.constprop.8+0xd0>)
  8003a52:	9500      	str	r5, [sp, #0]
-			n += xFrameInfo.frame_bytes;																						/*track frame position in input buffer*/
+			n += xFrameInfo.frame_bytes;                                                                                        /*track frame position in input buffer*/
  8003a54:	4414      	add	r4, r2
 			ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[n], MP3_BUF - n, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
  8003a56:	4421      	add	r1, r4
  8003a58:	f5c4 5200 	rsb	r2, r4, #8192	; 0x2000
-			n += xFrameInfo.frame_bytes;																						/*track frame position in input buffer*/
+			n += xFrameInfo.frame_bytes;                                                                                        /*track frame position in input buffer*/
  8003a5c:	6034      	str	r4, [r6, #0]
 			ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[n], MP3_BUF - n, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
  8003a5e:	4c26      	ldr	r4, [pc, #152]	; (8003af8 <prvMp3PlayerDecode.constprop.8+0xd4>)
@@ -7188,35 +7188,35 @@ static void prvMp3PlayerDecode(uint32_t *pulBytesRead, int xInputBufPos){
  8003a8a:	4629      	mov	r1, r5
  8003a8c:	f44f 5200 	mov.w	r2, #8192	; 0x2000
  8003a90:	481a      	ldr	r0, [pc, #104]	; (8003afc <prvMp3PlayerDecode.constprop.8+0xd8>)
-		f_read(&xFileRead, &cInputData[MP3_BUF - xFrameInfo.frame_bytes], xFrameInfo.frame_bytes, (void *) pulBytesRead); 	/*read more data into end of input buffer*/
+		f_read(&xFileRead, &cInputData[MP3_BUF - xFrameInfo.frame_bytes], xFrameInfo.frame_bytes, (void *) pulBytesRead);   /*read more data into end of input buffer*/
  8003a92:	4f1b      	ldr	r7, [pc, #108]	; (8003b00 <prvMp3PlayerDecode.constprop.8+0xdc>)
 		ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[0], MP3_BUF, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
  8003a94:	f7fe fba6 	bl	80021e4 <mp3dec_decode_frame>
  8003a98:	4b17      	ldr	r3, [pc, #92]	; (8003af8 <prvMp3PlayerDecode.constprop.8+0xd4>)
-		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));   				/*move input buffer to to correct position*/
+		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));                   /*move input buffer to to correct position*/
  8003a9a:	6836      	ldr	r6, [r6, #0]
 		ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[0], MP3_BUF, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
  8003a9c:	e9d3 8900 	ldrd	r8, r9, [r3]
  8003aa0:	eb18 0100 	adds.w	r1, r8, r0
  8003aa4:	eb49 72e0 	adc.w	r2, r9, r0, asr #31
-		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));   				/*move input buffer to to correct position*/
+		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));                   /*move input buffer to to correct position*/
  8003aa8:	f5c6 5800 	rsb	r8, r6, #8192	; 0x2000
 		ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[0], MP3_BUF, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
  8003aac:	4608      	mov	r0, r1
  8003aae:	4611      	mov	r1, r2
  8003ab0:	e9c3 0100 	strd	r0, r1, [r3]
-		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));   				/*move input buffer to to correct position*/
+		memmove(&cInputData[0], &cInputData[xFrameInfo.frame_bytes], (MP3_BUF - xFrameInfo.frame_bytes));                   /*move input buffer to to correct position*/
  8003ab4:	4642      	mov	r2, r8
  8003ab6:	19a9      	adds	r1, r5, r6
  8003ab8:	4628      	mov	r0, r5
  8003aba:	f00b fbb5 	bl	800f228 <memmove>
-		f_read(&xFileRead, &cInputData[MP3_BUF - xFrameInfo.frame_bytes], xFrameInfo.frame_bytes, (void *) pulBytesRead); 	/*read more data into end of input buffer*/
+		f_read(&xFileRead, &cInputData[MP3_BUF - xFrameInfo.frame_bytes], xFrameInfo.frame_bytes, (void *) pulBytesRead);   /*read more data into end of input buffer*/
  8003abe:	4632      	mov	r2, r6
  8003ac0:	463b      	mov	r3, r7
  8003ac2:	eb05 0108 	add.w	r1, r5, r8
  8003ac6:	480f      	ldr	r0, [pc, #60]	; (8003b04 <prvMp3PlayerDecode.constprop.8+0xe0>)
  8003ac8:	f008 fe48 	bl	800c75c <f_read>
-		ulAudioRemSize = ulAudioRemSize - *pulBytesRead;																	/*update ulAudioRemSize variable*/
+		ulAudioRemSize = ulAudioRemSize - *pulBytesRead;                                                                    /*update ulAudioRemSize variable*/
  8003acc:	6823      	ldr	r3, [r4, #0]
  8003ace:	683a      	ldr	r2, [r7, #0]
  8003ad0:	1a9b      	subs	r3, r3, r2
@@ -7722,48 +7722,48 @@ void mp3dec_ex_close(mp3dec_ex_t *dec)
 08003e6c <vMp3PlayerInit>:
 void vMp3PlayerInit(){
  8003e6c:	b510      	push	{r4, lr}
-	vUpdateLCDSetCurrentTime(0);    																						/*initialize current mp3 time equal to 0*/
+	vUpdateLCDSetCurrentTime(0);                                                                                            /*initialize current mp3 time equal to 0*/
  8003e6e:	2000      	movs	r0, #0
  8003e70:	f000 fb02 	bl	8004478 <vUpdateLCDSetCurrentTime>
  8003e74:	4a19      	ldr	r2, [pc, #100]	; (8003edc <vMp3PlayerInit+0x70>)
  8003e76:	f641 0308 	movw	r3, #6152	; 0x1808
  8003e7a:	2100      	movs	r1, #0
  8003e7c:	54d1      	strb	r1, [r2, r3]
-	if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, ulUpdateLCDGetSampleRate()) != 0){										/* Initialize MP3 player (Codec, DMA, I2C) */
+	if(BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, ulUpdateLCDGetSampleRate()) != 0){                                        /* Initialize MP3 player (Codec, DMA, I2C) */
  8003e7e:	f000 fb3b 	bl	80044f8 <ulUpdateLCDGetSampleRate>
  8003e82:	2146      	movs	r1, #70	; 0x46
  8003e84:	4602      	mov	r2, r0
  8003e86:	2004      	movs	r0, #4
  8003e88:	f000 ff80 	bl	8004d8c <BSP_AUDIO_OUT_Init>
  8003e8c:	bb18      	cbnz	r0, 8003ed6 <vMp3PlayerInit+0x6a>
-	f_read(&xFileRead, &cInputData[0], MP3_BUF, (void *) pulBytesRead);														/*read mp3 data into input buffer*/
+	f_read(&xFileRead, &cInputData[0], MP3_BUF, (void *) pulBytesRead);                                                     /*read mp3 data into input buffer*/
  8003e8e:	4c14      	ldr	r4, [pc, #80]	; (8003ee0 <vMp3PlayerInit+0x74>)
-	f_lseek(&xFileRead, 0);																									/*seek to beginning of file*/
+	f_lseek(&xFileRead, 0);                                                                                                 /*seek to beginning of file*/
  8003e90:	4814      	ldr	r0, [pc, #80]	; (8003ee4 <vMp3PlayerInit+0x78>)
  8003e92:	2100      	movs	r1, #0
  8003e94:	f008 fe38 	bl	800cb08 <f_lseek>
-	f_read(&xFileRead, &cInputData[0], MP3_BUF, (void *) pulBytesRead);														/*read mp3 data into input buffer*/
+	f_read(&xFileRead, &cInputData[0], MP3_BUF, (void *) pulBytesRead);                                                     /*read mp3 data into input buffer*/
  8003e98:	4623      	mov	r3, r4
  8003e9a:	f44f 5200 	mov.w	r2, #8192	; 0x2000
  8003e9e:	4912      	ldr	r1, [pc, #72]	; (8003ee8 <vMp3PlayerInit+0x7c>)
  8003ea0:	4810      	ldr	r0, [pc, #64]	; (8003ee4 <vMp3PlayerInit+0x78>)
  8003ea2:	f008 fc5b 	bl	800c75c <f_read>
-	ulAudioRemSize = ulMP3DataLength - *pulBytesRead;																		/*calculate ulAudioRemSize*/
+	ulAudioRemSize = ulMP3DataLength - *pulBytesRead;                                                                       /*calculate ulAudioRemSize*/
  8003ea6:	4b11      	ldr	r3, [pc, #68]	; (8003eec <vMp3PlayerInit+0x80>)
  8003ea8:	6821      	ldr	r1, [r4, #0]
  8003eaa:	681b      	ldr	r3, [r3, #0]
  8003eac:	4a10      	ldr	r2, [pc, #64]	; (8003ef0 <vMp3PlayerInit+0x84>)
  8003eae:	1a5b      	subs	r3, r3, r1
-	prvMp3PlayerDecode(&ulBytesRead, 0);																					/*decode mp3 data, store result in first half of Audio Buffer*/
+	prvMp3PlayerDecode(&ulBytesRead, 0);                                                                                    /*decode mp3 data, store result in first half of Audio Buffer*/
  8003eb0:	2000      	movs	r0, #0
-	ulAudioRemSize = ulMP3DataLength - *pulBytesRead;																		/*calculate ulAudioRemSize*/
+	ulAudioRemSize = ulMP3DataLength - *pulBytesRead;                                                                       /*calculate ulAudioRemSize*/
  8003eb2:	6013      	str	r3, [r2, #0]
-	prvMp3PlayerDecode(&ulBytesRead, 0);																					/*decode mp3 data, store result in first half of Audio Buffer*/
+	prvMp3PlayerDecode(&ulBytesRead, 0);                                                                                    /*decode mp3 data, store result in first half of Audio Buffer*/
  8003eb4:	f7ff fdb6 	bl	8003a24 <prvMp3PlayerDecode.constprop.8>
-	prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);																	/*decode mp3 data, store result in second half of Audio Buffer*/
+	prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);                                                                  /*decode mp3 data, store result in second half of Audio Buffer*/
  8003eb8:	f44f 5090 	mov.w	r0, #4608	; 0x1200
  8003ebc:	f7ff fdb2 	bl	8003a24 <prvMp3PlayerDecode.constprop.8>
-	if (BSP_AUDIO_OUT_Play((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE) != 0){											/*start playing MP3*/
+	if (BSP_AUDIO_OUT_Play((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE) != 0){                                          /*start playing MP3*/
  8003ec0:	f44f 5110 	mov.w	r1, #9216	; 0x2400
  8003ec4:	480b      	ldr	r0, [pc, #44]	; (8003ef4 <vMp3PlayerInit+0x88>)
  8003ec6:	f000 fe1f 	bl	8004b08 <BSP_AUDIO_OUT_Play>
@@ -7773,7 +7773,7 @@ void vMp3PlayerInit(){
  8003ece:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
 		Error_Handler();
  8003ed2:	f7fc bcaf 	b.w	8000834 <Error_Handler>
-		Error_Handler();																										/*error if mp3 player initialization fails*/
+		Error_Handler();                                                                                                        /*error if mp3 player initialization fails*/
  8003ed6:	f7fc fcad 	bl	8000834 <Error_Handler>
  8003eda:	e7d8      	b.n	8003e8e <vMp3PlayerInit+0x22>
  8003edc:	20005828 	.word	0x20005828
@@ -7787,7 +7787,7 @@ void vMp3PlayerInit(){
 08003ef8 <vMp3PlayerDecodeFrames>:
 void vMp3PlayerDecodeFrames(){
  8003ef8:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
-	if(ucPauseStateFlag == 1 || ucOldPauseStateFlag == 1){																	/*if Pause Button is pressed or playback is paused*/
+	if(ucPauseStateFlag == 1 || ucOldPauseStateFlag == 1){                                                                  /*if Pause Button is pressed or playback is paused*/
  8003efc:	4b31      	ldr	r3, [pc, #196]	; (8003fc4 <vMp3PlayerDecodeFrames+0xcc>)
  8003efe:	4d32      	ldr	r5, [pc, #200]	; (8003fc8 <vMp3PlayerDecodeFrames+0xd0>)
  8003f00:	781c      	ldrb	r4, [r3, #0]
@@ -7800,22 +7800,22 @@ void vMp3PlayerDecodeFrames(){
  8003f10:	f8df 90d0 	ldr.w	r9, [pc, #208]	; 8003fe4 <vMp3PlayerDecodeFrames+0xec>
  8003f14:	4d2d      	ldr	r5, [pc, #180]	; (8003fcc <vMp3PlayerDecodeFrames+0xd4>)
  8003f16:	4c2e      	ldr	r4, [pc, #184]	; (8003fd0 <vMp3PlayerDecodeFrames+0xd8>)
-		ulBytesRead = 0;																										/*set bytes read back to zero*/
+		ulBytesRead = 0;                                                                                                        /*set bytes read back to zero*/
  8003f18:	f04f 0800 	mov.w	r8, #0
  8003f1c:	e007      	b.n	8003f2e <vMp3PlayerDecodeFrames+0x36>
-		if(xBufferOffset == BUFFER_OFFSET_FULL){																				/*check if the second half of the Audio Buffer has been transferred*/
+		if(xBufferOffset == BUFFER_OFFSET_FULL){                                                                                /*check if the second half of the Audio Buffer has been transferred*/
  8003f1e:	7823      	ldrb	r3, [r4, #0]
  8003f20:	2b02      	cmp	r3, #2
  8003f22:	d025      	beq.n	8003f70 <vMp3PlayerDecodeFrames+0x78>
-		BSP_AUDIO_OUT_SetVolume(ulUpdateLCDGetVolume());																		/*set volume appropriately*/
+		BSP_AUDIO_OUT_SetVolume(ulUpdateLCDGetVolume());                                                                        /*set volume appropriately*/
  8003f24:	f000 fadc 	bl	80044e0 <ulUpdateLCDGetVolume>
  8003f28:	b2c0      	uxtb	r0, r0
  8003f2a:	f000 fe5d 	bl	8004be8 <BSP_AUDIO_OUT_SetVolume>
-		vUpdateLCDSetCurrentTime(ullSamples / ulUpdateLCDGetSampleRate());														/*update current time*/
+		vUpdateLCDSetCurrentTime(ullSamples / ulUpdateLCDGetSampleRate());                                                      /*update current time*/
  8003f2e:	e9d9 6700 	ldrd	r6, r7, [r9]
-		ulBytesRead = 0;																										/*set bytes read back to zero*/
+		ulBytesRead = 0;                                                                                                        /*set bytes read back to zero*/
  8003f32:	f8ca 8000 	str.w	r8, [sl]
-		vUpdateLCDSetCurrentTime(ullSamples / ulUpdateLCDGetSampleRate());														/*update current time*/
+		vUpdateLCDSetCurrentTime(ullSamples / ulUpdateLCDGetSampleRate());                                                      /*update current time*/
  8003f36:	f000 fadf 	bl	80044f8 <ulUpdateLCDGetSampleRate>
  8003f3a:	2300      	movs	r3, #0
  8003f3c:	4602      	mov	r2, r0
@@ -7823,68 +7823,68 @@ void vMp3PlayerDecodeFrames(){
  8003f40:	4630      	mov	r0, r6
  8003f42:	f7fc f9ad 	bl	80002a0 <__aeabi_uldivmod>
  8003f46:	f000 fa97 	bl	8004478 <vUpdateLCDSetCurrentTime>
-		if(ulUpdateLCDGetCurrentTime() != ulOldTime){																			/*if current time does not match old time*/
+		if(ulUpdateLCDGetCurrentTime() != ulOldTime){                                                                           /*if current time does not match old time*/
  8003f4a:	f000 fa9b 	bl	8004484 <ulUpdateLCDGetCurrentTime>
  8003f4e:	682b      	ldr	r3, [r5, #0]
  8003f50:	4298      	cmp	r0, r3
  8003f52:	d002      	beq.n	8003f5a <vMp3PlayerDecodeFrames+0x62>
-			ulOldTime = ulUpdateLCDGetCurrentTime();																				/*set old time equal to current time*/
+			ulOldTime = ulUpdateLCDGetCurrentTime();                                                                                /*set old time equal to current time*/
  8003f54:	f000 fa96 	bl	8004484 <ulUpdateLCDGetCurrentTime>
  8003f58:	6028      	str	r0, [r5, #0]
-		if(xBufferOffset == BUFFER_OFFSET_HALF){																				/*check if the first half of the Audio Buffer has been transferred*/
+		if(xBufferOffset == BUFFER_OFFSET_HALF){                                                                               /*check if the first half of the Audio Buffer has been transferred*/
  8003f5a:	7823      	ldrb	r3, [r4, #0]
  8003f5c:	2b01      	cmp	r3, #1
  8003f5e:	d1de      	bne.n	8003f1e <vMp3PlayerDecodeFrames+0x26>
-			prvMp3PlayerDecode(&ulBytesRead, 0);																					/*decode next mp3 data to replace it in the Audio buffer*/
+			prvMp3PlayerDecode(&ulBytesRead, 0);                                                                                    /*decode next mp3 data to replace it in the Audio buffer*/
  8003f60:	2000      	movs	r0, #0
  8003f62:	f7ff fd5f 	bl	8003a24 <prvMp3PlayerDecode.constprop.8>
-			xBufferOffset = BUFFER_OFFSET_NONE;																						/*update buffer offset*/
+			xBufferOffset = BUFFER_OFFSET_NONE;                                                                                     /*update buffer offset*/
  8003f66:	f884 8000 	strb.w	r8, [r4]
-		if(xBufferOffset == BUFFER_OFFSET_FULL){																				/*check if the second half of the Audio Buffer has been transferred*/
+		if(xBufferOffset == BUFFER_OFFSET_FULL){                                                                                /*check if the second half of the Audio Buffer has been transferred*/
  8003f6a:	7823      	ldrb	r3, [r4, #0]
  8003f6c:	2b02      	cmp	r3, #2
  8003f6e:	d1d9      	bne.n	8003f24 <vMp3PlayerDecodeFrames+0x2c>
-			prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);																	/*decode next mp3 data to replace it in the Audio buffer*/
+			prvMp3PlayerDecode(&ulBytesRead, AUDIO_BUFFER_SIZE/2);                                                                  /*decode next mp3 data to replace it in the Audio buffer*/
  8003f70:	f44f 5090 	mov.w	r0, #4608	; 0x1200
  8003f74:	f7ff fd56 	bl	8003a24 <prvMp3PlayerDecode.constprop.8>
-	if(ucNewSongFlag == 1){																										/*if the track changes*/
+	if(ucNewSongFlag == 1){                                                                                                     /*if the track changes*/
  8003f78:	4b16      	ldr	r3, [pc, #88]	; (8003fd4 <vMp3PlayerDecodeFrames+0xdc>)
  8003f7a:	781d      	ldrb	r5, [r3, #0]
-			xBufferOffset = BUFFER_OFFSET_NONE;																						/*update buffer offset*/
+			xBufferOffset = BUFFER_OFFSET_NONE;                                                                                     /*update buffer offset*/
  8003f7c:	2100      	movs	r1, #0
-	if(ucNewSongFlag == 1){																										/*if the track changes*/
+	if(ucNewSongFlag == 1){                                                                                                     /*if the track changes*/
  8003f7e:	2d01      	cmp	r5, #1
-			xBufferOffset = BUFFER_OFFSET_NONE;																						/*update buffer offset*/
+			xBufferOffset = BUFFER_OFFSET_NONE;                                                                                     /*update buffer offset*/
  8003f80:	7021      	strb	r1, [r4, #0]
-	if(ucNewSongFlag == 1){																										/*if the track changes*/
+	if(ucNewSongFlag == 1){                                                                                                     /*if the track changes*/
  8003f82:	d00e      	beq.n	8003fa2 <vMp3PlayerDecodeFrames+0xaa>
 }
  8003f84:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
-		}else if(ucPauseStateFlag == 0){																						/*if button is pressed to resume*/
+		}else if(ucPauseStateFlag == 0){                                                                                        /*if button is pressed to resume*/
  8003f88:	2c00      	cmp	r4, #0
  8003f8a:	d1fb      	bne.n	8003f84 <vMp3PlayerDecodeFrames+0x8c>
-			BSP_AUDIO_OUT_Resume();																									/*Resume play-back*/
+			BSP_AUDIO_OUT_Resume();                                                                                                 /*Resume play-back*/
  8003f8c:	f000 fdf6 	bl	8004b7c <BSP_AUDIO_OUT_Resume>
-			ucOldPauseStateFlag = 0;																								/*de-assert ucOldPauseStateFlag*/
+			ucOldPauseStateFlag = 0;                                                                                                /*de-assert ucOldPauseStateFlag*/
  8003f90:	702c      	strb	r4, [r5, #0]
  8003f92:	e7bb      	b.n	8003f0c <vMp3PlayerDecodeFrames+0x14>
-		if(ucOldPauseStateFlag == 0){																							/*if its the first case*/
+		if(ucOldPauseStateFlag == 0){                                                                                           /*if its the first case*/
  8003f94:	2b00      	cmp	r3, #0
  8003f96:	d1f5      	bne.n	8003f84 <vMp3PlayerDecodeFrames+0x8c>
-			BSP_AUDIO_OUT_Pause();																									/*pause play-back*/
+			BSP_AUDIO_OUT_Pause();                                                                                                  /*pause play-back*/
  8003f98:	f000 fddc 	bl	8004b54 <BSP_AUDIO_OUT_Pause>
-			ucOldPauseStateFlag = 1;																								/*set flag ucOldPauseStateFlag*/
+			ucOldPauseStateFlag = 1;                                                                                                /*set flag ucOldPauseStateFlag*/
  8003f9c:	702c      	strb	r4, [r5, #0]
 }
  8003f9e:	e8bd 87f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, pc}
-		memset(&ucAudioBuffer[0], 0, AUDIO_BUFFER_SIZE);																			/*fixed bug where audio stutters as track changes*/
+		memset(&ucAudioBuffer[0], 0, AUDIO_BUFFER_SIZE);                                                                            /*fixed bug where audio stutters as track changes*/
  8003fa2:	f44f 5210 	mov.w	r2, #9216	; 0x2400
  8003fa6:	480c      	ldr	r0, [pc, #48]	; (8003fd8 <vMp3PlayerDecodeFrames+0xe0>)
  8003fa8:	f00b f957 	bl	800f25a <memset>
-	BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);																						/*stop audio play-back*/
+	BSP_AUDIO_OUT_Stop(CODEC_PDWN_HW);                                                                                      /*stop audio play-back*/
  8003fac:	4628      	mov	r0, r5
  8003fae:	f000 fdf9 	bl	8004ba4 <BSP_AUDIO_OUT_Stop>
-	f_close(&xFileRead);																									/*close file*/
+	f_close(&xFileRead);                                                                                                    /*close file*/
  8003fb2:	480a      	ldr	r0, [pc, #40]	; (8003fdc <vMp3PlayerDecodeFrames+0xe4>)
  8003fb4:	f008 fd74 	bl	800caa0 <f_close>
 	ullSamples = 0;
@@ -7911,41 +7911,41 @@ void vMp3PlayerDecodeFrames(){
   */
 void vMp3PlayerFindInfo(){
  8003fe8:	b530      	push	{r4, r5, lr}
-	mp3dec_io_t xIo;																											/* "" "" "" */
-	xIo.read = prvMp3PlayerMiniIoRead;																							/* "" "" "" */
-	xIo.seek = prvMp3PlayerMiniIoSeek;																							/* "" "" "" */
-	xIo.read_data = xIo.seek_data = &xFileRead;																					/* "" "" "" */
+	mp3dec_io_t xIo;                                                                                                            /* "" "" "" */
+	xIo.read = prvMp3PlayerMiniIoRead;                                                                                          /* "" "" "" */
+	xIo.seek = prvMp3PlayerMiniIoSeek;                                                                                          /* "" "" "" */
+	xIo.read_data = xIo.seek_data = &xFileRead;                                                                                 /* "" "" "" */
 
 	vUpdateLCDSetMp3Track(pxCurrent->pcMp3Name);
  8003fea:	4c2d      	ldr	r4, [pc, #180]	; (80040a0 <vMp3PlayerFindInfo+0xb8>)
-	xIo.seek = prvMp3PlayerMiniIoSeek;																							/* "" "" "" */
+	xIo.seek = prvMp3PlayerMiniIoSeek;                                                                                          /* "" "" "" */
  8003fec:	4b2d      	ldr	r3, [pc, #180]	; (80040a4 <vMp3PlayerFindInfo+0xbc>)
 	vUpdateLCDSetMp3Track(pxCurrent->pcMp3Name);
  8003fee:	6821      	ldr	r1, [r4, #0]
-	xIo.read_data = xIo.seek_data = &xFileRead;																					/* "" "" "" */
+	xIo.read_data = xIo.seek_data = &xFileRead;                                                                                 /* "" "" "" */
  8003ff0:	4d2d      	ldr	r5, [pc, #180]	; (80040a8 <vMp3PlayerFindInfo+0xc0>)
 	vUpdateLCDSetMp3Track(pxCurrent->pcMp3Name);
  8003ff2:	6808      	ldr	r0, [r1, #0]
-	xIo.read = prvMp3PlayerMiniIoRead;																							/* "" "" "" */
+	xIo.read = prvMp3PlayerMiniIoRead;                                                                                          /* "" "" "" */
  8003ff4:	4a2d      	ldr	r2, [pc, #180]	; (80040ac <vMp3PlayerFindInfo+0xc4>)
 void vMp3PlayerFindInfo(){
  8003ff6:	f5ad 5d32 	sub.w	sp, sp, #11392	; 0x2c80
  8003ffa:	b08d      	sub	sp, #52	; 0x34
-	xIo.read_data = xIo.seek_data = &xFileRead;																					/* "" "" "" */
+	xIo.read_data = xIo.seek_data = &xFileRead;                                                                                 /* "" "" "" */
  8003ffc:	e9cd 3502 	strd	r3, r5, [sp, #8]
-	xIo.read = prvMp3PlayerMiniIoRead;																							/* "" "" "" */
+	xIo.read = prvMp3PlayerMiniIoRead;                                                                                          /* "" "" "" */
  8004000:	9200      	str	r2, [sp, #0]
-	xIo.read_data = xIo.seek_data = &xFileRead;																					/* "" "" "" */
+	xIo.read_data = xIo.seek_data = &xFileRead;                                                                                 /* "" "" "" */
  8004002:	9501      	str	r5, [sp, #4]
 	vUpdateLCDSetMp3Track(pxCurrent->pcMp3Name);
  8004004:	f000 fa7e 	bl	8004504 <vUpdateLCDSetMp3Track>
 
-	if(f_opendir(&xDirectory, "0:/") == FR_OK){																					/* Get the read out protection status */
+	if(f_opendir(&xDirectory, "0:/") == FR_OK){                                                                                 /*Get the read out protection status*/
  8004008:	4929      	ldr	r1, [pc, #164]	; (80040b0 <vMp3PlayerFindInfo+0xc8>)
  800400a:	482a      	ldr	r0, [pc, #168]	; (80040b4 <vMp3PlayerFindInfo+0xcc>)
  800400c:	f008 ff20 	bl	800ce50 <f_opendir>
  8004010:	bb60      	cbnz	r0, 800406c <vMp3PlayerFindInfo+0x84>
-		if(f_open(&xFileRead, pxCurrent->pcMp3Name , FA_READ) != FR_OK){															/* Open the MP3 file to be played */
+		if(f_open(&xFileRead, pxCurrent->pcMp3Name , FA_READ) != FR_OK){                                                            /*Open the MP3 file to be played*/
  8004012:	6823      	ldr	r3, [r4, #0]
  8004014:	2201      	movs	r2, #1
  8004016:	6819      	ldr	r1, [r3, #0]
@@ -7954,59 +7954,59 @@ void vMp3PlayerFindInfo(){
  800401e:	bb28      	cbnz	r0, 800406c <vMp3PlayerFindInfo+0x84>
 		}
 	}else{
-		Error_Handler();																											/*error if directory can not be opened*/
+		Error_Handler();                                                                                                            /*error if directory can not be opened*/
 	}
 
-	ulMP3DataLength = f_size(&xFileRead);																						/*file length information*/
+	ulMP3DataLength = f_size(&xFileRead);                                                                                       /*file length information*/
  8004020:	4b25      	ldr	r3, [pc, #148]	; (80040b8 <vMp3PlayerFindInfo+0xd0>)
  8004022:	68ea      	ldr	r2, [r5, #12]
  8004024:	601a      	str	r2, [r3, #0]
 
-	if (mp3dec_ex_open_cb(&xDec, &xIo, MP3D_SEEK_TO_SAMPLE)){																	/*find VBR tag*/
+	if (mp3dec_ex_open_cb(&xDec, &xIo, MP3D_SEEK_TO_SAMPLE)){                                                                   /*find VBR tag*/
  8004026:	ac04      	add	r4, sp, #16
  8004028:	4669      	mov	r1, sp
  800402a:	4620      	mov	r0, r4
  800402c:	2201      	movs	r2, #1
  800402e:	f7ff fe8f 	bl	8003d50 <mp3dec_ex_open_cb>
  8004032:	b9f0      	cbnz	r0, 8004072 <vMp3PlayerFindInfo+0x8a>
-		vUpdateLCDSetSampleRate(44100);																								/*Default behaviour if tag cannot be found*/
+		vUpdateLCDSetSampleRate(44100);                                                                                             /*Default behaviour if tag cannot be found*/
 		vUpdateLCDSetTotalTime(0);
 		return;
 	}
 
-	vUpdateLCDSetSampleRate(xDec.info.hz);																						/*sample rate information*/
+	vUpdateLCDSetSampleRate(xDec.info.hz);                                                                                      /*sample rate information*/
  8004034:	f641 2564 	movw	r5, #6756	; 0x1a64
  8004038:	5960      	ldr	r0, [r4, r5]
  800403a:	f000 fa57 	bl	80044ec <vUpdateLCDSetSampleRate>
 
-	if(xDec.info.channels == 2){																								/*calculate mp3 track length*/
+	if(xDec.info.channels == 2){                                                                                                /*calculate mp3 track length*/
  800403e:	f50d 53d3 	add.w	r3, sp, #6752	; 0x1a60
  8004042:	3310      	adds	r3, #16
-		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz * 2));																/* "" "" "" */
+		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz * 2));                                                              /* "" "" "" */
  8004044:	5962      	ldr	r2, [r4, r5]
-	if(xDec.info.channels == 2){																								/*calculate mp3 track length*/
+	if(xDec.info.channels == 2){                                                                                                /*calculate mp3 track length*/
  8004046:	681b      	ldr	r3, [r3, #0]
  8004048:	2b02      	cmp	r3, #2
  800404a:	d01d      	beq.n	8004088 <vMp3PlayerFindInfo+0xa0>
-	}else{																														/* "" "" "" */
-		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz));																	/* "" "" "" */
+	}else{                                                                                                                      /* "" "" "" */
+		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz));                                                                  /* "" "" "" */
  800404c:	f504 53d1 	add.w	r3, r4, #6688	; 0x1a20
  8004050:	e9d3 0104 	ldrd	r0, r1, [r3, #16]
  8004054:	17d3      	asrs	r3, r2, #31
  8004056:	f7fc f923 	bl	80002a0 <__aeabi_uldivmod>
  800405a:	f000 fa19 	bl	8004490 <vUpdateLCDSetTotalTime>
 	}
-	mp3dec_ex_close(&xDec);																										/*free memory allocated by minimp3 library*/
+	mp3dec_ex_close(&xDec);                                                                                                     /*free memory allocated by minimp3 library*/
  800405e:	4620      	mov	r0, r4
  8004060:	f7ff feea 	bl	8003e38 <mp3dec_ex_close>
 }
  8004064:	f50d 5d32 	add.w	sp, sp, #11392	; 0x2c80
  8004068:	b00d      	add	sp, #52	; 0x34
  800406a:	bd30      	pop	{r4, r5, pc}
-			Error_Handler();																										/*error if file does not exist*/
+			Error_Handler();                                                                                                        /*error if file does not exist*/
  800406c:	f7fc fbe2 	bl	8000834 <Error_Handler>
  8004070:	e7d6      	b.n	8004020 <vMp3PlayerFindInfo+0x38>
-		vUpdateLCDSetSampleRate(44100);																								/*Default behaviour if tag cannot be found*/
+		vUpdateLCDSetSampleRate(44100);                                                                                             /*Default behaviour if tag cannot be found*/
  8004072:	f64a 4044 	movw	r0, #44100	; 0xac44
  8004076:	f000 fa39 	bl	80044ec <vUpdateLCDSetSampleRate>
 		vUpdateLCDSetTotalTime(0);
@@ -8016,7 +8016,7 @@ void vMp3PlayerFindInfo(){
  8004080:	f50d 5d32 	add.w	sp, sp, #11392	; 0x2c80
  8004084:	b00d      	add	sp, #52	; 0x34
  8004086:	bd30      	pop	{r4, r5, pc}
-		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz * 2));																/* "" "" "" */
+		vUpdateLCDSetTotalTime(xDec.samples / (xDec.info.hz * 2));                                                              /* "" "" "" */
  8004088:	f504 51d1 	add.w	r1, r4, #6688	; 0x1a20
  800408c:	0052      	lsls	r2, r2, #1
  800408e:	3110      	adds	r1, #16
@@ -8039,7 +8039,7 @@ void vMp3PlayerFindInfo(){
   * @retval None
   */
 void BSP_AUDIO_OUT_HalfTransfer_CallBack(void){
-	xBufferOffset = BUFFER_OFFSET_HALF;																							/*set the buffer offset flag*/
+	xBufferOffset = BUFFER_OFFSET_HALF;                                                                                         /*set the buffer offset flag*/
  80040bc:	4b01      	ldr	r3, [pc, #4]	; (80040c4 <BSP_AUDIO_OUT_HalfTransfer_CallBack+0x8>)
  80040be:	2201      	movs	r2, #1
  80040c0:	701a      	strb	r2, [r3, #0]
@@ -8053,17 +8053,17 @@ void BSP_AUDIO_OUT_HalfTransfer_CallBack(void){
   * @retval None
   */
 void BSP_AUDIO_OUT_TransferComplete_CallBack(void){
-	xBufferOffset = BUFFER_OFFSET_FULL;																							/*set the buffer offset flag*/
+	xBufferOffset = BUFFER_OFFSET_FULL;                                                                                         /*set the buffer offset flag*/
  80040c8:	4b03      	ldr	r3, [pc, #12]	; (80040d8 <BSP_AUDIO_OUT_TransferComplete_CallBack+0x10>)
-	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);											/*fill buffer with next audio information*/
+	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);                                           /*fill buffer with next audio information*/
  80040ca:	4804      	ldr	r0, [pc, #16]	; (80040dc <BSP_AUDIO_OUT_TransferComplete_CallBack+0x14>)
-	xBufferOffset = BUFFER_OFFSET_FULL;																							/*set the buffer offset flag*/
+	xBufferOffset = BUFFER_OFFSET_FULL;                                                                                         /*set the buffer offset flag*/
  80040cc:	2202      	movs	r2, #2
-	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);											/*fill buffer with next audio information*/
+	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);                                           /*fill buffer with next audio information*/
  80040ce:	f44f 5190 	mov.w	r1, #4608	; 0x1200
-	xBufferOffset = BUFFER_OFFSET_FULL;																							/*set the buffer offset flag*/
+	xBufferOffset = BUFFER_OFFSET_FULL;                                                                                         /*set the buffer offset flag*/
  80040d2:	701a      	strb	r2, [r3, #0]
-	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);											/*fill buffer with next audio information*/
+	 BSP_AUDIO_OUT_ChangeBuffer((uint16_t*)&ucAudioBuffer[0], AUDIO_BUFFER_SIZE / 2);                                           /*fill buffer with next audio information*/
  80040d4:	f000 bd36 	b.w	8004b44 <BSP_AUDIO_OUT_ChangeBuffer>
  80040d8:	200047a8 	.word	0x200047a8
  80040dc:	20002388 	.word	0x20002388
@@ -8076,17 +8076,17 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void){
   */
 void BSP_AUDIO_OUT_Error_CallBack(void){
  80040e0:	b508      	push	{r3, lr}
-  while (1){																													/*Stop the program with an infinite loop*/
-	  Error_Handler();																											/*Go to error handler*/
+  while (1){                                                                                                                    /*Stop the program with an infinite loop*/
+	  Error_Handler();                                                                                                          /*Go to error handler*/
  80040e2:	f7fc fba7 	bl	8000834 <Error_Handler>
  80040e6:	e7fc      	b.n	80040e2 <BSP_AUDIO_OUT_Error_CallBack+0x2>
 
 080040e8 <pxSongLLNewElement>:
- *      Author: Rami
- */
-
-#include <songLL.h>
-
+/**
+  * @brief  create and allocate memory for new node in LL
+  * @param  pcFileName : Name of LL node
+  * @retval MP3 Node variable
+  */
 MP3 *pxSongLLNewElement(char* pcFileName){
  80040e8:	b570      	push	{r4, r5, r6, lr}
  80040ea:	4605      	mov	r5, r0
@@ -8119,7 +8119,9 @@ MP3 *pxSongLLNewElement(char* pcFileName){
  8004116:	bf00      	nop
 
 08004118 <vSongLLAddEnd>:
-
+  * @param  pxNewPointer : pointer to new node
+  * @retval None
+  */
 void vSongLLAddEnd(MP3 **ppxHead, MP3 *pxNewPointer){
 	MP3 *pxPointer2;
 	if((*ppxHead) == NULL){
@@ -8148,7 +8150,9 @@ void vSongLLAddEnd(MP3 **ppxHead, MP3 *pxNewPointer){
  800412e:	4770      	bx	lr
 
 08004130 <vSongLLCircularizeList>:
-
+  * @param  pxHead : pointer to head of LL
+  * @retval None
+  */
 void vSongLLCircularizeList(MP3 *pxHead){
 	MP3 *pxPointer2;
 	if(pxHead == NULL)
@@ -8898,22 +8902,22 @@ void vUpdateLCDSetTotalTime(uint32_t ulSetToTotalTime){
   * @retval None
   */
 static void prvUpdateLCDConvertToMinutes(uint32_t ulSeconds, char cTimeString[12]){
-	uint32_t minutes = ulSeconds/60;																								/*minutes calculation*/
-	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);																					/*seconds calculation*/
+	uint32_t minutes = ulSeconds/60;                                                                                                /*minutes calculation*/
+	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);                                                                                  /*seconds calculation*/
  80044a6:	4a09      	ldr	r2, [pc, #36]	; (80044cc <vUpdateLCDSetTotalTime+0x3c>)
-	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);																		/*convert to string*/
+	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);                                                                        /*convert to string*/
  80044a8:	4909      	ldr	r1, [pc, #36]	; (80044d0 <vUpdateLCDSetTotalTime+0x40>)
  80044aa:	4603      	mov	r3, r0
-	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);																					/*seconds calculation*/
+	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);                                                                                  /*seconds calculation*/
  80044ac:	fba2 0203 	umull	r0, r2, r2, r3
  80044b0:	0952      	lsrs	r2, r2, #5
  80044b2:	ebc2 1502 	rsb	r5, r2, r2, lsl #4
-	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);																		/*convert to string*/
+	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);                                                                        /*convert to string*/
  80044b6:	f104 001c 	add.w	r0, r4, #28
  80044ba:	eba3 0385 	sub.w	r3, r3, r5, lsl #2
 }
  80044be:	bc30      	pop	{r4, r5}
-	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);																		/*convert to string*/
+	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);                                                                        /*convert to string*/
  80044c0:	f00a bf94 	b.w	800f3ec <siprintf>
  80044c4:	20007238 	.word	0x20007238
  80044c8:	08011a50 	.word	0x08011a50
@@ -8973,23 +8977,23 @@ static void prvUpdateLCDConvertToMinutes(uint32_t ulSeconds, char cTimeString[12
   */
 void vUpdateLCDScreen(){
  8004514:	b538      	push	{r3, r4, r5, lr}
-	prvUpdateLCDConvertToMinutes(xDisplayInfo.ulCurrentTime, xDisplayInfo.cCurrentTime);											/*convert current time to character string*/
+	prvUpdateLCDConvertToMinutes(xDisplayInfo.ulCurrentTime, xDisplayInfo.cCurrentTime);                                            /*convert current time to character string*/
  8004516:	4c33      	ldr	r4, [pc, #204]	; (80045e4 <vUpdateLCDScreen+0xd0>)
-	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);																					/*seconds calculation*/
+	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);                                                                                  /*seconds calculation*/
  8004518:	4a33      	ldr	r2, [pc, #204]	; (80045e8 <vUpdateLCDScreen+0xd4>)
-	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);																		/*convert to string*/
+	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);                                                                        /*convert to string*/
  800451a:	4934      	ldr	r1, [pc, #208]	; (80045ec <vUpdateLCDScreen+0xd8>)
-	prvUpdateLCDConvertToMinutes(xDisplayInfo.ulCurrentTime, xDisplayInfo.cCurrentTime);											/*convert current time to character string*/
+	prvUpdateLCDConvertToMinutes(xDisplayInfo.ulCurrentTime, xDisplayInfo.cCurrentTime);                                            /*convert current time to character string*/
  800451c:	4620      	mov	r0, r4
  800451e:	f850 3b10 	ldr.w	r3, [r0], #16
-	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);																					/*seconds calculation*/
+	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);                                                                                  /*seconds calculation*/
  8004522:	fba2 5203 	umull	r5, r2, r2, r3
  8004526:	0952      	lsrs	r2, r2, #5
  8004528:	ebc2 1502 	rsb	r5, r2, r2, lsl #4
-	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);																		/*convert to string*/
+	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);                                                                        /*convert to string*/
  800452c:	eba3 0385 	sub.w	r3, r3, r5, lsl #2
  8004530:	f00a ff5c 	bl	800f3ec <siprintf>
-	LCM1602a_Write_Data(0b00000010, 0, 0);																							/*Return to Home position on display*/
+	LCM1602a_Write_Data(0b00000010, 0, 0);                                                                                          /*Return to Home position on display*/
  8004534:	2200      	movs	r2, #0
  8004536:	4611      	mov	r1, r2
  8004538:	2002      	movs	r0, #2
@@ -8998,45 +9002,45 @@ void vUpdateLCDScreen(){
  800453e:	f104 002e 	add.w	r0, r4, #46	; 0x2e
  8004542:	2101      	movs	r1, #1
  8004544:	f000 ff4a 	bl	80053dc <LCM1602a_textwrap>
-	LCM1602a_Write_Data(0b11000000, 0, 0);																							/*next line on display*/
+	LCM1602a_Write_Data(0b11000000, 0, 0);                                                                                          /*next line on display*/
  8004548:	2200      	movs	r2, #0
  800454a:	4611      	mov	r1, r2
  800454c:	20c0      	movs	r0, #192	; 0xc0
  800454e:	f000 febb 	bl	80052c8 <LCM1602a_Write_Data>
-	LCM1602a_Write_Message((char*) xDisplayInfo.cCurrentTime);																		/*display time information*/
+	LCM1602a_Write_Message((char*) xDisplayInfo.cCurrentTime);                                                                      /*display time information*/
  8004552:	f104 0010 	add.w	r0, r4, #16
  8004556:	f000 fe8d 	bl	8005274 <LCM1602a_Write_Message>
-	LCM1602a_Write_Message((char*) "/");																							/* "" "" "" */
+	LCM1602a_Write_Message((char*) "/");                                                                                            /* "" "" "" */
  800455a:	4825      	ldr	r0, [pc, #148]	; (80045f0 <vUpdateLCDScreen+0xdc>)
  800455c:	f000 fe8a 	bl	8005274 <LCM1602a_Write_Message>
-	LCM1602a_Write_Message((char*) xDisplayInfo.cTotalTime);																		/* "" "" "" */
+	LCM1602a_Write_Message((char*) xDisplayInfo.cTotalTime);                                                                        /* "" "" "" */
  8004560:	f104 001c 	add.w	r0, r4, #28
  8004564:	f000 fe86 	bl	8005274 <LCM1602a_Write_Message>
-	LCM1602a_Write_Message((char*) " ");																							/*space character*/
+	LCM1602a_Write_Message((char*) " ");                                                                                            /*space character*/
  8004568:	4822      	ldr	r0, [pc, #136]	; (80045f4 <vUpdateLCDScreen+0xe0>)
  800456a:	f000 fe83 	bl	8005274 <LCM1602a_Write_Message>
-	LCM1602a_Write_Data(SPEAKER, 1, 0);																								/*print speaker character*/
+	LCM1602a_Write_Data(SPEAKER, 1, 0);                                                                                             /*print speaker character*/
  800456e:	2200      	movs	r2, #0
  8004570:	4610      	mov	r0, r2
  8004572:	2101      	movs	r1, #1
  8004574:	f000 fea8 	bl	80052c8 <LCM1602a_Write_Data>
-	if(xDisplayInfo.ulVolume < 25){																									/*if volume less than 25*/
+	if(xDisplayInfo.ulVolume < 25){                                                                                                 /*if volume less than 25*/
  8004578:	68a3      	ldr	r3, [r4, #8]
  800457a:	2b18      	cmp	r3, #24
  800457c:	d910      	bls.n	80045a0 <vUpdateLCDScreen+0x8c>
 	}else if(xDisplayInfo.ulVolume < 50){																							/*else if volume less than 50*/
  800457e:	2b31      	cmp	r3, #49	; 0x31
  8004580:	d904      	bls.n	800458c <vUpdateLCDScreen+0x78>
-	}else if(xDisplayInfo.ulVolume < 75){																							/*else if volume less than 75*/
+	}else if(xDisplayInfo.ulVolume < 75){                                                                                           /*else if volume less than 75*/
  8004582:	2b4a      	cmp	r3, #74	; 0x4a
  8004584:	d916      	bls.n	80045b4 <vUpdateLCDScreen+0xa0>
-	}else if(xDisplayInfo.ulVolume <= 100){																							/*else if volume less than / equal to 100*/
+	}else if(xDisplayInfo.ulVolume <= 100){                                                                                         /*else if volume less than / equal to 100*/
  8004586:	2b64      	cmp	r3, #100	; 0x64
  8004588:	d920      	bls.n	80045cc <vUpdateLCDScreen+0xb8>
-	prvUpdateLCDPrintVolume();																										/*current volume*/
+	prvUpdateLCDPrintVolume();                                                                                                      /*current volume*/
 }
  800458a:	bd38      	pop	{r3, r4, r5, pc}
-		LCM1602a_Write_Data(VOLUME2, 1, 0);																								/* ##-- */
+		LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* ##-- */
  800458c:	2002      	movs	r0, #2
  800458e:	2200      	movs	r2, #0
  8004590:	2101      	movs	r1, #1
@@ -9047,7 +9051,7 @@ void vUpdateLCDScreen(){
  8004598:	e8bd 4038 	ldmia.w	sp!, {r3, r4, r5, lr}
 		LCM1602a_Write_Message((char*) " ");
  800459c:	f000 be6a 	b.w	8005274 <LCM1602a_Write_Message>
-		LCM1602a_Write_Data(VOLUME1, 1, 0);																								/* #--- */
+		LCM1602a_Write_Data(VOLUME1, 1, 0);                                                                                             /* #--- */
  80045a0:	2101      	movs	r1, #1
  80045a2:	4608      	mov	r0, r1
  80045a4:	2200      	movs	r2, #0
@@ -9058,7 +9062,7 @@ void vUpdateLCDScreen(){
  80045ac:	e8bd 4038 	ldmia.w	sp!, {r3, r4, r5, lr}
 		LCM1602a_Write_Message((char*) " ");
  80045b0:	f000 be60 	b.w	8005274 <LCM1602a_Write_Message>
-		LCM1602a_Write_Data(VOLUME2, 1, 0);																								/* ###- */
+		LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* ###- */
  80045b4:	2200      	movs	r2, #0
  80045b6:	2101      	movs	r1, #1
  80045b8:	2002      	movs	r0, #2
@@ -9071,7 +9075,7 @@ void vUpdateLCDScreen(){
  80045c4:	e8bd 4038 	ldmia.w	sp!, {r3, r4, r5, lr}
 		LCM1602a_Write_Data(VOLUME3, 1, 0);
  80045c8:	f000 be7e 	b.w	80052c8 <LCM1602a_Write_Data>
-		LCM1602a_Write_Data(VOLUME2, 1, 0);																								/* #### */
+		LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* #### */
  80045cc:	2200      	movs	r2, #0
  80045ce:	2101      	movs	r1, #1
  80045d0:	2002      	movs	r0, #2
@@ -10578,7 +10582,7 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s)
 static void LCM1602a_Hang_Busy_Flag(){
  8004e7c:	e92d 41f0 	stmdb	sp!, {r4, r5, r6, r7, r8, lr}
 
-	data_port->MODER &= ~(GPIO_PIN_TO_MODER(data_7_pin));								/*set D7 to input*/
+	data_port->MODER &= ~(GPIO_PIN_TO_MODER(data_7_pin));                               /*set D7 to input*/
  8004e80:	f8df 81dc 	ldr.w	r8, [pc, #476]	; 8005060 <LCM1602a_Hang_Busy_Flag+0x1e4>
  8004e84:	4e72      	ldr	r6, [pc, #456]	; (8005050 <LCM1602a_Hang_Busy_Flag+0x1d4>)
  8004e86:	f8b8 2000 	ldrh.w	r2, [r8]
@@ -10624,26 +10628,26 @@ static void LCM1602a_Hang_Busy_Flag(){
  8004f06:	4f55      	ldr	r7, [pc, #340]	; (800505c <LCM1602a_Hang_Busy_Flag+0x1e0>)
  8004f08:	600b      	str	r3, [r1, #0]
 
-	while(1){																			/*hang till Busy flag is Low*/
+	while(1){                                                                           /*hang till Busy flag is Low*/
 
-		HAL_GPIO_WritePin(control_port, control_pins[1], GPIO_PIN_SET);					/*set RW and E*/
+		HAL_GPIO_WritePin(control_port, control_pins[1], GPIO_PIN_SET);                 /*set RW and E*/
  8004f0a:	8869      	ldrh	r1, [r5, #2]
  8004f0c:	6820      	ldr	r0, [r4, #0]
  8004f0e:	2201      	movs	r2, #1
  8004f10:	f001 f982 	bl	8006218 <HAL_GPIO_WritePin>
-		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);					/* " " " */
+		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                 /* " " " */
  8004f14:	88a9      	ldrh	r1, [r5, #4]
  8004f16:	6820      	ldr	r0, [r4, #0]
  8004f18:	2201      	movs	r2, #1
  8004f1a:	f001 f97d 	bl	8006218 <HAL_GPIO_WritePin>
 
-		if(HAL_GPIO_ReadPin(data_port, data_pins[7]) == 0){								/*if Data 7 pin is 0*/
+		if(HAL_GPIO_ReadPin(data_port, data_pins[7]) == 0){                             /*if Data 7 pin is 0*/
  8004f1e:	89f9      	ldrh	r1, [r7, #14]
  8004f20:	6830      	ldr	r0, [r6, #0]
  8004f22:	f001 f973 	bl	800620c <HAL_GPIO_ReadPin>
  8004f26:	2800      	cmp	r0, #0
  8004f28:	d1ef      	bne.n	8004f0a <LCM1602a_Hang_Busy_Flag+0x8e>
-			HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_RESET);				/*set E back to LOW and stop hanging*/
+			HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_RESET);               /*set E back to LOW and stop hanging*/
  8004f2a:	4602      	mov	r2, r0
  8004f2c:	88a9      	ldrh	r1, [r5, #4]
  8004f2e:	6820      	ldr	r0, [r4, #0]
@@ -10652,7 +10656,7 @@ static void LCM1602a_Hang_Busy_Flag(){
 		}
 	}
 
-	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);								/*set D7 to output*/
+	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);                                /*set D7 to output*/
  8004f34:	f8b8 3000 	ldrh.w	r3, [r8]
  8004f38:	6831      	ldr	r1, [r6, #0]
  8004f3a:	2b01      	cmp	r3, #1
@@ -10697,7 +10701,7 @@ static void LCM1602a_Hang_Busy_Flag(){
 }
  8004f9e:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
  8004fa2:	f042 0204 	orr.w	r2, r2, #4
-	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);								/*set D7 to output*/
+	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);                                /*set D7 to output*/
  8004fa6:	600a      	str	r2, [r1, #0]
 }
  8004fa8:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
@@ -10708,12 +10712,12 @@ static void LCM1602a_Hang_Busy_Flag(){
  8004fb8:	f023 0330 	bic.w	r3, r3, #48	; 0x30
  8004fbc:	e7a1      	b.n	8004f02 <LCM1602a_Hang_Busy_Flag+0x86>
  8004fbe:	f042 0210 	orr.w	r2, r2, #16
-	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);								/*set D7 to output*/
+	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);                                /*set D7 to output*/
  8004fc2:	600a      	str	r2, [r1, #0]
 }
  8004fc4:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
  8004fc8:	f042 0240 	orr.w	r2, r2, #64	; 0x40
-	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);								/*set D7 to output*/
+	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);                                /*set D7 to output*/
  8004fcc:	600a      	str	r2, [r1, #0]
 }
  8004fce:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
@@ -10771,51 +10775,51 @@ static void LCM1602a_Write8_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
  8005068:	4607      	mov	r7, r0
  800506a:	4689      	mov	r9, r1
  800506c:	4690      	mov	r8, r2
-	LCM1602a_Hang_Busy_Flag();															/*hang until busy flag is reset*/
+	LCM1602a_Hang_Busy_Flag();                                                          /*hang until busy flag is reset*/
  800506e:	f7ff ff05 	bl	8004e7c <LCM1602a_Hang_Busy_Flag>
  8005072:	4d16      	ldr	r5, [pc, #88]	; (80050cc <LCM1602a_Write8_Data+0x68>)
  8005074:	4e16      	ldr	r6, [pc, #88]	; (80050d0 <LCM1602a_Write8_Data+0x6c>)
-	for(int i = 0; i < DATA_8; i++){													/*write to data lines*/
+	for(int i = 0; i < DATA_8; i++){                                                    /*write to data lines*/
  8005076:	2400      	movs	r4, #0
-		HAL_GPIO_WritePin(data_port, data_pins[i] , ((dataValues >> i) & 1));			/* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[i] , ((dataValues >> i) & 1));           /* " " " */
  8005078:	fa47 f204 	asr.w	r2, r7, r4
  800507c:	f002 0201 	and.w	r2, r2, #1
-	for(int i = 0; i < DATA_8; i++){													/*write to data lines*/
+	for(int i = 0; i < DATA_8; i++){                                                    /*write to data lines*/
  8005080:	3401      	adds	r4, #1
-		HAL_GPIO_WritePin(data_port, data_pins[i] , ((dataValues >> i) & 1));			/* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[i] , ((dataValues >> i) & 1));           /* " " " */
  8005082:	f835 1f02 	ldrh.w	r1, [r5, #2]!
  8005086:	6830      	ldr	r0, [r6, #0]
  8005088:	f001 f8c6 	bl	8006218 <HAL_GPIO_WritePin>
-	for(int i = 0; i < DATA_8; i++){													/*write to data lines*/
+	for(int i = 0; i < DATA_8; i++){                                                    /*write to data lines*/
  800508c:	2c08      	cmp	r4, #8
  800508e:	d1f3      	bne.n	8005078 <LCM1602a_Write8_Data+0x14>
-	HAL_GPIO_WritePin(control_port, control_pins[0], RS);								/*write to control lines RS, RW*/
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);                               /*write to control lines RS, RW*/
  8005090:	4d10      	ldr	r5, [pc, #64]	; (80050d4 <LCM1602a_Write8_Data+0x70>)
  8005092:	4e11      	ldr	r6, [pc, #68]	; (80050d8 <LCM1602a_Write8_Data+0x74>)
  8005094:	8829      	ldrh	r1, [r5, #0]
  8005096:	6830      	ldr	r0, [r6, #0]
  8005098:	464a      	mov	r2, r9
-	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);						/*set E to High*/
+	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                     /*set E to High*/
  800509a:	462c      	mov	r4, r5
-	HAL_GPIO_WritePin(control_port, control_pins[0], RS);								/*write to control lines RS, RW*/
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);                               /*write to control lines RS, RW*/
  800509c:	f001 f8bc 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(control_port, control_pins[1], RW);								/* " " " */
+	HAL_GPIO_WritePin(control_port, control_pins[1], RW);                               /* " " " */
  80050a0:	8869      	ldrh	r1, [r5, #2]
  80050a2:	6830      	ldr	r0, [r6, #0]
  80050a4:	4642      	mov	r2, r8
  80050a6:	f001 f8b7 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);						/*set E to High*/
+	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                     /*set E to High*/
  80050aa:	f834 1f04 	ldrh.w	r1, [r4, #4]!
  80050ae:	6830      	ldr	r0, [r6, #0]
  80050b0:	2201      	movs	r2, #1
  80050b2:	f001 f8b1 	bl	8006218 <HAL_GPIO_WritePin>
  80050b6:	3d02      	subs	r5, #2
-		HAL_GPIO_WritePin(control_port, control_pins[i], GPIO_PIN_RESET);				/* " " " */
+		HAL_GPIO_WritePin(control_port, control_pins[i], GPIO_PIN_RESET);               /* " " " */
  80050b8:	f834 1902 	ldrh.w	r1, [r4], #-2
  80050bc:	6830      	ldr	r0, [r6, #0]
  80050be:	2200      	movs	r2, #0
  80050c0:	f001 f8aa 	bl	8006218 <HAL_GPIO_WritePin>
-	for(int i = CONTROL_PIN_COUNT - 1; i >= 0; i--){ 									/*reset all control pins*/
+	for(int i = CONTROL_PIN_COUNT - 1; i >= 0; i--){                                    /*reset all control pins*/
  80050c4:	42ac      	cmp	r4, r5
  80050c6:	d1f7      	bne.n	80050b8 <LCM1602a_Write8_Data+0x54>
 }
@@ -10837,57 +10841,57 @@ static void LCM1602a_Write4_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
  80050f2:	4606      	mov	r6, r0
  80050f4:	f1a9 0a02 	sub.w	sl, r9, #2
  80050f8:	2404      	movs	r4, #4
-		LCM1602a_Hang_Busy_Flag();														/*hang until busy flag is reset*/
+		LCM1602a_Hang_Busy_Flag();                                                      /*hang until busy flag is reset*/
  80050fa:	f7ff febf 	bl	8004e7c <LCM1602a_Hang_Busy_Flag>
-		HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0 + 4*i)) & 1));	/*write to data lines*/
+		HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0 + 4*i)) & 1));    /*write to data lines*/
  80050fe:	fa46 f204 	asr.w	r2, r6, r4
  8005102:	f002 0201 	and.w	r2, r2, #1
  8005106:	f8b8 1000 	ldrh.w	r1, [r8]
  800510a:	6838      	ldr	r0, [r7, #0]
  800510c:	f8df b090 	ldr.w	fp, [pc, #144]	; 80051a0 <LCM1602a_Write4_Data+0xc4>
  8005110:	f001 f882 	bl	8006218 <HAL_GPIO_WritePin>
-		HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1 + 4*i)) & 1));	/* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1 + 4*i)) & 1));    /* " " " */
  8005114:	1c62      	adds	r2, r4, #1
  8005116:	fa46 f202 	asr.w	r2, r6, r2
  800511a:	f002 0201 	and.w	r2, r2, #1
  800511e:	f8b8 1002 	ldrh.w	r1, [r8, #2]
  8005122:	6838      	ldr	r0, [r7, #0]
  8005124:	f001 f878 	bl	8006218 <HAL_GPIO_WritePin>
-		HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2 + 4*i)) & 1));	/* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2 + 4*i)) & 1));    /* " " " */
  8005128:	1ca2      	adds	r2, r4, #2
  800512a:	fa46 f202 	asr.w	r2, r6, r2
  800512e:	f002 0201 	and.w	r2, r2, #1
  8005132:	f8b8 1004 	ldrh.w	r1, [r8, #4]
  8005136:	6838      	ldr	r0, [r7, #0]
  8005138:	f001 f86e 	bl	8006218 <HAL_GPIO_WritePin>
-		HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3 + 4*i)) & 1));	/* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3 + 4*i)) & 1));    /* " " " */
  800513c:	1ce2      	adds	r2, r4, #3
  800513e:	fa46 f202 	asr.w	r2, r6, r2
  8005142:	f002 0201 	and.w	r2, r2, #1
  8005146:	f8b8 1006 	ldrh.w	r1, [r8, #6]
  800514a:	6838      	ldr	r0, [r7, #0]
  800514c:	f001 f864 	bl	8006218 <HAL_GPIO_WritePin>
-		HAL_GPIO_WritePin(control_port, control_pins[0], RS);							/*write to control lines RS, RW*/
+		HAL_GPIO_WritePin(control_port, control_pins[0], RS);                           /*write to control lines RS, RW*/
  8005150:	9a00      	ldr	r2, [sp, #0]
  8005152:	f8b9 1000 	ldrh.w	r1, [r9]
  8005156:	6828      	ldr	r0, [r5, #0]
  8005158:	f001 f85e 	bl	8006218 <HAL_GPIO_WritePin>
-		HAL_GPIO_WritePin(control_port, control_pins[1], RW);							/* " " " */
+		HAL_GPIO_WritePin(control_port, control_pins[1], RW);                           /* " " " */
  800515c:	9a01      	ldr	r2, [sp, #4]
  800515e:	f8b9 1002 	ldrh.w	r1, [r9, #2]
  8005162:	6828      	ldr	r0, [r5, #0]
  8005164:	f001 f858 	bl	8006218 <HAL_GPIO_WritePin>
-		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);					/*set E to High*/
+		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                 /*set E to High*/
  8005168:	2201      	movs	r2, #1
  800516a:	f8b9 1004 	ldrh.w	r1, [r9, #4]
  800516e:	6828      	ldr	r0, [r5, #0]
  8005170:	f001 f852 	bl	8006218 <HAL_GPIO_WritePin>
-			HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);			/* " " " */
+			HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);           /* " " " */
  8005174:	f83b 1902 	ldrh.w	r1, [fp], #-2
  8005178:	6828      	ldr	r0, [r5, #0]
  800517a:	2200      	movs	r2, #0
  800517c:	f001 f84c 	bl	8006218 <HAL_GPIO_WritePin>
-		for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){ 								/*reset all control pins*/
+		for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){                                /*reset all control pins*/
  8005180:	45da      	cmp	sl, fp
  8005182:	d1f7      	bne.n	8005174 <LCM1602a_Write4_Data+0x98>
  8005184:	3c04      	subs	r4, #4
@@ -10906,58 +10910,58 @@ static void LCM1602a_Write4_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
 080051a4 <LCM1602a_Write4_Data_Single.constprop.0>:
 static void LCM1602a_Write4_Data_Single(uint8_t dataValues, uint8_t RS, uint8_t RW){
  80051a4:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
-	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));			/*write to data lines*/
+	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));          /*write to data lines*/
  80051a6:	4c1a      	ldr	r4, [pc, #104]	; (8005210 <LCM1602a_Write4_Data_Single.constprop.0+0x6c>)
  80051a8:	4f1a      	ldr	r7, [pc, #104]	; (8005214 <LCM1602a_Write4_Data_Single.constprop.0+0x70>)
-	HAL_GPIO_WritePin(control_port, control_pins[0], RS);							/*write to control lines RS, RW*/
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);                           /*write to control lines RS, RW*/
  80051aa:	4d1b      	ldr	r5, [pc, #108]	; (8005218 <LCM1602a_Write4_Data_Single.constprop.0+0x74>)
-	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));			/*write to data lines*/
+	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));          /*write to data lines*/
  80051ac:	8839      	ldrh	r1, [r7, #0]
-	HAL_GPIO_WritePin(control_port, control_pins[0], RS);							/*write to control lines RS, RW*/
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);                           /*write to control lines RS, RW*/
  80051ae:	4e1b      	ldr	r6, [pc, #108]	; (800521c <LCM1602a_Write4_Data_Single.constprop.0+0x78>)
-	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));			/*write to data lines*/
+	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));          /*write to data lines*/
  80051b0:	f000 0201 	and.w	r2, r0, #1
  80051b4:	6820      	ldr	r0, [r4, #0]
  80051b6:	f001 f82f 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1)) & 1));			/* " " " */
+	HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1)) & 1));          /* " " " */
  80051ba:	6820      	ldr	r0, [r4, #0]
  80051bc:	8879      	ldrh	r1, [r7, #2]
  80051be:	2201      	movs	r2, #1
  80051c0:	f001 f82a 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2)) & 1));			/* " " " */
+	HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2)) & 1));          /* " " " */
  80051c4:	6820      	ldr	r0, [r4, #0]
  80051c6:	88b9      	ldrh	r1, [r7, #4]
  80051c8:	2200      	movs	r2, #0
  80051ca:	f001 f825 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3)) & 1));			/* " " " */
+	HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3)) & 1));          /* " " " */
  80051ce:	6820      	ldr	r0, [r4, #0]
  80051d0:	88f9      	ldrh	r1, [r7, #6]
  80051d2:	2200      	movs	r2, #0
  80051d4:	f001 f820 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);					/*set E to High*/
+	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                 /*set E to High*/
  80051d8:	462c      	mov	r4, r5
-	HAL_GPIO_WritePin(control_port, control_pins[0], RS);							/*write to control lines RS, RW*/
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);                           /*write to control lines RS, RW*/
  80051da:	8829      	ldrh	r1, [r5, #0]
  80051dc:	6830      	ldr	r0, [r6, #0]
  80051de:	2200      	movs	r2, #0
  80051e0:	f001 f81a 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(control_port, control_pins[1], RW);							/* " " " */
+	HAL_GPIO_WritePin(control_port, control_pins[1], RW);                           /* " " " */
  80051e4:	8869      	ldrh	r1, [r5, #2]
  80051e6:	6830      	ldr	r0, [r6, #0]
  80051e8:	2200      	movs	r2, #0
  80051ea:	f001 f815 	bl	8006218 <HAL_GPIO_WritePin>
-	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);					/*set E to High*/
+	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                 /*set E to High*/
  80051ee:	f834 1f04 	ldrh.w	r1, [r4, #4]!
  80051f2:	6830      	ldr	r0, [r6, #0]
  80051f4:	2201      	movs	r2, #1
  80051f6:	f001 f80f 	bl	8006218 <HAL_GPIO_WritePin>
  80051fa:	3d02      	subs	r5, #2
-		HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);			/* " " " */
+		HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);           /* " " " */
  80051fc:	f834 1902 	ldrh.w	r1, [r4], #-2
  8005200:	6830      	ldr	r0, [r6, #0]
  8005202:	2200      	movs	r2, #0
  8005204:	f001 f808 	bl	8006218 <HAL_GPIO_WritePin>
-	for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){ 								/*reset all control pins*/
+	for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){                                /*reset all control pins*/
  8005208:	42ac      	cmp	r4, r5
  800520a:	d1f7      	bne.n	80051fc <LCM1602a_Write4_Data_Single.constprop.0+0x58>
 }
@@ -10971,34 +10975,34 @@ static void LCM1602a_Write4_Data_Single(uint8_t dataValues, uint8_t RS, uint8_t 
 08005220 <LCM1602a_Set_DATA8>:
 void LCM1602a_Set_DATA8(GPIO_TypeDef *d_Port, uint16_t d_Pins[8], GPIO_TypeDef *c_Port, uint16_t c_Pins[3]){
  8005220:	b4f0      	push	{r4, r5, r6, r7}
-	data_7_pin = d_Pins[7];																/*set D7 pin*/
+	data_7_pin = d_Pins[7];                                                             /*set D7 pin*/
  8005222:	4d0e      	ldr	r5, [pc, #56]	; (800525c <LCM1602a_Set_DATA8+0x3c>)
  8005224:	89cf      	ldrh	r7, [r1, #14]
-	transmission_mode = DATA_8;															/*set transmission mode*/
+	transmission_mode = DATA_8;                                                         /*set transmission mode*/
  8005226:	4c0e      	ldr	r4, [pc, #56]	; (8005260 <LCM1602a_Set_DATA8+0x40>)
-	data_7_pin = d_Pins[7];																/*set D7 pin*/
+	data_7_pin = d_Pins[7];                                                             /*set D7 pin*/
  8005228:	802f      	strh	r7, [r5, #0]
-	data_port = d_Port;																	/*set data port*/
+	data_port = d_Port;                                                                 /*set data port*/
  800522a:	4e0e      	ldr	r6, [pc, #56]	; (8005264 <LCM1602a_Set_DATA8+0x44>)
-	control_port = c_Port;																/*set control port*/
+	control_port = c_Port;                                                              /*set control port*/
  800522c:	4d0e      	ldr	r5, [pc, #56]	; (8005268 <LCM1602a_Set_DATA8+0x48>)
-	data_port = d_Port;																	/*set data port*/
+	data_port = d_Port;                                                                 /*set data port*/
  800522e:	6030      	str	r0, [r6, #0]
-	transmission_mode = DATA_8;															/*set transmission mode*/
+	transmission_mode = DATA_8;                                                         /*set transmission mode*/
  8005230:	2708      	movs	r7, #8
  8005232:	7027      	strb	r7, [r4, #0]
  8005234:	4c0d      	ldr	r4, [pc, #52]	; (800526c <LCM1602a_Set_DATA8+0x4c>)
-	control_port = c_Port;																/*set control port*/
+	control_port = c_Port;                                                              /*set control port*/
  8005236:	602a      	str	r2, [r5, #0]
  8005238:	1e88      	subs	r0, r1, #2
  800523a:	310e      	adds	r1, #14
-		data_pins[i] = d_Pins[i];														/* " " " */
+		data_pins[i] = d_Pins[i];                                                       /* " " " */
  800523c:	f830 2f02 	ldrh.w	r2, [r0, #2]!
  8005240:	f824 2f02 	strh.w	r2, [r4, #2]!
-	for(int i = 0; i < DATA_8; i++){													/*set data pins*/
+	for(int i = 0; i < DATA_8; i++){                                                    /*set data pins*/
  8005244:	4288      	cmp	r0, r1
  8005246:	d1f9      	bne.n	800523c <LCM1602a_Set_DATA8+0x1c>
-		control_pins[i] = c_Pins[i];													/* " " " */
+		control_pins[i] = c_Pins[i];                                                    /* " " " */
  8005248:	4a09      	ldr	r2, [pc, #36]	; (8005270 <LCM1602a_Set_DATA8+0x50>)
  800524a:	8819      	ldrh	r1, [r3, #0]
  800524c:	8011      	strh	r1, [r2, #0]
@@ -11020,49 +11024,49 @@ void LCM1602a_Set_DATA8(GPIO_TypeDef *d_Port, uint16_t d_Pins[8], GPIO_TypeDef *
 08005274 <LCM1602a_Write_Message>:
 void LCM1602a_Write_Message(char *Message){
  8005274:	b538      	push	{r3, r4, r5, lr}
-	if (transmission_mode == DATA_8){													/*if 8 Data Lines*/
+	if (transmission_mode == DATA_8){                                                   /*if 8 Data Lines*/
  8005276:	4b13      	ldr	r3, [pc, #76]	; (80052c4 <LCM1602a_Write_Message+0x50>)
  8005278:	781b      	ldrb	r3, [r3, #0]
  800527a:	2b08      	cmp	r3, #8
 void LCM1602a_Write_Message(char *Message){
  800527c:	4604      	mov	r4, r0
-	if (transmission_mode == DATA_8){													/*if 8 Data Lines*/
+	if (transmission_mode == DATA_8){                                                   /*if 8 Data Lines*/
  800527e:	d011      	beq.n	80052a4 <LCM1602a_Write_Message+0x30>
-	}else if(transmission_mode == DATA_4){												/*if 4 Data Lines*/
+	}else if(transmission_mode == DATA_4){                                              /*if 4 Data Lines*/
  8005280:	2b04      	cmp	r3, #4
  8005282:	d000      	beq.n	8005286 <LCM1602a_Write_Message+0x12>
 }
  8005284:	bd38      	pop	{r3, r4, r5, pc}
-	uint16_t Len = (uint16_t)strlen(Message);											/*find length of the message*/
+	uint16_t Len = (uint16_t)strlen(Message);                                           /*find length of the message*/
  8005286:	f7fa ffad 	bl	80001e4 <strlen>
  800528a:	b280      	uxth	r0, r0
-	for(int i = 0; i < Len; i++){														/*write message to display*/
+	for(int i = 0; i < Len; i++){                                                       /*write message to display*/
  800528c:	2800      	cmp	r0, #0
  800528e:	d0f9      	beq.n	8005284 <LCM1602a_Write_Message+0x10>
  8005290:	1825      	adds	r5, r4, r0
-		LCM1602a_Write4_Data((int)*Message, 1, 0);										/* " " " */
+		LCM1602a_Write4_Data((int)*Message, 1, 0);                                      /* " " " */
  8005292:	f814 0b01 	ldrb.w	r0, [r4], #1
  8005296:	2200      	movs	r2, #0
  8005298:	2101      	movs	r1, #1
  800529a:	f7ff ff1f 	bl	80050dc <LCM1602a_Write4_Data>
-	for(int i = 0; i < Len; i++){														/*write message to display*/
+	for(int i = 0; i < Len; i++){                                                       /*write message to display*/
  800529e:	42a5      	cmp	r5, r4
  80052a0:	d1f7      	bne.n	8005292 <LCM1602a_Write_Message+0x1e>
 }
  80052a2:	bd38      	pop	{r3, r4, r5, pc}
-	uint16_t Len = (uint16_t)strlen(Message);											/*find length of the message*/
+	uint16_t Len = (uint16_t)strlen(Message);                                           /*find length of the message*/
  80052a4:	f7fa ff9e 	bl	80001e4 <strlen>
  80052a8:	b280      	uxth	r0, r0
-	for(int i = 0; i < Len; i++){														/*write message to display*/
+	for(int i = 0; i < Len; i++){                                                       /*write message to display*/
  80052aa:	2800      	cmp	r0, #0
  80052ac:	d0ea      	beq.n	8005284 <LCM1602a_Write_Message+0x10>
  80052ae:	1825      	adds	r5, r4, r0
-		LCM1602a_Write8_Data((int)*Message, 1, 0);										/* " " " */
+		LCM1602a_Write8_Data((int)*Message, 1, 0);                                      /* " " " */
  80052b0:	f814 0b01 	ldrb.w	r0, [r4], #1
  80052b4:	2200      	movs	r2, #0
  80052b6:	2101      	movs	r1, #1
  80052b8:	f7ff fed4 	bl	8005064 <LCM1602a_Write8_Data>
-	for(int i = 0; i < Len; i++){														/*write message to display*/
+	for(int i = 0; i < Len; i++){                                                       /*write message to display*/
  80052bc:	42a5      	cmp	r5, r4
  80052be:	d1f7      	bne.n	80052b0 <LCM1602a_Write_Message+0x3c>
 }
@@ -11071,45 +11075,45 @@ void LCM1602a_Write_Message(char *Message){
  80052c4:	20007379 	.word	0x20007379
 
 080052c8 <LCM1602a_Write_Data>:
-	if (transmission_mode == DATA_8){													/*if 8 Data Lines*/
+	if (transmission_mode == DATA_8){                                                   /*if 8 Data Lines*/
  80052c8:	4b05      	ldr	r3, [pc, #20]	; (80052e0 <LCM1602a_Write_Data+0x18>)
  80052ca:	781b      	ldrb	r3, [r3, #0]
  80052cc:	2b08      	cmp	r3, #8
  80052ce:	d004      	beq.n	80052da <LCM1602a_Write_Data+0x12>
-	}else if(transmission_mode == DATA_4){												/*if 4 Data Lines*/
+	}else if(transmission_mode == DATA_4){                                              /*if 4 Data Lines*/
  80052d0:	2b04      	cmp	r3, #4
  80052d2:	d000      	beq.n	80052d6 <LCM1602a_Write_Data+0xe>
 }
  80052d4:	4770      	bx	lr
-		LCM1602a_Write4_Data(dataValues, RS, RW);											/*use corresponding write function*/
+		LCM1602a_Write4_Data(dataValues, RS, RW);                                           /*use corresponding write function*/
  80052d6:	f7ff bf01 	b.w	80050dc <LCM1602a_Write4_Data>
-		LCM1602a_Write8_Data(dataValues, RS, RW);											/*use corresponding write function*/
+		LCM1602a_Write8_Data(dataValues, RS, RW);                                           /*use corresponding write function*/
  80052da:	f7ff bec3 	b.w	8005064 <LCM1602a_Write8_Data>
  80052de:	bf00      	nop
  80052e0:	20007379 	.word	0x20007379
 
 080052e4 <create_char>:
-	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);									/**/
+	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);                                  /**/
  80052e4:	00c0      	lsls	r0, r0, #3
  80052e6:	2200      	movs	r2, #0
  80052e8:	f040 0040 	orr.w	r0, r0, #64	; 0x40
 static void create_char(uint8_t location, uint8_t charmap[]){
  80052ec:	b538      	push	{r3, r4, r5, lr}
-	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);									/**/
+	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);                                  /**/
  80052ee:	f000 00f8 	and.w	r0, r0, #248	; 0xf8
 static void create_char(uint8_t location, uint8_t charmap[]){
  80052f2:	460d      	mov	r5, r1
-	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);									/**/
+	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);                                  /**/
  80052f4:	4611      	mov	r1, r2
  80052f6:	f7ff ffe7 	bl	80052c8 <LCM1602a_Write_Data>
  80052fa:	1e6c      	subs	r4, r5, #1
  80052fc:	3507      	adds	r5, #7
-		LCM1602a_Write_Data(charmap[i], 1, 0);											/* " " " */
+		LCM1602a_Write_Data(charmap[i], 1, 0);                                          /* " " " */
  80052fe:	f814 0f01 	ldrb.w	r0, [r4, #1]!
  8005302:	2200      	movs	r2, #0
  8005304:	2101      	movs	r1, #1
  8005306:	f7ff ffdf 	bl	80052c8 <LCM1602a_Write_Data>
-	for(int i = 0; i < 8; i++){															/*write char into RAM*/
+	for(int i = 0; i < 8; i++){                                                         /*write char into RAM*/
  800530a:	42ac      	cmp	r4, r5
  800530c:	d1f7      	bne.n	80052fe <create_char+0x1a>
 }
@@ -11129,23 +11133,23 @@ void LCM1602a_init(uint8_t disp_line){
 }
  800531e:	bd10      	pop	{r4, pc}
  8005320:	4604      	mov	r4, r0
-		create_char(0, Speaker);														/*store custom characters into LCD RAM*/
+		create_char(0, Speaker);                                                        /*store custom characters into LCD RAM*/
  8005322:	4929      	ldr	r1, [pc, #164]	; (80053c8 <LCM1602a_init+0xb8>)
  8005324:	2000      	movs	r0, #0
  8005326:	f7ff ffdd 	bl	80052e4 <create_char>
-		create_char(1, Volume_1);														/* " " " */
+		create_char(1, Volume_1);                                                       /* " " " */
  800532a:	4928      	ldr	r1, [pc, #160]	; (80053cc <LCM1602a_init+0xbc>)
  800532c:	2001      	movs	r0, #1
  800532e:	f7ff ffd9 	bl	80052e4 <create_char>
-		create_char(2, Volume_2);														/* " " " */
+		create_char(2, Volume_2);                                                       /* " " " */
  8005332:	4927      	ldr	r1, [pc, #156]	; (80053d0 <LCM1602a_init+0xc0>)
  8005334:	2002      	movs	r0, #2
  8005336:	f7ff ffd5 	bl	80052e4 <create_char>
-		create_char(3, Volume_3);														/* " " " */
+		create_char(3, Volume_3);                                                       /* " " " */
  800533a:	4926      	ldr	r1, [pc, #152]	; (80053d4 <LCM1602a_init+0xc4>)
  800533c:	2003      	movs	r0, #3
  800533e:	f7ff ffd1 	bl	80052e4 <create_char>
-		create_char(4, Volume_4);														/* " " " */
+		create_char(4, Volume_4);                                                       /* " " " */
  8005342:	4925      	ldr	r1, [pc, #148]	; (80053d8 <LCM1602a_init+0xc8>)
  8005344:	2004      	movs	r0, #4
  8005346:	f7ff ffcd 	bl	80052e4 <create_char>
@@ -11155,23 +11159,23 @@ void LCM1602a_init(uint8_t disp_line){
 		}else if(disp_line == ONE_LINE_DISPLAY){
  800534e:	2c01      	cmp	r4, #1
  8005350:	d034      	beq.n	80053bc <LCM1602a_init+0xac>
-		LCM1602a_Write_Data(0b00001100, 0, 0);											/*Display on With Cursor off*/
+		LCM1602a_Write_Data(0b00001100, 0, 0);                                          /*Display on With Cursor off*/
  8005352:	2200      	movs	r2, #0
  8005354:	4611      	mov	r1, r2
  8005356:	200c      	movs	r0, #12
  8005358:	f7ff ffb6 	bl	80052c8 <LCM1602a_Write_Data>
-		LCM1602a_Write_Data(0b00000110, 0, 0);											/*increment on*/
+		LCM1602a_Write_Data(0b00000110, 0, 0);                                          /*increment on*/
  800535c:	2200      	movs	r2, #0
  800535e:	4611      	mov	r1, r2
  8005360:	2006      	movs	r0, #6
  8005362:	f7ff ffb1 	bl	80052c8 <LCM1602a_Write_Data>
-		LCM1602a_Write_Data(0b00000001, 0, 0);											/*clear the display*/
+		LCM1602a_Write_Data(0b00000001, 0, 0);                                          /*clear the display*/
  8005366:	2200      	movs	r2, #0
  8005368:	4611      	mov	r1, r2
  800536a:	2001      	movs	r0, #1
 }
  800536c:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
-		LCM1602a_Write_Data(0b00000001, 0, 0);											/*clear the display*/
+		LCM1602a_Write_Data(0b00000001, 0, 0);                                          /*clear the display*/
  8005370:	f7ff bfaa 	b.w	80052c8 <LCM1602a_Write_Data>
 		LCM1602a_Write4_Data_Single(0b0011, 0, 0); HAL_Delay(5);
  8005374:	2003      	movs	r0, #3
@@ -11193,20 +11197,20 @@ void LCM1602a_init(uint8_t disp_line){
  800539a:	f7ff ff03 	bl	80051a4 <LCM1602a_Write4_Data_Single.constprop.0>
  800539e:	2005      	movs	r0, #5
  80053a0:	f000 f8ba 	bl	8005518 <HAL_Delay>
-		LCM1602a_Write_Data(0b00101000, 0, 0);											/*Initialize the display mode 1 Line*/
+		LCM1602a_Write_Data(0b00101000, 0, 0);                                          /*Initialize the display mode 1 Line*/
  80053a4:	2200      	movs	r2, #0
  80053a6:	4611      	mov	r1, r2
  80053a8:	2028      	movs	r0, #40	; 0x28
-			LCM1602a_Write_Data(0b00110000, 0, 0);										/*Initialize the display mode 1 Line*/
+			LCM1602a_Write_Data(0b00110000, 0, 0);                                      /*Initialize the display mode 1 Line*/
  80053aa:	f7ff ff8d 	bl	80052c8 <LCM1602a_Write_Data>
  80053ae:	e7d0      	b.n	8005352 <LCM1602a_init+0x42>
-			LCM1602a_Write_Data(0b00111000, 0, 0);										/*Initialize the display mode 2 Line*/
+			LCM1602a_Write_Data(0b00111000, 0, 0);                                      /*Initialize the display mode 2 Line*/
  80053b0:	2200      	movs	r2, #0
  80053b2:	4611      	mov	r1, r2
  80053b4:	2038      	movs	r0, #56	; 0x38
  80053b6:	f7ff ff87 	bl	80052c8 <LCM1602a_Write_Data>
  80053ba:	e7ca      	b.n	8005352 <LCM1602a_init+0x42>
-			LCM1602a_Write_Data(0b00110000, 0, 0);										/*Initialize the display mode 1 Line*/
+			LCM1602a_Write_Data(0b00110000, 0, 0);                                      /*Initialize the display mode 1 Line*/
  80053bc:	2200      	movs	r2, #0
  80053be:	4611      	mov	r1, r2
  80053c0:	2030      	movs	r0, #48	; 0x30
@@ -11246,30 +11250,30 @@ void LCM1602a_textwrap(char* in_text, uint8_t delay){
 }
  8005400:	b015      	add	sp, #84	; 0x54
  8005402:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
-	int text_len = strlen(text);														/*find length of text*/
+	int text_len = strlen(text);                                                        /*find length of text*/
  8005406:	4620      	mov	r0, r4
  8005408:	f7fa feec 	bl	80001e4 <strlen>
-	if (cursor_pos == (text_len - 1) ){                                             	/*reset cursor for wrapping*/
+	if (cursor_pos == (text_len - 1) ){                                                 /*reset cursor for wrapping*/
  800540c:	4d2b      	ldr	r5, [pc, #172]	; (80054bc <LCM1602a_textwrap+0xe0>)
  800540e:	882b      	ldrh	r3, [r5, #0]
  8005410:	1e47      	subs	r7, r0, #1
  8005412:	42bb      	cmp	r3, r7
-	LCM1602a_Write_Data(0b00000010, 0, 0);												/*return display home*/
+	LCM1602a_Write_Data(0b00000010, 0, 0);                                              /*return display home*/
  8005414:	f04f 0200 	mov.w	r2, #0
-		cursor_pos = 0;																	/* " " " */
+		cursor_pos = 0;                                                                 /* " " " */
  8005418:	bf08      	it	eq
  800541a:	2300      	moveq	r3, #0
-	int text_len = strlen(text);														/*find length of text*/
+	int text_len = strlen(text);                                                        /*find length of text*/
  800541c:	4680      	mov	r8, r0
-	LCM1602a_Write_Data(0b00000010, 0, 0);												/*return display home*/
+	LCM1602a_Write_Data(0b00000010, 0, 0);                                              /*return display home*/
  800541e:	4611      	mov	r1, r2
  8005420:	f04f 0002 	mov.w	r0, #2
-		cursor_pos = 0;																	/* " " " */
+		cursor_pos = 0;                                                                 /* " " " */
  8005424:	bf08      	it	eq
  8005426:	802b      	strheq	r3, [r5, #0]
-	LCM1602a_Write_Data(0b00000010, 0, 0);												/*return display home*/
+	LCM1602a_Write_Data(0b00000010, 0, 0);                                              /*return display home*/
  8005428:	f7ff ff4e 	bl	80052c8 <LCM1602a_Write_Data>
-	if(cursor_pos < text_len - 16){                                                 	/*first 16 characters*/
+	if(cursor_pos < text_len - 16){                                                     /*first 16 characters*/
  800542c:	882b      	ldrh	r3, [r5, #0]
  800542e:	f1a8 0210 	sub.w	r2, r8, #16
  8005432:	4293      	cmp	r3, r2
@@ -11280,7 +11284,7 @@ void LCM1602a_textwrap(char* in_text, uint8_t delay){
  800543a:	18e7      	adds	r7, r4, r3
  800543c:	f10d 0307 	add.w	r3, sp, #7
  8005440:	eb03 0908 	add.w	r9, r3, r8
-			LCM1602a_Write_Data((int)text[char_pos], 1, 0);								/* " " " */
+			LCM1602a_Write_Data((int)text[char_pos], 1, 0);                             /* " " " */
  8005444:	f817 0b01 	ldrb.w	r0, [r7], #1
  8005448:	2200      	movs	r2, #0
  800544a:	2101      	movs	r1, #1
@@ -11294,7 +11298,7 @@ void LCM1602a_textwrap(char* in_text, uint8_t delay){
  800545a:	f112 0f10 	cmn.w	r2, #16
  800545e:	d40e      	bmi.n	800547e <LCM1602a_textwrap+0xa2>
  8005460:	4627      	mov	r7, r4
-			LCM1602a_Write_Data((int)text[char_pos], 1, 0);								/* " " " */
+			LCM1602a_Write_Data((int)text[char_pos], 1, 0);                             /* " " " */
  8005462:	2200      	movs	r2, #0
  8005464:	2101      	movs	r1, #1
  8005466:	f817 0b01 	ldrb.w	r0, [r7], #1
@@ -11318,12 +11322,12 @@ void LCM1602a_textwrap(char* in_text, uint8_t delay){
  8005486:	b015      	add	sp, #84	; 0x54
  8005488:	e8bd 83f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, pc}
  800548c:	18e7      	adds	r7, r4, r3
-			LCM1602a_Write_Data((int)text[char_pos], 1, 0);								/* " " " */
+			LCM1602a_Write_Data((int)text[char_pos], 1, 0);                             /* " " " */
  800548e:	2200      	movs	r2, #0
  8005490:	2101      	movs	r1, #1
  8005492:	f817 0b01 	ldrb.w	r0, [r7], #1
  8005496:	f7ff ff17 	bl	80052c8 <LCM1602a_Write_Data>
-		for (int char_pos = cursor_pos; char_pos < cursor_pos + 16 ; char_pos++){		/* " " " */
+		for (int char_pos = cursor_pos; char_pos < cursor_pos + 16 ; char_pos++){       /* " " " */
  800549a:	882b      	ldrh	r3, [r5, #0]
  800549c:	1b3a      	subs	r2, r7, r4
  800549e:	f103 010f 	add.w	r1, r3, #15

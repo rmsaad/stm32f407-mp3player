@@ -14732,59 +14732,59 @@ OUTPUT(stm32f407-mp3player.elf elf32-littlearm)
  .debug_macro   0x000000000002e019      0x56f USB_HOST/Target/usbh_conf.o
  .debug_macro   0x000000000002e588      0x247 USB_HOST/Target/usbh_platform.o
 
-.debug_line     0x0000000000000000    0x2c793
+.debug_line     0x0000000000000000    0x2c78e
  .debug_line    0x0000000000000000      0xc47 Core/Src/freertos.o
  .debug_line    0x0000000000000c47     0x10a7 Core/Src/main.o
- .debug_line    0x0000000000001cee     0x259f Core/Src/mp3player.o
- .debug_line    0x000000000000428d      0x615 Core/Src/songLL.o
- .debug_line    0x00000000000048a2      0xc98 Core/Src/stm32f4xx_hal_msp.o
- .debug_line    0x000000000000553a      0x7c9 Core/Src/stm32f4xx_hal_timebase_tim.o
- .debug_line    0x0000000000005d03      0xbdb Core/Src/stm32f4xx_it.o
- .debug_line    0x00000000000068de      0x4d0 Core/Src/sysmem.o
- .debug_line    0x0000000000006dae      0x7a8 Core/Src/system_stm32f4xx.o
- .debug_line    0x0000000000007556      0xc1b Core/Src/updateLCD.o
- .debug_line    0x0000000000008171       0x85 Core/Startup/startup_stm32f407vgtx.o
- .debug_line    0x00000000000081f6      0x592 Drivers/BSP/Components/cs43l22/cs43l22.o
- .debug_line    0x0000000000008788      0xa5e Drivers/BSP/STM32F4-Discovery/stm32f4_discovery.o
- .debug_line    0x00000000000091e6      0xc7b Drivers/BSP/STM32F4-Discovery/stm32f4_discovery_audio.o
- .debug_line    0x0000000000009e61      0xdc8 Drivers/Display/Src/lcm1602a_driver.o
- .debug_line    0x000000000000ac29      0x97f Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
- .debug_line    0x000000000000b5a8      0xd76 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
- .debug_line    0x000000000000c31e      0xa0b Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
- .debug_line    0x000000000000cd29      0xbf2 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.o
- .debug_line    0x000000000000d91b      0x982 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
- .debug_line    0x000000000000e29d      0xc11 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd.o
- .debug_line    0x000000000000eeae     0x213c Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.o
- .debug_line    0x0000000000010fea      0xd78 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2s.o
- .debug_line    0x0000000000011d62      0xb1e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2s_ex.o
- .debug_line    0x0000000000012880      0xabf Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
- .debug_line    0x000000000001333f      0x911 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.o
- .debug_line    0x0000000000013c50     0x1b26 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
- .debug_line    0x0000000000015776      0xd3e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.o
- .debug_line    0x00000000000164b4      0xfb2 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.o
- .debug_line    0x0000000000017466      0xe64 FATFS/App/fatfs.o
- .debug_line    0x00000000000182ca      0xed9 FATFS/Target/usbh_diskio.o
- .debug_line    0x00000000000191a3     0x10a8 Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc.o
- .debug_line    0x000000000001a24b      0xf43 Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_bot.o
- .debug_line    0x000000000001b18e      0xf8e Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_scsi.o
- .debug_line    0x000000000001c11c     0x112b Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.o
- .debug_line    0x000000000001d247     0x104d Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ctlreq.o
- .debug_line    0x000000000001e294      0xe3b Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ioreq.o
- .debug_line    0x000000000001f0cf      0xdc9 Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_pipes.o
- .debug_line    0x000000000001fe98      0xe8b Middlewares/Third_Party/FatFs/src/diskio.o
- .debug_line    0x0000000000020d23     0x2a65 Middlewares/Third_Party/FatFs/src/ff.o
- .debug_line    0x0000000000023788      0xed8 Middlewares/Third_Party/FatFs/src/ff_gen_drv.o
- .debug_line    0x0000000000024660      0xe9d Middlewares/Third_Party/FatFs/src/option/ccsbcs.o
- .debug_line    0x00000000000254fd      0xe86 Middlewares/Third_Party/FatFs/src/option/syscall.o
- .debug_line    0x0000000000026383      0xd23 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.o
- .debug_line    0x00000000000270a6      0x696 Middlewares/Third_Party/FreeRTOS/Source/list.o
- .debug_line    0x000000000002773c      0xd41 Middlewares/Third_Party/FreeRTOS/Source/queue.o
- .debug_line    0x000000000002847d     0x1041 Middlewares/Third_Party/FreeRTOS/Source/tasks.o
- .debug_line    0x00000000000294be      0x660 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
- .debug_line    0x0000000000029b1e      0x743 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
- .debug_line    0x000000000002a261      0xdfc USB_HOST/App/usb_host.o
- .debug_line    0x000000000002b05d      0xf8d USB_HOST/Target/usbh_conf.o
- .debug_line    0x000000000002bfea      0x7a9 USB_HOST/Target/usbh_platform.o
+ .debug_line    0x0000000000001cee     0x259d Core/Src/mp3player.o
+ .debug_line    0x000000000000428b      0x616 Core/Src/songLL.o
+ .debug_line    0x00000000000048a1      0xc98 Core/Src/stm32f4xx_hal_msp.o
+ .debug_line    0x0000000000005539      0x7c9 Core/Src/stm32f4xx_hal_timebase_tim.o
+ .debug_line    0x0000000000005d02      0xbdb Core/Src/stm32f4xx_it.o
+ .debug_line    0x00000000000068dd      0x4d0 Core/Src/sysmem.o
+ .debug_line    0x0000000000006dad      0x7a8 Core/Src/system_stm32f4xx.o
+ .debug_line    0x0000000000007555      0xc1b Core/Src/updateLCD.o
+ .debug_line    0x0000000000008170       0x85 Core/Startup/startup_stm32f407vgtx.o
+ .debug_line    0x00000000000081f5      0x592 Drivers/BSP/Components/cs43l22/cs43l22.o
+ .debug_line    0x0000000000008787      0xa5e Drivers/BSP/STM32F4-Discovery/stm32f4_discovery.o
+ .debug_line    0x00000000000091e5      0xc7b Drivers/BSP/STM32F4-Discovery/stm32f4_discovery_audio.o
+ .debug_line    0x0000000000009e60      0xdc4 Drivers/Display/Src/lcm1602a_driver.o
+ .debug_line    0x000000000000ac24      0x97f Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o
+ .debug_line    0x000000000000b5a3      0xd76 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o
+ .debug_line    0x000000000000c319      0xa0b Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.o
+ .debug_line    0x000000000000cd24      0xbf2 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.o
+ .debug_line    0x000000000000d916      0x982 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.o
+ .debug_line    0x000000000000e298      0xc11 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd.o
+ .debug_line    0x000000000000eea9     0x213c Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.o
+ .debug_line    0x0000000000010fe5      0xd78 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2s.o
+ .debug_line    0x0000000000011d5d      0xb1e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2s_ex.o
+ .debug_line    0x000000000001287b      0xabf Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.o
+ .debug_line    0x000000000001333a      0x911 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.o
+ .debug_line    0x0000000000013c4b     0x1b26 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
+ .debug_line    0x0000000000015771      0xd3e Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.o
+ .debug_line    0x00000000000164af      0xfb2 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.o
+ .debug_line    0x0000000000017461      0xe64 FATFS/App/fatfs.o
+ .debug_line    0x00000000000182c5      0xed9 FATFS/Target/usbh_diskio.o
+ .debug_line    0x000000000001919e     0x10a8 Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc.o
+ .debug_line    0x000000000001a246      0xf43 Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_bot.o
+ .debug_line    0x000000000001b189      0xf8e Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_scsi.o
+ .debug_line    0x000000000001c117     0x112b Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.o
+ .debug_line    0x000000000001d242     0x104d Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ctlreq.o
+ .debug_line    0x000000000001e28f      0xe3b Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ioreq.o
+ .debug_line    0x000000000001f0ca      0xdc9 Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_pipes.o
+ .debug_line    0x000000000001fe93      0xe8b Middlewares/Third_Party/FatFs/src/diskio.o
+ .debug_line    0x0000000000020d1e     0x2a65 Middlewares/Third_Party/FatFs/src/ff.o
+ .debug_line    0x0000000000023783      0xed8 Middlewares/Third_Party/FatFs/src/ff_gen_drv.o
+ .debug_line    0x000000000002465b      0xe9d Middlewares/Third_Party/FatFs/src/option/ccsbcs.o
+ .debug_line    0x00000000000254f8      0xe86 Middlewares/Third_Party/FatFs/src/option/syscall.o
+ .debug_line    0x000000000002637e      0xd23 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.o
+ .debug_line    0x00000000000270a1      0x696 Middlewares/Third_Party/FreeRTOS/Source/list.o
+ .debug_line    0x0000000000027737      0xd41 Middlewares/Third_Party/FreeRTOS/Source/queue.o
+ .debug_line    0x0000000000028478     0x1041 Middlewares/Third_Party/FreeRTOS/Source/tasks.o
+ .debug_line    0x00000000000294b9      0x660 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.o
+ .debug_line    0x0000000000029b19      0x743 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.o
+ .debug_line    0x000000000002a25c      0xdfc USB_HOST/App/usb_host.o
+ .debug_line    0x000000000002b058      0xf8d USB_HOST/Target/usbh_conf.o
+ .debug_line    0x000000000002bfe5      0x7a9 USB_HOST/Target/usbh_platform.o
 
 .debug_str      0x0000000000000000    0xe6e77
  .debug_str     0x0000000000000000    0xd48fc Core/Src/freertos.o

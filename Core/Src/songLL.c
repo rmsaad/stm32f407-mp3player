@@ -7,6 +7,11 @@
 
 #include <songLL.h>
 
+/**
+  * @brief  create and allocate memory for new node in LL
+  * @param  pcFileName : Name of LL node
+  * @retval MP3 Node variable
+  */
 MP3 *pxSongLLNewElement(char* pcFileName){
 	MP3 *pxNewPointer;
 	pxNewPointer = (MP3 *) malloc(sizeof(MP3));
@@ -17,6 +22,12 @@ MP3 *pxSongLLNewElement(char* pcFileName){
 	return pxNewPointer;
 }
 
+/**
+  * @brief  Add node to end of LL
+  * @param  ppxHead      : pointer to pointer of head of LL
+  * @param  pxNewPointer : pointer to new node
+  * @retval None
+  */
 void vSongLLAddEnd(MP3 **ppxHead, MP3 *pxNewPointer){
 	MP3 *pxPointer2;
 	if((*ppxHead) == NULL){
@@ -31,6 +42,11 @@ void vSongLLAddEnd(MP3 **ppxHead, MP3 *pxNewPointer){
 	}
 }
 
+/**
+  * @brief  Connect Beginning and End of LL together
+  * @param  pxHead : pointer to head of LL
+  * @retval None
+  */
 void vSongLLCircularizeList(MP3 *pxHead){
 	MP3 *pxPointer2;
 	if(pxHead == NULL)
@@ -44,6 +60,11 @@ void vSongLLCircularizeList(MP3 *pxHead){
 	pxPointer2->pxNext = pxHead;
 }
 
+/**
+  * @brief  Prints out all elements of LL
+  * @param  ppxHead : pointer to pointer of head of LL
+  * @retval None
+  */
 void vSongLLPrintList(MP3 **ppxHead){
 	MP3 **ppxTracer = ppxHead;
 	while ((*ppxTracer) != NULL) {

@@ -101,17 +101,17 @@ static void LCM1602a_Hang_Busy_Flag();
   */
 void LCM1602a_Set_DATA8(GPIO_TypeDef *d_Port, uint16_t d_Pins[8], GPIO_TypeDef *c_Port, uint16_t c_Pins[3]){
 
-	transmission_mode = DATA_8;															/*set transmission mode*/
-	data_port = d_Port;																	/*set data port*/
-	control_port = c_Port;																/*set control port*/
-	data_7_pin = d_Pins[7];																/*set D7 pin*/
+	transmission_mode = DATA_8;                                                         /*set transmission mode*/
+	data_port = d_Port;                                                                 /*set data port*/
+	control_port = c_Port;                                                              /*set control port*/
+	data_7_pin = d_Pins[7];                                                             /*set D7 pin*/
 
-	for(int i = 0; i < DATA_8; i++){													/*set data pins*/
-		data_pins[i] = d_Pins[i];														/* " " " */
+	for(int i = 0; i < DATA_8; i++){                                                    /*set data pins*/
+		data_pins[i] = d_Pins[i];                                                       /* " " " */
 	}
 
-	for(int i = 0; i < CONTROL_PIN_COUNT; i++){											/*set control pins*/
-		control_pins[i] = c_Pins[i];													/* " " " */
+	for(int i = 0; i < CONTROL_PIN_COUNT; i++){                                         /*set control pins*/
+		control_pins[i] = c_Pins[i];                                                    /* " " " */
 	}
 
 }
@@ -126,17 +126,17 @@ void LCM1602a_Set_DATA8(GPIO_TypeDef *d_Port, uint16_t d_Pins[8], GPIO_TypeDef *
   */
 void LCM1602a_Set_DATA4(GPIO_TypeDef *d_Port, uint16_t d_Pins[4], GPIO_TypeDef *c_Port, uint16_t c_Pins[3]){
 
-	transmission_mode = DATA_4;															/*set transmission mode*/
-	data_port = d_Port;																	/*set data port*/
-	control_port = c_Port;																/*set control port*/
-	data_7_pin = d_Pins[3];																/*set D7 pin*/
+	transmission_mode = DATA_4;                                                         /*set transmission mode*/
+	data_port = d_Port;                                                                 /*set data port*/
+	control_port = c_Port;                                                              /*set control port*/
+	data_7_pin = d_Pins[3];                                                             /*set D7 pin*/
 
-	for(int i = 0; i < DATA_4; i++){													/*set data pins*/
-		data_pins[i] = d_Pins[i];														/* " " " */
+	for(int i = 0; i < DATA_4; i++){                                                    /*set data pins*/
+		data_pins[i] = d_Pins[i];                                                       /* " " " */
 	}
 
-	for(int i = 0; i < CONTROL_PIN_COUNT; i++){											/*set control pins*/
-		control_pins[i] = c_Pins[i];													/* " " " */
+	for(int i = 0; i < CONTROL_PIN_COUNT; i++){                                         /*set control pins*/
+		control_pins[i] = c_Pins[i];                                                    /* " " " */
 	}
 
 }
@@ -148,11 +148,11 @@ void LCM1602a_Set_DATA4(GPIO_TypeDef *d_Port, uint16_t d_Pins[4], GPIO_TypeDef *
   * @retval None
   */
 static void create_char(uint8_t location, uint8_t charmap[]){
-	location &= 0x7; 																	/*we only have 8 locations 0-7*/
-	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);									/**/
+	location &= 0x7;                                                                    /*we only have 8 locations 0-7*/
+	LCM1602a_Write_Data(0x40 | (location << 3), 0, 0);                                  /**/
 
-	for(int i = 0; i < 8; i++){															/*write char into RAM*/
-		LCM1602a_Write_Data(charmap[i], 1, 0);											/* " " " */
+	for(int i = 0; i < 8; i++){                                                         /*write char into RAM*/
+		LCM1602a_Write_Data(charmap[i], 1, 0);                                          /* " " " */
 	}
 }
 
@@ -165,21 +165,21 @@ static void create_char(uint8_t location, uint8_t charmap[]){
 void LCM1602a_init(uint8_t disp_line){
 
 	if(transmission_mode == DATA_8){
-		create_char(0, Speaker);														/*store custom characters into LCD RAM*/
-		create_char(1, Volume_1);														/* " " " */
-		create_char(2, Volume_2);														/* " " " */
-		create_char(3, Volume_3);														/* " " " */
-		create_char(4, Volume_4);														/* " " " */
+		create_char(0, Speaker);                                                        /*store custom characters into LCD RAM*/
+		create_char(1, Volume_1);                                                       /* " " " */
+		create_char(2, Volume_2);                                                       /* " " " */
+		create_char(3, Volume_3);                                                       /* " " " */
+		create_char(4, Volume_4);                                                       /* " " " */
 
 		if(disp_line == TWO_LINE_DISPLAY){
-			LCM1602a_Write_Data(0b00111000, 0, 0);										/*Initialize the display mode 2 Line*/
+			LCM1602a_Write_Data(0b00111000, 0, 0);                                      /*Initialize the display mode 2 Line*/
 		}else if(disp_line == ONE_LINE_DISPLAY){
-			LCM1602a_Write_Data(0b00110000, 0, 0);										/*Initialize the display mode 1 Line*/
+			LCM1602a_Write_Data(0b00110000, 0, 0);                                      /*Initialize the display mode 1 Line*/
 		}
 
-		LCM1602a_Write_Data(0b00001100, 0, 0);											/*Display on With Cursor off*/
-		LCM1602a_Write_Data(0b00000110, 0, 0);											/*increment on*/
-		LCM1602a_Write_Data(0b00000001, 0, 0);											/*clear the display*/
+		LCM1602a_Write_Data(0b00001100, 0, 0);                                          /*Display on With Cursor off*/
+		LCM1602a_Write_Data(0b00000110, 0, 0);                                          /*increment on*/
+		LCM1602a_Write_Data(0b00000001, 0, 0);                                          /*clear the display*/
 
 	}else if(transmission_mode == DATA_4){
 
@@ -188,11 +188,11 @@ void LCM1602a_init(uint8_t disp_line){
 		LCM1602a_Write4_Data_Single(0b0011, 0, 0); HAL_Delay(5);
 
 		LCM1602a_Write4_Data_Single(0b0010, 0, 0); HAL_Delay(5);
-		LCM1602a_Write_Data(0b00101000, 0, 0);											/*Initialize the display mode 1 Line*/
+		LCM1602a_Write_Data(0b00101000, 0, 0);                                          /*Initialize the display mode 1 Line*/
 
-		LCM1602a_Write_Data(0b00001100, 0, 0);											/*Display on With Cursor off*/
-		LCM1602a_Write_Data(0b00000110, 0, 0);											/*increment on*/
-		LCM1602a_Write_Data(0b00000001, 0, 0);											/*clear the display*/
+		LCM1602a_Write_Data(0b00001100, 0, 0);                                          /*Display on With Cursor off*/
+		LCM1602a_Write_Data(0b00000110, 0, 0);                                          /*increment on*/
+		LCM1602a_Write_Data(0b00000001, 0, 0);                                          /*clear the display*/
 
 
 	}
@@ -217,29 +217,29 @@ void LCM1602a_textwrap(char* in_text, uint8_t delay){
 		return;
 	}
 
-	int text_len = strlen(text);														/*find length of text*/
+	int text_len = strlen(text);                                                        /*find length of text*/
 
-	if (cursor_pos == (text_len - 1) ){                                             	/*reset cursor for wrapping*/
-		cursor_pos = 0;																	/* " " " */
+	if (cursor_pos == (text_len - 1) ){                                                 /*reset cursor for wrapping*/
+		cursor_pos = 0;                                                                 /* " " " */
 	}
 
 
-	LCM1602a_Write_Data(0b00000010, 0, 0);												/*return display home*/
-	//LCM1602a_Write_Data(0b11000000, 0, 0);											/*second line IMPLEMENT LATER*/
+	LCM1602a_Write_Data(0b00000010, 0, 0);                                              /*return display home*/
+	//LCM1602a_Write_Data(0b11000000, 0, 0);                                            /*second line IMPLEMENT LATER*/
 
-	if(cursor_pos < text_len - 16){                                                 	/*first 16 characters*/
-		for (int char_pos = cursor_pos; char_pos < cursor_pos + 16 ; char_pos++){		/* " " " */
-			LCM1602a_Write_Data((int)text[char_pos], 1, 0);								/* " " " */
+	if(cursor_pos < text_len - 16){                                                     /*first 16 characters*/
+		for (int char_pos = cursor_pos; char_pos < cursor_pos + 16 ; char_pos++){       /* " " " */
+			LCM1602a_Write_Data((int)text[char_pos], 1, 0);                             /* " " " */
 		}
 	}
 
 	else{
 		for (int char_pos = cursor_pos; char_pos < (text_len - 1) ; char_pos++){        /*characters of current string*/
-			LCM1602a_Write_Data((int)text[char_pos], 1, 0);								/* " " " */
+			LCM1602a_Write_Data((int)text[char_pos], 1, 0);                             /* " " " */
 		}
 
 		for (int char_pos = 0; char_pos <= 16 - (text_len - cursor_pos); char_pos++){   /*remaining characters*/
-			LCM1602a_Write_Data((int)text[char_pos], 1, 0);								/* " " " */
+			LCM1602a_Write_Data((int)text[char_pos], 1, 0);                             /* " " " */
 		}
 	}
 
@@ -253,10 +253,10 @@ void LCM1602a_textwrap(char* in_text, uint8_t delay){
   * @retval None
   */
 void LCM1602a_Write_Message(char *Message){
-	if (transmission_mode == DATA_8){													/*if 8 Data Lines*/
-		LCM1602a_Write8_Message(Message);													/*use corresponding write function*/
-	}else if(transmission_mode == DATA_4){												/*if 4 Data Lines*/
-		LCM1602a_Write4_Message(Message);													/*use corresponding write function*/
+	if (transmission_mode == DATA_8){                                                   /*if 8 Data Lines*/
+		LCM1602a_Write8_Message(Message);                                                   /*use corresponding write function*/
+	}else if(transmission_mode == DATA_4){                                              /*if 4 Data Lines*/
+		LCM1602a_Write4_Message(Message);                                                   /*use corresponding write function*/
 	}
 }
 
@@ -267,11 +267,11 @@ void LCM1602a_Write_Message(char *Message){
   */
 static void LCM1602a_Write8_Message(char *Message){
 
-	uint16_t Len = (uint16_t)strlen(Message);											/*find length of the message*/
+	uint16_t Len = (uint16_t)strlen(Message);                                           /*find length of the message*/
 
-	for(int i = 0; i < Len; i++){														/*write message to display*/
-		LCM1602a_Write8_Data((int)*Message, 1, 0);										/* " " " */
-		Message++;																		/* " " " */
+	for(int i = 0; i < Len; i++){                                                       /*write message to display*/
+		LCM1602a_Write8_Data((int)*Message, 1, 0);                                      /* " " " */
+		Message++;                                                                      /* " " " */
 	}
 }
 
@@ -282,19 +282,19 @@ static void LCM1602a_Write8_Message(char *Message){
   */
 static void LCM1602a_Write4_Message(char *Message){
 
-	uint16_t Len = (uint16_t)strlen(Message);											/*find length of the message*/
+	uint16_t Len = (uint16_t)strlen(Message);                                           /*find length of the message*/
 
-	for(int i = 0; i < Len; i++){														/*write message to display*/
-		LCM1602a_Write4_Data((int)*Message, 1, 0);										/* " " " */
-		Message++;																		/* " " " */
+	for(int i = 0; i < Len; i++){                                                       /*write message to display*/
+		LCM1602a_Write4_Data((int)*Message, 1, 0);                                      /* " " " */
+		Message++;                                                                      /* " " " */
 	}
 }
 
 void LCM1602a_Write_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
-	if (transmission_mode == DATA_8){													/*if 8 Data Lines*/
-		LCM1602a_Write8_Data(dataValues, RS, RW);											/*use corresponding write function*/
-	}else if(transmission_mode == DATA_4){												/*if 4 Data Lines*/
-		LCM1602a_Write4_Data(dataValues, RS, RW);											/*use corresponding write function*/
+	if (transmission_mode == DATA_8){                                                   /*if 8 Data Lines*/
+		LCM1602a_Write8_Data(dataValues, RS, RW);                                           /*use corresponding write function*/
+	}else if(transmission_mode == DATA_4){                                              /*if 4 Data Lines*/
+		LCM1602a_Write4_Data(dataValues, RS, RW);                                           /*use corresponding write function*/
 	}
 }
 
@@ -307,20 +307,19 @@ void LCM1602a_Write_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
   */
 static void LCM1602a_Write8_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
 
-	LCM1602a_Hang_Busy_Flag();															/*hang until busy flag is reset*/
+	LCM1602a_Hang_Busy_Flag();                                                          /*hang until busy flag is reset*/
 
-	for(int i = 0; i < DATA_8; i++){													/*write to data lines*/
-		HAL_GPIO_WritePin(data_port, data_pins[i] , ((dataValues >> i) & 1));			/* " " " */
-	}																					/* " " " */
+	for(int i = 0; i < DATA_8; i++){                                                    /*write to data lines*/
+		HAL_GPIO_WritePin(data_port, data_pins[i] , ((dataValues >> i) & 1));           /* " " " */
+	}                                                                                   /* " " " */
 
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);                               /*write to control lines RS, RW*/
+	HAL_GPIO_WritePin(control_port, control_pins[1], RW);                               /* " " " */
 
-	HAL_GPIO_WritePin(control_port, control_pins[0], RS);								/*write to control lines RS, RW*/
-	HAL_GPIO_WritePin(control_port, control_pins[1], RW);								/* " " " */
+	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                     /*set E to High*/
 
-	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);						/*set E to High*/
-
-	for(int i = CONTROL_PIN_COUNT - 1; i >= 0; i--){ 									/*reset all control pins*/
-		HAL_GPIO_WritePin(control_port, control_pins[i], GPIO_PIN_RESET);				/* " " " */
+	for(int i = CONTROL_PIN_COUNT - 1; i >= 0; i--){                                    /*reset all control pins*/
+		HAL_GPIO_WritePin(control_port, control_pins[i], GPIO_PIN_RESET);               /* " " " */
 	}
 
 }
@@ -333,19 +332,18 @@ static void LCM1602a_Write8_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
   * @retval None
   */
 static void LCM1602a_Write4_Data_Single(uint8_t dataValues, uint8_t RS, uint8_t RW){
-	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));			/*write to data lines*/
-	HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1)) & 1));			/* " " " */
-	HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2)) & 1));			/* " " " */
-	HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3)) & 1));			/* " " " */
+	HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0)) & 1));          /*write to data lines*/
+	HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1)) & 1));          /* " " " */
+	HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2)) & 1));          /* " " " */
+	HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3)) & 1));          /* " " " */
 
+	HAL_GPIO_WritePin(control_port, control_pins[0], RS);                           /*write to control lines RS, RW*/
+	HAL_GPIO_WritePin(control_port, control_pins[1], RW);                           /* " " " */
 
-	HAL_GPIO_WritePin(control_port, control_pins[0], RS);							/*write to control lines RS, RW*/
-	HAL_GPIO_WritePin(control_port, control_pins[1], RW);							/* " " " */
+	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                 /*set E to High*/
 
-	HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);					/*set E to High*/
-
-	for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){ 								/*reset all control pins*/
-		HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);			/* " " " */
+	for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){                                /*reset all control pins*/
+		HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);           /* " " " */
 	}
 }
 
@@ -360,21 +358,20 @@ static void LCM1602a_Write4_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
 
 	for(int i = 1; i >= 0; i--){
 
-		LCM1602a_Hang_Busy_Flag();														/*hang until busy flag is reset*/
+		LCM1602a_Hang_Busy_Flag();                                                      /*hang until busy flag is reset*/
 
-		HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0 + 4*i)) & 1));	/*write to data lines*/
-		HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1 + 4*i)) & 1));	/* " " " */
-		HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2 + 4*i)) & 1));	/* " " " */
-		HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3 + 4*i)) & 1));	/* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[0], ((dataValues >> (0 + 4*i)) & 1));    /*write to data lines*/
+		HAL_GPIO_WritePin(data_port, data_pins[1], ((dataValues >> (1 + 4*i)) & 1));    /* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[2], ((dataValues >> (2 + 4*i)) & 1));    /* " " " */
+		HAL_GPIO_WritePin(data_port, data_pins[3], ((dataValues >> (3 + 4*i)) & 1));    /* " " " */
 
+		HAL_GPIO_WritePin(control_port, control_pins[0], RS);                           /*write to control lines RS, RW*/
+		HAL_GPIO_WritePin(control_port, control_pins[1], RW);                           /* " " " */
 
-		HAL_GPIO_WritePin(control_port, control_pins[0], RS);							/*write to control lines RS, RW*/
-		HAL_GPIO_WritePin(control_port, control_pins[1], RW);							/* " " " */
+		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                 /*set E to High*/
 
-		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);					/*set E to High*/
-
-		for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){ 								/*reset all control pins*/
-			HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);			/* " " " */
+		for(int j = CONTROL_PIN_COUNT - 1; j >= 0; j--){                                /*reset all control pins*/
+			HAL_GPIO_WritePin(control_port, control_pins[j], GPIO_PIN_RESET);           /* " " " */
 		}
 	}
 
@@ -387,18 +384,18 @@ static void LCM1602a_Write4_Data(uint8_t dataValues, uint8_t RS, uint8_t RW){
   */
 static void LCM1602a_Hang_Busy_Flag(){
 
-	data_port->MODER &= ~(GPIO_PIN_TO_MODER(data_7_pin));								/*set D7 to input*/
+	data_port->MODER &= ~(GPIO_PIN_TO_MODER(data_7_pin));                               /*set D7 to input*/
 
-	while(1){																			/*hang till Busy flag is Low*/
+	while(1){                                                                           /*hang till Busy flag is Low*/
 
-		HAL_GPIO_WritePin(control_port, control_pins[1], GPIO_PIN_SET);					/*set RW and E*/
-		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);					/* " " " */
+		HAL_GPIO_WritePin(control_port, control_pins[1], GPIO_PIN_SET);                 /*set RW and E*/
+		HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_SET);                 /* " " " */
 
-		if(HAL_GPIO_ReadPin(data_port, data_pins[7]) == 0){								/*if Data 7 pin is 0*/
-			HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_RESET);				/*set E back to LOW and stop hanging*/
+		if(HAL_GPIO_ReadPin(data_port, data_pins[7]) == 0){                             /*if Data 7 pin is 0*/
+			HAL_GPIO_WritePin(control_port, control_pins[2], GPIO_PIN_RESET);               /*set E back to LOW and stop hanging*/
 			break;
 		}
 	}
 
-	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);								/*set D7 to output*/
+	data_port->MODER |= GPIO_PIN_TO_MODER_0(data_7_pin);                                /*set D7 to output*/
 }
