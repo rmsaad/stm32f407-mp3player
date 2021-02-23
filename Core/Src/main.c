@@ -5,7 +5,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under Ultimate Liberty license
@@ -17,86 +17,69 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "fatfs.h"
 #include "usb_host.h"
 
-/* Private typedef -----------------------------------------------------------*/
+/* Private includes ----------------------------------------------------------*/
 
-typedef enum{
-  NEXT_TRACK = 0,
-  PAUSE_PLAY,
-  PREV_TRACK,
-}ButtonSelectTypeDef;
+/* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
 
 /* Private macro -------------------------------------------------------------*/
+#define REMAP(X) (((X - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN)) + NEW_MIN
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim2;
-ButtonSelectTypeDef btnsel;
-
+TaskHandle_t xMP3TaskHandle = NULL, xUpdateLCDTaskHandle = NULL,xADCTaskHandle = NULL, xButtonsTaskHandle = NULL;
+MP3 *pxStart = NULL;
+MP3 *pxCurrent = NULL;
+uint8_t ucNewSongFlag = 1;
+uint8_t ucPauseStateFlag = 0;
 extern ApplicationTypeDef Appli_state;
-
-uint8_t change_song = 0;
-uint8_t PressState = 0;
-uint8_t htim1_state = 1;
-MP3 *start = NULL;
-MP3 *current = NULL;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
-void MX_USB_HOST_Process(void);
-static void MX_TIM1_Init(void);
-static void MX_TIM2_Init(void);
+
+void vMP3Playback_TaskHandler(void *params);
+void vUpdateLCD_TaskHandler(void *params);
+void vReadADC_TaskHandler(void *params);
+void vReadInputButtons_TaskHandler(void *params);
 
 /* Private user code ---------------------------------------------------------*/
-
-/**
-  * @brief  printf debugging function call
-  * @retval len
-  */
-int _write(int file, char *ptr, int len){
-	int i=0;
-	for(i =0; i<len ; i++)
-		ITM_SendChar(*ptr++);
-	return len;
-}
-
 /**
   * @brief  gets the file extension
   * @retval char* to first character of file extension
   */
-const char* get_extension(const char *file){
-    const char *period = strrchr(file, '.');																								/*pointer to last occurrence of "."*/
-    if(!period || period == file) return "";																								/*return "" if no "."*/
-    return period + 1;																														/* return pointer to char after "."*/
+const char* pcGetExtension(const char *pcFile){
+    const char *pcPeriod = strrchr(pcFile, '.');																					/*pointer to last occurrence of "."*/
+    if(!pcPeriod || pcPeriod == pcFile) return "";																					/*return "" if no "."*/
+    return pcPeriod + 1;																											/* return pointer to char after "."*/
 }
 
 /**
   * @brief  build a linked list of mp3 files on usb drive
   * @retval none
   */
-void build_mp3_list(){
-	DIR Directory;																															/*directory structure*/
-	FILINFO finf;																															/*file info structure*/
+void vBuildMp3List(){
+	DIR xDirectory;																													/*directory structure*/
+	FILINFO xFinf;																													/*file info structure*/
 
-	if(f_opendir(&Directory, "0:/") == FR_OK){																								/*get the read out protection status*/
-		while(f_readdir(&Directory, &finf) == FR_OK){																						/*start reading directory entries*/
+	if(f_opendir(&xDirectory, "0:/") == FR_OK){																						/*get the read out protection status*/
+		while(f_readdir(&xDirectory, &xFinf) == FR_OK){																				/*start reading directory entries*/
 
-			if(finf.fname[0] == 0)																											/*exit loop when finished*/
-				break;																														/* "" "" "" */
+			if(xFinf.fname[0] == 0)																									/*exit loop when finished*/
+				break;																												/* "" "" "" */
 
-			if (strcmp("mp3", get_extension((char*) finf.fname)) == 0){																		/*make sure file extension is .mp3*/
-				addend(&start, newelement((char*) finf.fname));																					/*add file to linked list of mp3s*/
+			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){																/*make sure file extension is .mp3*/
+				vSongLLAddEnd(&pxStart, pxSongLLNewElement((char*) xFinf.fname));															/*add file to linked list of mp3s*/
 			}
 		}
-		circularize_list(start);																											/*head and tail of LL point to each other*/
-		current = start;																													/*current track is at head of LL*/
+		vSongLLCircularizeList(pxStart);																							/*head and tail of LL point to each other*/
+		pxCurrent = pxStart;																										/*current music track is at head of LL*/
 	}
 }
 
@@ -104,63 +87,43 @@ void build_mp3_list(){
   * @brief  The application entry point.
   * @retval int
   */
-int main(void){
+int main(void)
+{
+  /* MCU Configuration--------------------------------------------------------*/
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
 
-	/* MCU Configuration--------------------------------------------------------*/
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
+  /* Configure the system clock */
+  SystemClock_Config();
 
-	/* Configure the system clock */
-	SystemClock_Config();
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_FATFS_Init();
+  MX_ADC1_Init();
+  LCM1602a_init(TWO_LINE_DISPLAY);
 
-	/* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_USB_HOST_Init();
-	MX_FATFS_Init();
-	MX_TIM1_Init();
-	MX_ADC1_Init();
-	MX_TIM2_Init();
+  /* Create the thread(s) */
+  xTaskCreate(vMP3Playback_TaskHandler, "Task-1", 4500, NULL, 2, &xMP3TaskHandle);
+  xTaskCreate(vUpdateLCD_TaskHandler, "Task-2", 500, NULL, 2, &xUpdateLCDTaskHandle);
+  xTaskCreate(vReadADC_TaskHandler, "Task-3", configMINIMAL_STACK_SIZE, NULL, 2, &xADCTaskHandle);
+  xTaskCreate(vReadInputButtons_TaskHandler, "Task-4", 250, NULL, 2, &xButtonsTaskHandle);
 
-	uint8_t isDriveMounted = 0;
+  /* Start scheduler */
+  vTaskStartScheduler();
 
-	/* Infinite loop */
-	while (1){
-
-		MX_USB_HOST_Process();
-
-		switch(Appli_state){
-			case APPLICATION_IDLE:
-				break;
-
-			case APPLICATION_START:
-				HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
-				break;
-
-			case APPLICATION_READY:
-				if(!isDriveMounted){
-					f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0);
-					isDriveMounted = 1;
-					build_mp3_list();
-					LCM1602a_init(TWO_LINE_DISPLAY);
-					HAL_TIM_Base_Start_IT(&htim2);
-					while(1){
-						mp3player_start(current->mp3name);
-					}
-				}
-				break;
-
-			case APPLICATION_DISCONNECT:
-				HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_RESET);
-				break;
-	  }
-	}
+  /* We should never get here as control is now taken by the scheduler */
+  /* Infinite loop */
+  while (1)
+  {
+  }
 }
 
 /**
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void){
+void SystemClock_Config(void)
+{
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
@@ -180,7 +143,8 @@ void SystemClock_Config(void){
   RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK){
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
     Error_Handler();
   }
   /** Initializes the CPU, AHB and APB buses clocks
@@ -192,13 +156,15 @@ void SystemClock_Config(void){
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK){
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  {
     Error_Handler();
   }
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
   PeriphClkInitStruct.PLLI2S.PLLI2SN = 50;
   PeriphClkInitStruct.PLLI2S.PLLI2SR = 2;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK){
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+  {
     Error_Handler();
   }
 }
@@ -208,8 +174,8 @@ void SystemClock_Config(void){
   * @param None
   * @retval None
   */
-static void MX_ADC1_Init(void){
-
+static void MX_ADC1_Init(void)
+{
   ADC_ChannelConfTypeDef sConfig = {0};
 
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
@@ -226,7 +192,8 @@ static void MX_ADC1_Init(void){
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  if (HAL_ADC_Init(&hadc1) != HAL_OK){
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
     Error_Handler();
   }
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
@@ -234,72 +201,10 @@ static void MX_ADC1_Init(void){
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK){
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
     Error_Handler();
   }
-}
-
-/**
-  * @brief TIM1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM1_Init(void){
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 32000;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 400;
-  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim1) != HAL_OK){
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK){
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK){
-    Error_Handler();
-  }
-}
-
-/**
-  * @brief TIM2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM2_Init(void){
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 16800;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 2000;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim2) != HAL_OK){
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK){
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK){
-    Error_Handler();
-  }
-
-
 }
 
 /**
@@ -307,7 +212,8 @@ static void MX_TIM2_Init(void){
   * @param None
   * @retval None
   */
-static void MX_GPIO_Init(void){
+static void MX_GPIO_Init(void)
+{
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
@@ -352,18 +258,15 @@ static void MX_GPIO_Init(void){
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  HAL_NVIC_SetPriority((IRQn_Type)(EXTI0_IRQn), 15, 0);
-  HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI0_IRQn));
-
-  /*Configure GPIO pin : BOOT1_Pin */
-  GPIO_InitStruct.Pin = BOOT1_Pin;
+  /*Configure GPIO pins : BOOT1_Pin PB12 PB14 */
+  GPIO_InitStruct.Pin = BOOT1_Pin|GPIO_PIN_12|GPIO_PIN_14;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BOOT1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : CLK_IN_Pin */
   GPIO_InitStruct.Pin = CLK_IN_Pin;
@@ -372,21 +275,6 @@ static void MX_GPIO_Init(void){
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
   HAL_GPIO_Init(CLK_IN_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PB12 PB13 PB14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PB12 PB13 PB14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_10;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  HAL_NVIC_SetPriority((IRQn_Type)(EXTI15_10_IRQn), 15, 0);
-  HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI15_10_IRQn));
 
   /*Configure GPIO pins : LD4_Pin LD3_Pin LD5_Pin LD6_Pin
                            Audio_RST_Pin */
@@ -397,8 +285,8 @@ static void MX_GPIO_Init(void){
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : OTG_FS_OverCurrent_Pin */
-  GPIO_InitStruct.Pin = OTG_FS_OverCurrent_Pin;
+  /*Configure GPIO pins : PD10 OTG_FS_OverCurrent_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_10|OTG_FS_OverCurrent_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(OTG_FS_OverCurrent_GPIO_Port, &GPIO_InitStruct);
@@ -411,7 +299,7 @@ static void MX_GPIO_Init(void){
 
   /*Configure GPIO pin : lcm1602a data pins*/
   GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10
-						|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
+  					   |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -434,89 +322,130 @@ static void MX_GPIO_Init(void){
 
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+/**
+  * @brief  Task: Handles USB processing and Mp3 Decoding and play-back
+  * @param  params: Not used
+  * @retval None
+  */
+void vMP3Playback_TaskHandler(void *params)
+{
+  MX_USB_HOST_Init();																												/*init code for USB_HOST*/
+  static uint8_t ucDriveMountedFlag = 0;																							/*Drive Mounted Flag*/
 
-	/* Prevent unused argument(s) compilation warning */
-	UNUSED(htim);
+	  for(;;){																														/* Infinite loop */
+		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){																/*if Ready and Drive is not Mounted*/
+			  ucDriveMountedFlag = 1;																									/*Set the Drive Mounted Flag*/
+			  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
+			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){																/*Mount USB drive*/
+				  vBuildMp3List();																										/*Build Mp3 LL*/
+			  }
+		  }
 
-	if(htim == &htim1){
-		switch(btnsel){
-			case NEXT_TRACK:
-				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-				current = current->next;
-				change_song = 1;
-				break;
+		  if(ucNewSongFlag && ucDriveMountedFlag){																					/*if New Song Flag Set and Drive Mounted Set*/
+			  ucNewSongFlag = 0;																										/*Un-Set New Song Flag*/
+			  vMp3PlayerFindInfo();																										/*Find Mp3 Track info*/
+			  vMp3PlayerInit();																											/*init Mp3 Playback*/
+		  }
 
-			case PAUSE_PLAY:
-				HAL_GPIO_TogglePin(LD5_GPIO_Port, LD5_Pin);
-				if (PressState == 0){
-					BSP_AUDIO_OUT_Pause();
-					PressState = 1;
-				}else{
-					BSP_AUDIO_OUT_Resume();
-					PressState = 0;
-				}
-				break;
 
-			case PREV_TRACK:
-				HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
-				current = current->prev;
-				change_song = 1;
-				break;
+		  for(;;){
+			  if (!ucNewSongFlag && ucDriveMountedFlag){																			/*if New Song Flag Not Set and Drive Mounted Set*/
+				  vMp3PlayerDecodeFrames();																								/*Decode and Play a couple Mp3 Frasmes*/
+				  taskYIELD();																											/*Yield Task*/
+			  }else{
+				  break;
+			  }
+		  }
 
-			default:
-				Error_Handler();
-				break;
-		}
 
-		htim1_state = 1;
-		HAL_TIM_Base_Stop_IT(&htim1);
+	  }
+}
 
-	}else if(htim == &htim2){
-		update_display();
-		HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+/**
+  * @brief  Task: Updates LCD Screen
+  * @param  params: Not used
+  * @retval None
+  */
+void vUpdateLCD_TaskHandler(void *params){
+	for(;;){
+		  vUpdateLCDScreen();																										/*Update LCD Screen With New Information*/
+		  vTaskDelay(500);																											/*Block Task for 500 ms*/
+		  taskYIELD();																												/*Yield Task*/
 	}
 }
 
 /**
-  * @brief  External Button interrupts
+  * @brief  Poll ADC
+  * @param  params: Not used
   * @retval None
   */
-void EXTI15_10_IRQHandler(void){
+void vReadADC_TaskHandler(void *params){
+	for(;;){
+		HAL_ADC_Start(&hadc1);																										/*start ADC conversion*/
+		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);																			/*poll ADC*/
+		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));																		/*get the ADC value*/
+		vTaskDelay(500);																											/*Block Task for 500 ms*/
+		taskYIELD();																												/*Yield Task*/
+	  }
+}
 
-	// next track
-	if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET) {
-		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
-		btnsel = NEXT_TRACK;
+/**
+  * @brief  Poll Buttons
+  * @param  params: Not used
+  * @retval None
+  */
+void vReadInputButtons_TaskHandler(void *params){
+	  /* Infinite loop */
+	  for(;;)
+	  {
+		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){																			/*if Prev button is pressed*/
+			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
+			  pxCurrent = pxCurrent->pxPrev;																							/*Set LL Previous Node*/
+			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
 
-	// pause button
-	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != RESET){
-		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
-		btnsel = PREV_TRACK;
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){																		/*if Pause button is pressed*/
+			  ucPauseStateFlag = ucPauseStateFlag ^ 1;																					/*invert Pause State Flag*/
+			  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
 
+		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){																		/*if Next button is pressed*/
+			  ucNewSongFlag = 1;																										/*Set the New Song Flag*/
+			  pxCurrent = pxCurrent->pxNext;																							/*Set LL to Next Node*/
+			  vTaskDelay(400);																											/*Block Task Button Debouncing*/
+		  }
 
-	// previous track
-	}else if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET){
-		HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
-		btnsel = PAUSE_PLAY;
-	}
+		  vTaskDelay(50);																											/*Block Task for 50 ms*/
+		  taskYIELD();																												/*Yield Task*/
 
-	// timer de-bouncing
-	if (htim1_state == 1){
-		HAL_TIM_Base_Start_IT(&htim1);
-		htim1_state = 0;
-	}else{
-		__NOP();
-	}
+	  }
+}
 
+ /**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM7 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == TIM7) {
+    HAL_IncTick();
+  }
 }
 
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
   */
-void Error_Handler(void){
+void Error_Handler(void)
+{
+  /* User can add his own implementation to report the HAL error return state */
 	HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
+  while (1)
+  {
+  }
 }
 
 #ifdef  USE_FULL_ASSERT
@@ -529,11 +458,7 @@ void Error_Handler(void){
   */
 void assert_failed(uint8_t *file, uint32_t line)
 {
-  /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

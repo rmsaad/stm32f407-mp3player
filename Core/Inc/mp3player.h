@@ -16,21 +16,9 @@ typedef enum{
   BUFFER_OFFSET_FULL,
 }BUFFER_StateTypeDef;
 
-typedef struct{
-	uint32_t current_time;
-	uint32_t total_time;
-	uint32_t volume;
-	uint32_t sample_rate;
-	char cur_time[12];
-	char tot_time[12];
-	char cur_volume[6];
-	char song_name[50];
-	char artist_name[10];
-}DisplayInfoTypeDef;
-
-/*function prototypes*/
-void mp3player_start(char* mp3_name);
-void update_display();
-void update_volume();
+/* Public function prototypes -----------------------------------------------*/
+void vMp3PlayerInit();
+void vMp3PlayerFindInfo();
+void vMp3PlayerDecodeFrames();
 
 #endif /* INC_MP3PLAYER_H_ */

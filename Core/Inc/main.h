@@ -1,4 +1,3 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.h
@@ -17,7 +16,6 @@
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
@@ -31,29 +29,18 @@ extern "C" {
 #include "stm32f4xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "stm32f4_discovery_audio.h"
 #include "mp3player.h"
 #include "lcm1602a_driver.h"
-#include "song_linked_list.h"
-
-/* USER CODE END Includes */
+#include <songLL.h>
+#include "updateLCD.h"
 
 /* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-
-/* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-
-/* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
@@ -129,18 +116,15 @@ void Error_Handler(void);
 #define Audio_SDA_GPIO_Port GPIOB
 #define MEMS_INT2_Pin GPIO_PIN_1
 #define MEMS_INT2_GPIO_Port GPIOE
-/* USER CODE BEGIN Private defines */
+
+
 #define OLD_MIN	0
 #define NEW_MIN	0
 #define OLD_MAX	4095
 #define NEW_MAX	100
-
-/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

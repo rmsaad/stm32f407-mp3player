@@ -5,10 +5,9 @@
  *      Author: Rami
  */
 
+/* Includes ------------------------------------------------------------------*/
 #include <string.h>
 #include "main.h"
-
-/* Generic typedef -----------------------------------------------------------*/
 
 /*Speaker*/
 uint8_t Speaker[8] = {
