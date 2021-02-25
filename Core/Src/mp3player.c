@@ -102,6 +102,7 @@ static void prvMp3PlayerDecode(uint32_t *pulBytesRead, int xInputBufPos){
             ullSamples += mp3dec_decode_frame(&xMp3Dec, (const uint8_t*) &cInputData[n], MP3_BUF - n, (short*) &ucAudioBuffer[xInputBufPos], &xFrameInfo);
         }else{                                                                                                              /*if there are no frames left*/
             ucFindInfoFlag = 1;                                                                                                 /*update mp3 decoding flag*/
+            ucNewSongFlag = 1;
             pxCurrent = pxCurrent->pxNext;                                                                                      /*update LL to point to next track*/
         }
     }else{
