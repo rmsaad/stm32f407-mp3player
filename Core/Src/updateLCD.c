@@ -25,7 +25,7 @@ static void prvUpdateLCDPrintVolume();
   * @retval None
   */
 void vUpdateLCDSetCurrentTime(uint32_t ulSetToCurrentTime){
-	xDisplayInfo.ulCurrentTime = ulSetToCurrentTime;
+    xDisplayInfo.ulCurrentTime = ulSetToCurrentTime;
 }
 
 /**
@@ -33,7 +33,7 @@ void vUpdateLCDSetCurrentTime(uint32_t ulSetToCurrentTime){
   * @retval ""
   */
 uint32_t ulUpdateLCDGetCurrentTime(){
-	return xDisplayInfo.ulCurrentTime;
+    return xDisplayInfo.ulCurrentTime;
 }
 
 /**
@@ -43,13 +43,13 @@ uint32_t ulUpdateLCDGetCurrentTime(){
   */
 void vUpdateLCDSetTotalTime(uint32_t ulSetToTotalTime){
 
-	xDisplayInfo.ulTotalTime = ulSetToTotalTime;
+    xDisplayInfo.ulTotalTime = ulSetToTotalTime;
 
-	if(ulSetToTotalTime != 0){
-		prvUpdateLCDConvertToMinutes(xDisplayInfo.ulTotalTime, xDisplayInfo.cTotalTime);
-	}else{
-		strncpy(xDisplayInfo.cTotalTime , "--:--", 12);
-	}
+    if(ulSetToTotalTime != 0){
+        prvUpdateLCDConvertToMinutes(xDisplayInfo.ulTotalTime, xDisplayInfo.cTotalTime);
+    }else{
+        strncpy(xDisplayInfo.cTotalTime , "--:--", 12);
+    }
 }
 
 /**
@@ -58,7 +58,7 @@ void vUpdateLCDSetTotalTime(uint32_t ulSetToTotalTime){
   * @retval None
   */
 void vUpdateLCDSetVolume(uint32_t ulSetToVolume){
-	xDisplayInfo.ulVolume = ulSetToVolume;
+    xDisplayInfo.ulVolume = ulSetToVolume;
 }
 
 /**
@@ -66,7 +66,7 @@ void vUpdateLCDSetVolume(uint32_t ulSetToVolume){
   * @retval ""
   */
 uint32_t ulUpdateLCDGetVolume(){
-	return xDisplayInfo.ulVolume;
+    return xDisplayInfo.ulVolume;
 }
 
 /**
@@ -75,7 +75,7 @@ uint32_t ulUpdateLCDGetVolume(){
   * @retval None
   */
 void vUpdateLCDSetSampleRate(uint32_t ulSetToSampleRate){
-	xDisplayInfo.ulSampleRate = ulSetToSampleRate;
+    xDisplayInfo.ulSampleRate = ulSetToSampleRate;
 }
 
 /**
@@ -83,7 +83,7 @@ void vUpdateLCDSetSampleRate(uint32_t ulSetToSampleRate){
   * @retval ""
   */
 uint32_t ulUpdateLCDGetSampleRate(){
-	return xDisplayInfo.ulSampleRate;
+    return xDisplayInfo.ulSampleRate;
 }
 
 /**
@@ -92,7 +92,7 @@ uint32_t ulUpdateLCDGetSampleRate(){
   * @retval None
   */
 void vUpdateLCDSetMp3Track(const char * pcMp3Track){
-	strncpy(xDisplayInfo.cMp3Track, pcMp3Track, 50);
+    strncpy(xDisplayInfo.cMp3Track, pcMp3Track, 50);
 }
 
 /**
@@ -102,9 +102,9 @@ void vUpdateLCDSetMp3Track(const char * pcMp3Track){
   * @retval None
   */
 static void prvUpdateLCDConvertToMinutes(uint32_t ulSeconds, char cTimeString[12]){
-	uint32_t minutes = ulSeconds/60;                                                                                                /*minutes calculation*/
-	ulSeconds = ulSeconds - ((ulSeconds/60) * 60);                                                                                  /*seconds calculation*/
-	sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);                                                                        /*convert to string*/
+    uint32_t minutes = ulSeconds/60;                                                                                                /*minutes calculation*/
+    ulSeconds = ulSeconds - ((ulSeconds/60) * 60);                                                                                  /*seconds calculation*/
+    sprintf(cTimeString, "%02ld:%02ld", minutes, ulSeconds);                                                                        /*convert to string*/
 }
 
 /**
@@ -114,21 +114,21 @@ static void prvUpdateLCDConvertToMinutes(uint32_t ulSeconds, char cTimeString[12
   */
 static void prvUpdateLCDPrintVolume(){
 
-	LCM1602a_Write_Data(SPEAKER, 1, 0);                                                                                             /*print speaker character*/
+    LCM1602a_Write_Data(SPEAKER, 1, 0);                                                                                             /*print speaker character*/
 
-	if(xDisplayInfo.ulVolume < 25){                                                                                                 /*if volume less than 25*/
-		LCM1602a_Write_Data(VOLUME1, 1, 0);                                                                                             /* #--- */
-		LCM1602a_Write_Message((char*) " ");
-	}else if(xDisplayInfo.ulVolume < 50){																							/*else if volume less than 50*/
-		LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* ##-- */
-		LCM1602a_Write_Message((char*) " ");
-	}else if(xDisplayInfo.ulVolume < 75){                                                                                           /*else if volume less than 75*/
-		LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* ###- */
-		LCM1602a_Write_Data(VOLUME3, 1, 0);
-	}else if(xDisplayInfo.ulVolume <= 100){                                                                                         /*else if volume less than / equal to 100*/
-		LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* #### */
-		LCM1602a_Write_Data(VOLUME4, 1, 0);
-	}
+    if(xDisplayInfo.ulVolume < 25){                                                                                                 /*if volume less than 25*/
+        LCM1602a_Write_Data(VOLUME1, 1, 0);                                                                                             /* #--- */
+        LCM1602a_Write_Message((char*) " ");
+    }else if(xDisplayInfo.ulVolume < 50){																							/*else if volume less than 50*/
+        LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* ##-- */
+        LCM1602a_Write_Message((char*) " ");
+    }else if(xDisplayInfo.ulVolume < 75){                                                                                           /*else if volume less than 75*/
+        LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* ###- */
+        LCM1602a_Write_Data(VOLUME3, 1, 0);
+    }else if(xDisplayInfo.ulVolume <= 100){                                                                                         /*else if volume less than / equal to 100*/
+        LCM1602a_Write_Data(VOLUME2, 1, 0);                                                                                             /* #### */
+        LCM1602a_Write_Data(VOLUME4, 1, 0);
+    }
 }
 
 /**
@@ -137,14 +137,14 @@ static void prvUpdateLCDPrintVolume(){
   * @retval None
   */
 void vUpdateLCDScreen(){
-	prvUpdateLCDConvertToMinutes(xDisplayInfo.ulCurrentTime, xDisplayInfo.cCurrentTime);                                            /*convert current time to character string*/
-	LCM1602a_Write_Data(0b00000010, 0, 0);                                                                                          /*Return to Home position on display*/
-	LCM1602a_textwrap((char*) xDisplayInfo.cMp3Track, 1);
-	LCM1602a_Write_Data(0b11000000, 0, 0);                                                                                          /*next line on display*/
-	LCM1602a_Write_Message((char*) xDisplayInfo.cCurrentTime);                                                                      /*display time information*/
-	LCM1602a_Write_Message((char*) "/");                                                                                            /* "" "" "" */
-	LCM1602a_Write_Message((char*) xDisplayInfo.cTotalTime);                                                                        /* "" "" "" */
-	LCM1602a_Write_Message((char*) " ");                                                                                            /*space character*/
-	prvUpdateLCDPrintVolume();                                                                                                      /*current volume*/
+    prvUpdateLCDConvertToMinutes(xDisplayInfo.ulCurrentTime, xDisplayInfo.cCurrentTime);                                            /*convert current time to character string*/
+    LCM1602a_Write_Data(0b00000010, 0, 0);                                                                                          /*Return to Home position on display*/
+    LCM1602a_textwrap((char*) xDisplayInfo.cMp3Track, 1);
+    LCM1602a_Write_Data(0b11000000, 0, 0);                                                                                          /*next line on display*/
+    LCM1602a_Write_Message((char*) xDisplayInfo.cCurrentTime);                                                                      /*display time information*/
+    LCM1602a_Write_Message((char*) "/");                                                                                            /* "" "" "" */
+    LCM1602a_Write_Message((char*) xDisplayInfo.cTotalTime);                                                                        /* "" "" "" */
+    LCM1602a_Write_Message((char*) " ");                                                                                            /*space character*/
+    prvUpdateLCDPrintVolume();                                                                                                      /*current volume*/
 }
 

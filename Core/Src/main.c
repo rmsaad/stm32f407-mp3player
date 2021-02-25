@@ -36,6 +36,7 @@ TaskHandle_t xMP3TaskHandle = NULL, xUpdateLCDTaskHandle = NULL,xADCTaskHandle =
 MP3 *pxStart = NULL;
 MP3 *pxCurrent = NULL;
 uint8_t ucNewSongFlag = 1;
+uint8_t ucFindInfoFlag = 1;
 uint8_t ucPauseStateFlag = 0;
 extern ApplicationTypeDef Appli_state;
 
@@ -65,22 +66,22 @@ const char* pcGetExtension(const char *pcFile){
   * @retval none
   */
 void vBuildMp3List(){
-	DIR xDirectory;                                                                                                                 /*directory structure*/
-	FILINFO xFinf;                                                                                                                  /*file info structure*/
+    DIR xDirectory;                                                                                                                 /*directory structure*/
+    FILINFO xFinf;                                                                                                                  /*file info structure*/
 
-	if(f_opendir(&xDirectory, "0:/") == FR_OK){                                                                                     /*get the read out protection status*/
-		while(f_readdir(&xDirectory, &xFinf) == FR_OK){                                                                             /*start reading directory entries*/
+    if(f_opendir(&xDirectory, "0:/") == FR_OK){                                                                                     /*get the read out protection status*/
+        while(f_readdir(&xDirectory, &xFinf) == FR_OK){                                                                             /*start reading directory entries*/
 
-			if(xFinf.fname[0] == 0)                                                                                                 /*exit loop when finished*/
-				break;                                                                                                              /* "" "" "" */
+            if(xFinf.fname[0] == 0)                                                                                                 /*exit loop when finished*/
+                break;                                                                                                              /* "" "" "" */
 
-			if (strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){                                                           /*make sure file extension is .mp3*/
-				vSongLLAddEnd(&pxStart, pxSongLLNewElement((char*) xFinf.fname));                                                       /*add file to linked list of mp3s*/
-			}
-		}
-		vSongLLCircularizeList(pxStart);                                                                                            /*head and tail of LL point to each other*/
-		pxCurrent = pxStart;                                                                                                        /*current music track is at head of LL*/
-	}
+            if(strcmp("mp3", pcGetExtension((char*) xFinf.fname)) == 0){                                                            /*make sure file extension is .mp3*/
+                vSongLLAddEnd(&pxStart, pxSongLLNewElement((char*) xFinf.fname));                                                       /*add file to linked list of mp3s*/
+            }
+        }
+        vSongLLCircularizeList(pxStart);                                                                                            /*head and tail of LL point to each other*/
+        pxCurrent = pxStart;                                                                                                        /*current music track is at head of LL*/
+    }
 }
 
 /**
@@ -89,33 +90,45 @@ void vBuildMp3List(){
   */
 int main(void)
 {
-  /* MCU Configuration--------------------------------------------------------*/
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
 
-  /* Configure the system clock */
-  SystemClock_Config();
+    /*SEGGER SYSVIEW RECORDING*/
+#ifdef SEGGER_SYSVIEW_DEBUGGING
+    DWT->CTRL |= (1 << 0);
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_FATFS_Init();
-  MX_ADC1_Init();
-  LCM1602a_init(TWO_LINE_DISPLAY);
+    NVIC_SetPriorityGrouping( 0 );
 
-  /* Create the thread(s) */
-  xTaskCreate(vMP3Playback_TaskHandler, "Task-1", 4500, NULL, 2, &xMP3TaskHandle);
-  xTaskCreate(vUpdateLCD_TaskHandler, "Task-2", 500, NULL, 2, &xUpdateLCDTaskHandle);
-  xTaskCreate(vReadADC_TaskHandler, "Task-3", configMINIMAL_STACK_SIZE, NULL, 2, &xADCTaskHandle);
-  xTaskCreate(vReadInputButtons_TaskHandler, "Task-4", 250, NULL, 2, &xButtonsTaskHandle);
+    SEGGER_SYSVIEW_Conf();
+    SEGGER_SYSVIEW_Start();
+#endif
 
-  /* Start scheduler */
-  vTaskStartScheduler();
+    /* MCU Configuration--------------------------------------------------------*/
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
-  /* We should never get here as control is now taken by the scheduler */
-  /* Infinite loop */
-  while (1)
-  {
-  }
+    /* Configure the system clock */
+    SystemClock_Config();
+
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_FATFS_Init();
+    MX_ADC1_Init();
+
+    LCM1602a_init(TWO_LINE_DISPLAY);
+
+    /* Create the thread(s) */
+    xTaskCreate(vMP3Playback_TaskHandler,      "Mp3 Play-back", 4500,                     NULL, 2, &xMP3TaskHandle);
+    xTaskCreate(vUpdateLCD_TaskHandler,        "Update LCD",    250,                      NULL, 2, &xUpdateLCDTaskHandle);
+    xTaskCreate(vReadADC_TaskHandler,          "Read ADC",      configMINIMAL_STACK_SIZE, NULL, 2, &xADCTaskHandle);
+    xTaskCreate(vReadInputButtons_TaskHandler, "Read Buttons",  configMINIMAL_STACK_SIZE, NULL, 2, &xButtonsTaskHandle);
+
+    /* Start scheduler */
+    vTaskStartScheduler();
+
+    /* We should never get here as control is now taken by the scheduler */
+    /* Infinite loop */
+    while (1)
+    {
+    }
 }
 
 /**
@@ -314,12 +327,9 @@ static void MX_GPIO_Init(void)
 
   /*set lcm1602a Data Ports in driver file*/
   uint16_t data_pins[8] = {GPIO_PIN_7, GPIO_PIN_9, GPIO_PIN_11, GPIO_PIN_13, GPIO_PIN_8, GPIO_PIN_10, GPIO_PIN_12, GPIO_PIN_14};
-  //uint16_t data_pins[4] = {GPIO_PIN_11, GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14};
   uint16_t control_pins[3] = {GPIO_PIN_1, GPIO_PIN_5, GPIO_PIN_4};
 
   LCM1602a_Set_DATA8(GPIOE, data_pins, GPIOC, control_pins);
-  //LCM1602a_Set_DATA4(GPIOE, data_pins, GPIOC, control_pins);
-
 }
 
 /**
@@ -329,36 +339,33 @@ static void MX_GPIO_Init(void)
   */
 void vMP3Playback_TaskHandler(void *params)
 {
-  MX_USB_HOST_Init();                                                                                                               /*init code for USB_HOST*/
-  static uint8_t ucDriveMountedFlag = 0;                                                                                            /*Drive Mounted Flag*/
+    MX_USB_HOST_Init();                                                                                                            /*init code for USB_HOST*/
+    static uint8_t ucDriveMountedFlag = 0;                                                                                         /*Drive Mounted Flag*/
 
-	  for(;;){                                                                                                                      /*Infinite loop*/
-		  if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){                                                                  /*if Ready and Drive is not Mounted*/
-			  ucDriveMountedFlag = 1;                                                                                                   /*Set the Drive Mounted Flag*/
-			  HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
-			  if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){                                                              /*Mount USB drive*/
-				  vBuildMp3List();                                                                                                      /*Build Mp3 LL*/
-			  }
-		  }
+    for(;;){                                                                                                                       /*Infinite loop*/
+        if(Appli_state == APPLICATION_READY && !ucDriveMountedFlag){                                                                   /*if Ready and Drive is not Mounted*/
+            ucDriveMountedFlag = 1;                                                                                                    /*Set the Drive Mounted Flag*/
+            HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, GPIO_PIN_SET);
+            if(f_mount(&USBHFatFS, (const TCHAR*)USBHPath, 0) == FR_OK){                                                               /*Mount USB drive*/
+                vBuildMp3List();                                                                                                       /*Build Mp3 LL*/
+            }
+        }
 
-		  if(ucNewSongFlag && ucDriveMountedFlag){                                                                                  /*if New Song Flag Set and Drive Mounted Set*/
-			  ucNewSongFlag = 0;                                                                                                        /*Un-Set New Song Flag*/
-			  vMp3PlayerFindInfo();                                                                                                     /*Find Mp3 Track info*/
-			  vMp3PlayerInit();                                                                                                         /*init Mp3 Playback*/
-		  }
+        if(ucFindInfoFlag && ucDriveMountedFlag){                                                                                  /*if New Song Flag Set and Drive Mounted Set*/
+            ucFindInfoFlag = 0;                                                                                                        /*Un-Set New Song Flag*/
+            vMp3PlayerFindInfo();                                                                                                      /*Find Mp3 Track info*/
+            vMp3PlayerInit();                                                                                                          /*init Mp3 Playback*/
+        }
 
-
-		  for(;;){
-			  if (!ucNewSongFlag && ucDriveMountedFlag){                                                                            /*if New Song Flag Not Set and Drive Mounted Set*/
-				  vMp3PlayerDecodeFrames();                                                                                             /*Decode and Play a couple Mp3 Frasmes*/
-				  taskYIELD();                                                                                                          /*Yield Task*/
-			  }else{
-				  break;
-			  }
-		  }
-
-
-	  }
+        for(;;){
+            if(!ucFindInfoFlag && ucDriveMountedFlag){                                                                             /*if New Song Flag Not Set and Drive Mounted Set*/
+                vMp3PlayerDecodeFrames();                                                                                              /*Decode and Play a couple Mp3 Frasmes*/
+                taskYIELD();                                                                                                           /*Yield Task*/
+            }else{
+                break;
+            }
+        }
+    }
 }
 
 /**
@@ -367,11 +374,10 @@ void vMP3Playback_TaskHandler(void *params)
   * @retval None
   */
 void vUpdateLCD_TaskHandler(void *params){
-	for(;;){
-		  vUpdateLCDScreen();                                                                                                       /*Update LCD Screen With New Information*/
-		  vTaskDelay(500);                                                                                                          /*Block Task for 500 ms*/
-		  taskYIELD();                                                                                                              /*Yield Task*/
-	}
+    for(;;){
+        vUpdateLCDScreen();                                                                                                        /*Update LCD Screen With New Information*/
+        vTaskDelay(500);                                                                                                           /*Block Task for 500 ms*/                                                                                                          /*Yield Task*/
+    }
 }
 
 /**
@@ -380,13 +386,12 @@ void vUpdateLCD_TaskHandler(void *params){
   * @retval None
   */
 void vReadADC_TaskHandler(void *params){
-	for(;;){
-		HAL_ADC_Start(&hadc1);                                                                                                      /*start ADC conversion*/
-		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);                                                                           /*poll ADC*/
-		vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));                                                                       /*get the ADC value*/
-		vTaskDelay(500);                                                                                                            /*Block Task for 500 ms*/
-		taskYIELD();                                                                                                                /*Yield Task*/
-	  }
+    for(;;){
+        HAL_ADC_Start(&hadc1);                                                                                                     /*start ADC conversion*/
+        HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);                                                                          /*poll ADC*/
+        vUpdateLCDSetVolume(REMAP(HAL_ADC_GetValue(&hadc1)));                                                                      /*get the ADC value*/
+        vTaskDelay(500);                                                                                                           /*Block Task for 500 ms*/
+    }
 }
 
 /**
@@ -395,29 +400,25 @@ void vReadADC_TaskHandler(void *params){
   * @retval None
   */
 void vReadInputButtons_TaskHandler(void *params){
-	  /* Infinite loop */
-	  for(;;)
-	  {
-		  if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){                                                                            /*if Prev button is pressed*/
-			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
-			  pxCurrent = pxCurrent->pxPrev;                                                                                            /*Set LL Previous Node*/
-			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
+    /* Infinite loop */
+    for(;;){
+        if(HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_10) == 0){                                                                             /*if Prev button is pressed*/
+            ucNewSongFlag = 1;                                                                                                         /*Set the New Song Flag*/
+            pxCurrent = pxCurrent->pxPrev;                                                                                             /*Set LL Previous Node*/
+            vTaskDelay(400);                                                                                                           /*Block Task Button Debouncing*/
 
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){                                                                      /*if Pause button is pressed*/
-			  ucPauseStateFlag = ucPauseStateFlag ^ 1;                                                                                  /*invert Pause State Flag*/
-			  HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
+        }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0){                                                                       /*if Pause button is pressed*/
+            ucPauseStateFlag = ucPauseStateFlag ^ 1;                                                                                   /*invert Pause State Flag*/
+            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+            vTaskDelay(400);                                                                                                           /*Block Task Button Debouncing*/
 
-		  }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){                                                                      /*if Next button is pressed*/
-			  ucNewSongFlag = 1;                                                                                                        /*Set the New Song Flag*/
-			  pxCurrent = pxCurrent->pxNext;                                                                                            /*Set LL to Next Node*/
-			  vTaskDelay(400);                                                                                                          /*Block Task Button Debouncing*/
-		  }
-
-		  vTaskDelay(50);                                                                                                           /*Block Task for 50 ms*/
-		  taskYIELD();                                                                                                              /*Yield Task*/
-
-	  }
+        }else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_12) == 0){                                                                       /*if Next button is pressed*/
+            ucNewSongFlag = 1;                                                                                                         /*Set the New Song Flag*/
+            pxCurrent = pxCurrent->pxNext;                                                                                             /*Set LL to Next Node*/
+            vTaskDelay(400);                                                                                                           /*Block Task Button Debouncing*/
+        }
+        vTaskDelay(50);                                                                                                            /*Block Task for 50 ms*/
+    }
 }
 
  /**
@@ -430,9 +431,9 @@ void vReadInputButtons_TaskHandler(void *params){
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  if (htim->Instance == TIM7) {
-    HAL_IncTick();
-  }
+    if (htim->Instance == TIM7) {
+        HAL_IncTick();
+    }
 }
 
 /**
@@ -442,10 +443,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* User can add his own implementation to report the HAL error return state */
-	HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
-  while (1)
-  {
-  }
+    HAL_GPIO_WritePin(LD5_GPIO_Port, LD5_Pin, GPIO_PIN_SET);
+    while (1)
+    {
+    }
 }
 
 #ifdef  USE_FULL_ASSERT
