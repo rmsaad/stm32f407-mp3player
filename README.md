@@ -4,6 +4,8 @@
 
 STMf407 based mp3 player application.
 
+##### Please read the [PDF](Mp3PlayerReport.pdf) for more information on this project 
+
 #### Functions
 * Decode mp3 files from usb drive and play audio using DMA transfer callbacks.
 * Dynamic volume adjustment.

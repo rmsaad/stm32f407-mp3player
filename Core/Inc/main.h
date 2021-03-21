@@ -122,7 +122,7 @@ void Error_Handler(void);
 #define NEW_MIN	0
 #define OLD_MAX	4095
 #define NEW_MAX	100
-//#define SEGGER_SYSVIEW_DEBUGGING
+#define SEGGER_SYSVIEW_DEBUGGING
 
 #ifdef __cplusplus
 }
